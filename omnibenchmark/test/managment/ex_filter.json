@@ -1,0 +1,16 @@
+{
+	"filter_combinations": [
+		{
+			"param1": 10,
+			"param2": "test"
+		},
+		{
+			"param1": 10,
+			"param2": "new test"
+		},
+		{
+			"param1": 60,
+			"param2": 2
+		}
+	]
+}

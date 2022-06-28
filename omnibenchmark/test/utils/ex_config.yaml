@@ -1,0 +1,68 @@
+---
+data:
+    name: "out_dataset"
+    title: "example omniobject output"
+    description: "This dataset is supposed to store the output files from the example omniobject"
+    keywords: ["example"]
+script: "path/to/method/dataset/metric/script.py"
+interpreter: "python"
+command_line: "python path/to/method/dataset/metric/script.py --count_file data/import_this_dataset/...mtx.gz"
+benchmark_name: "omni_celltype"
+orchestrator: "https://renkulab.io/knowledge-graph/projects/omnibenchmark/orchestrator"
+inputs:
+  keywords: ["import_this"]
+  files: ["count_file", "dim_red_file"]
+  prefix:
+    count_file: "counts"
+    dim_red_file: ["features", "genes"]
+  input_files:
+    import_this_dataset:
+      count_file: "data/import_this_dataset/import_this_dataset__counts.mtx.gz"
+      dim_red_file: "data/import_this_dataset/import_this_dataset__dim_red_file.json"
+  default: "import_this_dataset"
+outputs:
+  template: "data/${name}/${name}_${unique_values}_${out_name}.${out_end}"
+  template_vars:
+    vars1: "random"
+    vars2: "variable"
+  files:
+    corrected_counts: 
+        end: ".mtx.gz"
+    meta:
+        end: ".json"
+  file_mapping:
+    mapping1: 
+      output_files:
+        corrected_counts: "data/out_dataset/out_dataset_import_this__param1_10__param2_test_corrected_counts.mtx.gz"
+        meta: "data/out_dataset/out_dataset_import_this__param1_10__param2_test_meta.json"
+      input_files:
+        count_file: "data/import_this_dataset/import_this_dataset__counts.mtx.gz"
+        dim_red_file: "data/import_this_dataset/import_this_dataset__dim_red_file.json"
+      parameter:
+        param1: 10
+        param2: "test"
+  default:
+      corrected_counts: "data/out_dataset/out_dataset_import_this__param1_10__param2_test_corrected_counts.mtx.gz"
+      meta: "data/out_dataset/out_dataset_import_this__param1_10__param2_test_meta.json"
+parameter:
+  names: ["param1", "param2"]
+  keywords: ["param_dataset"]
+  default:
+    param1: 10
+    param2: "test"
+  values:
+    param1: [10, 20]
+    param2: "test"
+  combinations:
+    comb1:
+      param1: 10
+      param2: "test"
+    comb2:
+      param1: 20
+      param2: "test"
+  filter:
+    param1:
+      upper: 50
+      lower: 3
+    param2:
+      exclude: "dont_run_this_value"

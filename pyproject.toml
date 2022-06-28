@@ -1,0 +1,57 @@
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omnibenchmark"
+version = "0.0.1"
+authors = [
+  { name="Almut Lütge", email="almut.lue@gmail.com" },
+]
+description = "Omnibenchmark core utilities: Setup and running of continous benchmarking modules as part of omnibenchmark"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+keywords  = ["benchmark", "omnibenchmark", "renku"]
+
+dependencies = [
+    "renku >= 1.3.0",
+    "requests",
+    "iteration_utilities",
+    "typeguard",
+    "trycast",
+    "lxml",
+    "python-gitlab",
+]
+
+[project.optional-dependencies]
+dev = ["black", "bumpver", "pytest", "mypy"]
+
+[project.urls]
+"Homepage" = "https://omnibenchmark.pages.uzh.ch/omni_dash"
+"Code" = "https://github.com/almutlue/omnibenchmark-py"
+"Bug Tracker" = "https://github.com/almutlue/omnibenchmark-py/issues"
+"Documentation" = "https://omnibenchmark.readthedocs.io"
+
+[tool.bumpver]
+current_version = "0.0.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+]
+"README.md" = [
+    "{version}",
+    "{pep440_version}",
+]
+
