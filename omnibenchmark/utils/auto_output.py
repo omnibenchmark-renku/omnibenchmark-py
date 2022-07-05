@@ -85,12 +85,12 @@ def get_out_names_from_input_params(
 
 @option_list
 def get_input_file_list(inputs: Optional[OmniInput]) -> List:
-    return list(inputs.input_files.keys())  # type: ignore
+    return list(inputs.input_files.keys()) if inputs.input_files is not None else []  # type: ignore
 
 
 @option_list
 def get_parameter_combinations(parameter: Optional[OmniParameter]) -> List:
-    return parameter.combinations  # type: ignore
+    return parameter.combinations if parameter.combinations is not None else [] # type: ignore
 
 
 @option_list
@@ -157,6 +157,7 @@ def get_all_output_combinations(
             temp_vars = kwargs
         try:
             input_str = next(iter(comb["input_files"].keys()))
+            comb["input_files"] = comb["input_files"][input_str]
         except:
             input_str = None
         finally:
@@ -188,19 +189,27 @@ def get_all_output_combinations(
 def get_default(omni_class: Optional[Union[OmniParameter, OmniInput]]):
     return omni_class.default  # type: ignore
 
+@option_list
+def get_default_input(omni_input: Optional[OmniInput]):
+    def_input_nam = omni_input.default                      # type: ignore
+    if def_input_nam is not None:                           
+        return omni_input.input_files[def_input_nam]        # type: ignore
+    else: 
+        return []  
+
 
 def get_default_outputs(
     file_mapping: List[OutMapping],
     inputs: Optional[OmniInput] = None,
     parameter: Optional[OmniParameter] = None,
 ) -> Optional[Mapping]:
-    def_input = get_default(inputs)
+    def_input = get_default_input(inputs)
     def_param = get_default(parameter)
     def_out = None
     for out_dict in file_mapping:
         if (
             out_dict["input_files"] is not None
-            and out_dict["input_files"].keys() == def_input
+            and out_dict["input_files"] == def_input
             and out_dict["parameter"] == def_param
         ):
             def_out = out_dict["output_files"]

@@ -1,8 +1,9 @@
 """Functions to facilitate automatic input generation from file/object, usually config.yaml"""
 
-from typing import Dict, Mapping, List, Optional
+from typing import Dict, Mapping, List
 from omnibenchmark.utils.exceptions import ParameterError
 from renku.ui.api.models.dataset import Dataset
+import re
 import os
 import json
 
@@ -20,10 +21,12 @@ def get_input_files_from_prefix(
     for data in key_data:
         input_files[data.name] = {}
         for file_type, prefixes in input_prefix.items():
+            prefixes = [prefixes] if not isinstance(prefixes, list) else prefixes                     # type: ignore
+            pat_list = [re.compile(pattern) for pattern in prefixes]
             in_file = [
                 fi.path
                 for fi in data.files
-                if any(os.path.basename(fi.path).startswith(pre) for pre in prefixes)
+                if any(pattern.search(os.path.basename(fi.path)) for pattern in pat_list)
             ]
             if len(in_file) > 1:
                 print(
@@ -34,7 +37,7 @@ def get_input_files_from_prefix(
                 break
             elif len(in_file) < 1:
                 print(
-                    f"WARNING:Could not find any input file starting with prefix {prefixes}.\n"
+                    f"WARNING:Could not find any input file matching the following pattern {prefixes}.\n"
                     f"Please make sure you specified a correct prefix! \n"
                     f"Input dataset {data} will be ignored!"
                 )

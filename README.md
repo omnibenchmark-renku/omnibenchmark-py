@@ -111,9 +111,9 @@ Once these steps ran successfully and your outputs were generated the module is 
 
 * 0.1.1
     * FIX: 
-* 0.1.0
-    * The first proper release
-    * CHANGE: 
+* 0.0.2
+    * FIX:
+    * automatic command detection, file_mapping.input_files structure
 * 0.0.1
     * First version of all main functionalities
 

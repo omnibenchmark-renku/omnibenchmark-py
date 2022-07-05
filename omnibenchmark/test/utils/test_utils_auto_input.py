@@ -45,8 +45,30 @@ def test_get_input_files_from_prefix_works_incomplete(
     captured = capsys.readouterr()
     assert test_join == {}
     assert re.match(
-        r"WARNING:Could not find any input file starting with prefix*?", captured.out
+        r"WARNING:Could not find any input file matching the following pattern*?", captured.out
     )
+
+def test_get_input_files_from_prefix_works_regexpr(
+    mock_api_Dataset, mock_prefix, monkeypatch
+):
+    del mock_prefix["count_file"]
+    mock_prefix["dim_red_file"] = ["features", "file"]
+    
+    def get_mock_list():
+        return [mock_api_Dataset]
+
+    monkeypatch.setattr(
+        renku.ui.api.models.dataset.Dataset,
+        "list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
+
+    test_join = omni.get_input_files_from_prefix(
+        input_prefix=mock_prefix, keyword=["mock", "some"]
+    )
+    assert test_join == {
+        "mock_dataset": {"dim_red_file": "some/path/to/genes_file.txt"}
+    }
 
 
 # get_parameter_from_dataset

@@ -26,7 +26,7 @@ def is_renku_project(path: Union[os.PathLike, str] = os.getcwd()) -> bool:
 
 def find_orchestrator(
     benchmark_name: str,
-    bench_url: str = "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks.html",
+    bench_url: str = "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks",
     key_header: str = "Benchmark_name",
     o_header: str = "Orchestrator",
 ) -> Optional[str]:

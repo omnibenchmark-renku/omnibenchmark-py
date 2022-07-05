@@ -58,6 +58,6 @@ def test_find_orchestrator_not_existing_key(monkeypatch, mock_html_content):
 @pytest.mark.api_call
 def test_find_orchestrator_works():
     assert (
-        general_checks.find_orchestrator("omni_batch")
-        == "https://renkulab.io/knowledge-graph/projects/omnibenchmark/orchestrator"
+        general_checks.find_orchestrator("omni_batch_py")
+        == "https://renkulab.io/knowledge-graph/projects/omnibenchmark/omni-batch-py/orchestrator-py"
     )
