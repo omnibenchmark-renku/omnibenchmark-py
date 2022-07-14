@@ -27,10 +27,7 @@ def mock_config():
 
 @pytest.fixture
 def mock_paramDatasetFile():
-    ent = Entity(
-        path="omnibenchmark/test/utils/ex_param.json",
-        checksum="XDFGHJK",
-    )
+    ent = Entity(path="omnibenchmark/test/utils/ex_param.json", checksum="XDFGHJK")
     mock_data_fi = RenkuDatasetFile(entity=ent)
     return mock_data_fi
 

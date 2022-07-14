@@ -13,8 +13,8 @@ def join_parameter(parameter: Optional[Mapping[str, str]] = None) -> str:
         [
             "{}_{}".format(str(param_nam), param_val)
             for param_nam, param_val in zip(
-                parameter.keys(), parameter.values()         # type: ignore
-            )  
+                parameter.keys(), parameter.values()  # type: ignore
+            )
         ]
     )
     return all_params
@@ -85,12 +85,16 @@ def get_out_names_from_input_params(
 
 @option_list
 def get_input_file_list(inputs: Optional[OmniInput]) -> List:
-    return list(inputs.input_files.keys()) if inputs.input_files is not None else []  # type: ignore
+    return (
+        list(inputs.input_files.keys()) if inputs.input_files is not None else []       # type: ignore
+    )  
 
 
 @option_list
 def get_parameter_combinations(parameter: Optional[OmniParameter]) -> List:
-    return parameter.combinations if parameter.combinations is not None else [] # type: ignore
+    return (
+        parameter.combinations if parameter.combinations is not None else []             # type: ignore
+    )  
 
 
 @option_list
@@ -189,13 +193,14 @@ def get_all_output_combinations(
 def get_default(omni_class: Optional[Union[OmniParameter, OmniInput]]):
     return omni_class.default  # type: ignore
 
+
 @option_list
 def get_default_input(omni_input: Optional[OmniInput]):
-    def_input_nam = omni_input.default                      # type: ignore
-    if def_input_nam is not None:                           
-        return omni_input.input_files[def_input_nam]        # type: ignore
-    else: 
-        return []  
+    def_input_nam = omni_input.default  # type: ignore
+    if def_input_nam is not None:
+        return omni_input.input_files[def_input_nam]  # type: ignore
+    else:
+        return []
 
 
 def get_default_outputs(

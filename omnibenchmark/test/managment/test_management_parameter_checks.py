@@ -86,10 +86,7 @@ def test_filter_parameter_no_filter(mock_param_values):
 # Test filter_parameter_combinations
 def test_filter_parameter_combinations_works(mock_combinations):
 
-    filt = {
-        "file": "omnibenchmark/test/managment/ex_filter.json",
-        "upper": "50",
-    }
+    filt = {"file": "omnibenchmark/test/managment/ex_filter.json", "upper": "50"}
     param_comb = parameter_checks.filter_parameter_combinations(
         mock_combinations, filter=filt
     )
@@ -98,10 +95,7 @@ def test_filter_parameter_combinations_works(mock_combinations):
 
 def test_filter_parameter_combinations_different_formats(mock_combinations):
     mock_combinations[1]["param1"] = "10"
-    filt = {
-        "file": "omnibenchmark/test/managment/ex_filter.json",
-        "upper": "50",
-    }
+    filt = {"file": "omnibenchmark/test/managment/ex_filter.json", "upper": "50"}
     param_comb = parameter_checks.filter_parameter_combinations(
         mock_combinations, filter=filt
     )

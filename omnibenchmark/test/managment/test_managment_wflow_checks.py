@@ -46,9 +46,7 @@ def test_activity_plan_is_valid_valid_activity(mock_activity, monkeypatch, act_g
         lambda *args, **kwargs: get_mock_activity(),
     )
     monkeypatch.setattr(
-        general_checks,
-        "is_renku_project",
-        lambda *args, **kwargs: get_mock_status(),
+        general_checks, "is_renku_project", lambda *args, **kwargs: get_mock_status()
     )
 
     assert (
@@ -67,13 +65,12 @@ def test_filter_activity_exist_gateway_establishment(mock_activity, monkeypatch)
         "get_activities_by_generation",
         lambda *args, **kwargs: get_mock_activity(),
     )
+
     def get_mock_status():
         return True
 
     monkeypatch.setattr(
-        general_checks,
-        "is_renku_project",
-        lambda *args, **kwargs: get_mock_status(),
+        general_checks, "is_renku_project", lambda *args, **kwargs: get_mock_status()
     )
 
     assert wflow_checks.filter_activity_exist(["test_output1", "test_output2"]) == [
@@ -134,13 +131,12 @@ def test_get_plan_id_from_output_with_plan(mock_activity, monkeypatch, act_gatew
         "get_activities_by_generation",
         lambda *args, **kwargs: get_mock_activity(),
     )
+
     def get_mock_status():
         return True
 
     monkeypatch.setattr(
-        general_checks,
-        "is_renku_project",
-        lambda *args, **kwargs: get_mock_status(),
+        general_checks, "is_renku_project", lambda *args, **kwargs: get_mock_status()
     )
 
     assert wflow_checks.get_plan_id_from_output(

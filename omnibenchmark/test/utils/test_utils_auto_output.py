@@ -114,10 +114,12 @@ def test_get_input_file_list_no_input():
     test_input = omni.get_input_file_list()
     assert test_input == []
 
+
 def test_get_input_file_list_with_none_inputfiles(mock_omni_input):
     mock_omni_input.input_files = None
     test_input = omni.get_input_file_list(mock_omni_input)
     assert test_input == []
+
 
 # get_parameter_combinations
 def test_get_parameter_combinations_with_parameter(
@@ -248,7 +250,7 @@ def test_get_all_output_combinations_no_param(mock_omni_input):
     assert all_out[0] == {
         "input_files": {
             "count_file": "path/to/count",
-            "dim_red_file": "path/to/dim/red"
+            "dim_red_file": "path/to/dim/red",
         },
         "output_files": {"dim_red": "data/test_out/test_out_data1_dim_red.mtx.gz"},
         "parameter": None,
@@ -265,8 +267,8 @@ def test_get_all_output_combinations_new_template(mock_omni_input):
     )
     assert all_out[0] == {
         "input_files": {
-            "count_file": "path/to/count", 
-            "dim_red_file": "path/to/dim/red"
+            "count_file": "path/to/count",
+            "dim_red_file": "path/to/dim/red",
         },
         "output_files": {"dim_red": "data/test_out/test_out_data1_dim_red_new.mtx.gz"},
         "parameter": None,
@@ -291,8 +293,8 @@ def test_get_all_output_combinations_template_function(mock_omni_input):
     )
     assert all_out[0] == {
         "input_files": {
-            "count_file": "path/to/count", 
-            "dim_red_file": "path/to/dim/red"
+            "count_file": "path/to/count",
+            "dim_red_file": "path/to/dim/red",
         },
         "output_files": {
             "dim_red": "data/test_out/test_out_data1_dim_red_multi.mtx.gz"

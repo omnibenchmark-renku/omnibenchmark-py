@@ -29,7 +29,11 @@ def activity_plan_is_valid(
     Returns:
         output, if a valid acitivity exists, else None
     """
-    all_activities = activity_gateway.get_activities_by_generation(output) if general_checks.is_renku_project() else []
+    all_activities = (
+        activity_gateway.get_activities_by_generation(output)
+        if general_checks.is_renku_project()
+        else []
+    )
     valid_activities = [
         act
         for act in all_activities
@@ -56,6 +60,7 @@ def filter_activity_exist(outputs: List[str]) -> List[Union[PathLike, str, None]
 
 
 ## Plans
+
 
 def get_all_plans() -> List[Plan]:
     """Get all existing plans in a project
@@ -103,8 +108,12 @@ def get_plan_id_from_output(output: str, activity_gateway=ActivityGateway) -> Li
     Returns:
         str: The default output value of the renku plan
     """
-    
-    all_activities = activity_gateway.get_activities_by_generation(output) if general_checks.is_renku_project() else []
+
+    all_activities = (
+        activity_gateway.get_activities_by_generation(output)
+        if general_checks.is_renku_project()
+        else []
+    )
     return [act.association.plan.id for act in all_activities]
 
 

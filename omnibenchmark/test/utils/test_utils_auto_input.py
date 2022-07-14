@@ -45,15 +45,17 @@ def test_get_input_files_from_prefix_works_incomplete(
     captured = capsys.readouterr()
     assert test_join == {}
     assert re.match(
-        r"WARNING:Could not find any input file matching the following pattern*?", captured.out
+        r"WARNING:Could not find any input file matching the following pattern*?",
+        captured.out,
     )
+
 
 def test_get_input_files_from_prefix_works_regexpr(
     mock_api_Dataset, mock_prefix, monkeypatch
 ):
     del mock_prefix["count_file"]
     mock_prefix["dim_red_file"] = ["features", "file"]
-    
+
     def get_mock_list():
         return [mock_api_Dataset]
 

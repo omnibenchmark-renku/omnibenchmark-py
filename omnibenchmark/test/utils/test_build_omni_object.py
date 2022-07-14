@@ -277,9 +277,7 @@ def test_build_omni_object_from_config_yaml_template_fun():
 
 # Test get_omni_object_from_yaml
 def test_get_omni_object_from_yaml_works():
-    omni_obj = omni.get_omni_object_from_yaml(
-        "omnibenchmark/test/utils/ex_config.yaml"
-    )
+    omni_obj = omni.get_omni_object_from_yaml("omnibenchmark/test/utils/ex_config.yaml")
     assert isinstance(omni_obj, OmniObject)
 
 
@@ -291,9 +289,7 @@ def test_get_omni_object_from_yaml_no_input(monkeypatch, mock_config):
 
     monkeypatch.setattr(yaml, "load", return_mock_config)
 
-    omni_obj = omni.get_omni_object_from_yaml(
-        "omnibenchmark/test/utils/ex_config.yaml"
-    )
+    omni_obj = omni.get_omni_object_from_yaml("omnibenchmark/test/utils/ex_config.yaml")
     assert isinstance(omni_obj, OmniObject)
 
 

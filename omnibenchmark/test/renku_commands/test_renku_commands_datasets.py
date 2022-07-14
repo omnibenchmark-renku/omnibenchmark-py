@@ -12,7 +12,7 @@ import shutil
 def test_renku_dataset_create_for_existing_dataset(get_renkuDataset_List, monkeypatch):
     def get_mock_status():
         return True
-    
+
     monkeypatch.setattr(
         omnibenchmark.management.general_checks,
         "is_renku_project",
@@ -25,7 +25,7 @@ def test_renku_dataset_create_for_existing_dataset(get_renkuDataset_List, monkey
 def test_renku_dataset_create_for_dataset_name_exist(mock_dataset_query, monkeypatch):
     def get_mock_status():
         return True
-    
+
     monkeypatch.setattr(
         omnibenchmark.management.general_checks,
         "is_renku_project",
@@ -83,7 +83,7 @@ def test_renku_dataset_update_no_project_context(no_project_context):
 def test_renku_dataset_update_no_input(monkeypatch):
     def get_mock_status():
         return True
-    
+
     monkeypatch.setattr(
         omnibenchmark.management.general_checks,
         "is_renku_project",
@@ -96,7 +96,7 @@ def test_renku_dataset_update_no_input(monkeypatch):
 def test_renku_dataset_update_ambigous_inputs(monkeypatch):
     def get_mock_status():
         return True
-    
+
     monkeypatch.setattr(
         omnibenchmark.management.general_checks,
         "is_renku_project",
@@ -112,13 +112,13 @@ def test_renku_dataset_update_ambigous_inputs(monkeypatch):
 def test_renku_dataset_update_ambigous_inputs2(monkeypatch):
     def get_mock_status():
         return True
-    
+
     monkeypatch.setattr(
         omnibenchmark.management.general_checks,
         "is_renku_project",
         lambda *args, **kwargs: get_mock_status(),
     )
-    
+
     with pytest.raises(
         errors.ParameterError, match=r"Cannot pass include/exclude with update_all"
     ):

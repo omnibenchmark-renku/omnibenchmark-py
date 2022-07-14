@@ -326,6 +326,7 @@ def mock_omni_parameter(mock_param_values, mock_combinations):
 
 # Omni output related fixtures
 
+
 @pytest.fixture
 def mock_out_mapping():
     map: OutMapping = {

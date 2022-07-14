@@ -87,13 +87,17 @@ def get_data_info_by_id(
 
 
 def find_dataset_linked_to_wflow(
-    info_list: List[Mapping], top: int = 2
+    info_list: List[Mapping], top: int = 2, filter_pat: str = "meta"
 ) -> List[Mapping]:
     origin_info = []
     for info in info_list:
         data_files = info["hasPart"]
-        for data_loc in data_files[:top]:
-            data_file = data_loc["atLocation"]
+        data_file_list = [
+            data_fi["atLocation"]
+            for data_fi in data_files
+            if filter_pat not in data_fi["atLocation"]
+        ]
+        for data_file in data_file_list[:top]:
             file_lineage = requests.get(
                 info["project"]["_links"][0]["href"]
                 + "/files/"
@@ -124,6 +128,13 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
             origin_info = [info for info in dup_info if info["identifier"] in all_ids]
         else:
             origin_info = find_dataset_linked_to_wflow(dup_info)
+        if len(origin_info) == 0:
+            print(
+                f"WARNING: Could not identify origin of {dup}.\n"
+                f"If you anyways want to use and import it, consider manual import:\n"
+                f"renku dataset import DATA_URL"
+            )
+            continue
         uni_list.append(*origin_info)
     return uni_list
 
