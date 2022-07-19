@@ -188,17 +188,24 @@ def get_all_output_combinations(
         out_list.append(out_map)
     return out_list
 
+def convert_values_to_string(d: Mapping) -> Mapping:
+    return {key: str(d[key]) for key in d.keys()}
 
 @option_list
 def get_default(omni_class: Optional[Union[OmniParameter, OmniInput]]):
-    return omni_class.default  # type: ignore
+    default_val = omni_class.default            # type: ignore
+    if isinstance(default_val, dict):
+        default_val = convert_values_to_string(default_val)
+    return default_val  
 
 
 @option_list
 def get_default_input(omni_input: Optional[OmniInput]):
     def_input_nam = omni_input.default  # type: ignore
     if def_input_nam is not None:
-        return omni_input.input_files[def_input_nam]  # type: ignore
+        return convert_values_to_string(
+            omni_input.input_files[def_input_nam]   # type: ignore
+            ) 
     else:
         return []
 
@@ -221,3 +228,13 @@ def get_default_outputs(
     if isinstance(def_out, type(None)):
         def_out = file_mapping[0]["output_files"]
     return def_out
+
+
+def add_missing_file_map_keys(file_map: OutMapping) -> OutMapping:
+    for map_key in ["input_files", "parameter"]:
+        if map_key not in file_map.keys():
+            file_map[map_key] = None                         # type:ignore
+    return file_map
+
+def autocomplete_file_mapping(file_mapping: List[OutMapping]) -> List[OutMapping]:
+    return [add_missing_file_map_keys(file_map) for file_map in file_mapping]

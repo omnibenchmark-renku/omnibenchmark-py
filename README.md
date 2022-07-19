@@ -109,8 +109,13 @@ Once these steps ran successfully and your outputs were generated the module is 
 
 ## Release History
 
-* 0.1.1
-    * FIX: 
+* 0.0.4 - 0.0.6
+    * FIX:
+    * convert defaults to string to generate plan 
+    * adapt output default  
+* 0.0.3
+    * FIX:
+    * automatic input detection from prefixes for files from the same dataset 
 * 0.0.2
     * FIX:
     * automatic command detection, file_mapping.input_files structure

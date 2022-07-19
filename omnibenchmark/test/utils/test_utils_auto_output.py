@@ -342,7 +342,7 @@ def test_get_default_input(mock_omni_input):
 
 
 def test_get_default_parameter(mock_omni_parameter):
-    assert omni.get_default(mock_omni_parameter) == {"param1": 0, "param2": "test"}
+    assert omni.get_default(mock_omni_parameter) == {"param1": "0", "param2": "test"}
 
 
 def test_get_default_none():

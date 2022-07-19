@@ -6,6 +6,7 @@ from omnibenchmark.utils.exceptions import InputError, OutputError
 from omnibenchmark.utils.auto_output import (
     get_all_output_combinations,
     get_default_outputs,
+    autocomplete_file_mapping,
 )
 from omnibenchmark.utils.auto_run import map_plan_names_file_types
 from omnibenchmark.core.input_classes import OmniInput, OmniParameter, OutMapping
@@ -41,7 +42,7 @@ class OmniOutput:
         self.parameter = parameter
         self.default = default
         self.template_fun = template_fun
-        self.template_vars = template_vars
+        self.template_vars = template_vars if template_vars is not None else {}
 
         if self.file_mapping is None:
 
@@ -51,25 +52,17 @@ class OmniOutput:
                 )
 
             check_name_matching(self.out_names, self.output_end.keys())
-            if self.template_vars is not None:
-                self.file_mapping: OutMapping = get_all_output_combinations(  # type: ignore
-                    name=self.name,
-                    output_end=self.output_end,
-                    out_template=self.out_template,
-                    inputs=self.inputs,
-                    parameter=self.parameter,
-                    template_fun=self.template_fun,
-                    **self.template_vars,
-                )
-            else:
-                self.file_mapping: OutMapping = get_all_output_combinations(  # type: ignore
-                    name=self.name,
-                    output_end=self.output_end,
-                    out_template=self.out_template,
-                    inputs=self.inputs,
-                    parameter=self.parameter,
-                    template_fun=self.template_fun,
-                )
+            self.file_mapping = get_all_output_combinations(  
+                name=self.name,
+                output_end=self.output_end,
+                out_template=self.out_template,
+                inputs=self.inputs,
+                parameter=self.parameter,
+                template_fun=self.template_fun,
+                **self.template_vars,
+            )
+        
+        self.file_mapping = autocomplete_file_mapping(self.file_mapping)
 
         check_name_matching(
             self.out_names,
@@ -91,8 +84,9 @@ class OmniOutput:
             check_name_matching(self.out_names, self.default.keys())
 
     def update_outputs(self):
-        if self.template_vars is not None:
-            self.file_mapping: OutMapping = get_all_output_combinations(  # type: ignore
+        if self.inputs is not None or self.parameter is not None:
+            self.template_vars = self.template_vars if self.template_vars is not None else {}
+            new_file_mapping = get_all_output_combinations( 
                 name=self.name,
                 output_end=self.output_end,
                 out_template=self.out_template,
@@ -101,15 +95,9 @@ class OmniOutput:
                 template_fun=self.template_fun,
                 **self.template_vars,
             )
-        else:
-            self.file_mapping: OutMapping = get_all_output_combinations(  # type: ignore
-                name=self.name,
-                output_end=self.output_end,
-                out_template=self.out_template,
-                inputs=self.inputs,
-                parameter=self.parameter,
-                template_fun=self.template_fun,
-            )
+            ex_file_mapping = self.file_mapping if self.file_mapping is not None else []
+            all_file_mappings = ex_file_mapping + new_file_mapping
+            self.file_mapping = list({str(i):i for i in all_file_mappings}.values())
 
         check_name_matching(
             self.out_names,
@@ -127,7 +115,7 @@ class OmniOutput:
                 inputs=self.inputs,
                 parameter=self.parameter,
             )
-        return self
+        #return self
 
 
 class OmniCommand:

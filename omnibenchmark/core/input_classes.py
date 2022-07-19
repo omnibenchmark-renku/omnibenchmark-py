@@ -90,7 +90,7 @@ class OmniInput:
             if self.input_files is not None:
                 if self.default is None:
                     self.default = next(iter(self.input_files.items()))[0]
-        return self
+        #return self
 
 
 class OmniParameter:
@@ -157,7 +157,7 @@ class OmniParameter:
                 )
                 if self.default is None:
                     self.default = self.combinations[0]
-        return self
+        #return self
 
 
 class OutMapping(TypedDict):

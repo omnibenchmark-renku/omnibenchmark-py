@@ -123,14 +123,14 @@ class OmniObject(OmniRenkuInst):
                     f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs"
                 )
         if self.inputs is not None:
-            self.inputs = self.inputs.update_inputs(
+            self.inputs.update_inputs(
                 orchestrator=self.orchestrator,
                 query_url=self.DATA_QUERY_URL,
                 data_url=self.DATA_URL,
                 gitlab_url=self.GIT_URL,
             )
         if self.parameter is not None:
-            self.parameter = self.parameter.update_parameter(
+            self.parameter.update_parameter(
                 orchestrator=self.orchestrator,
                 query_url=self.DATA_QUERY_URL,
                 data_url=self.DATA_URL,
@@ -139,9 +139,9 @@ class OmniObject(OmniRenkuInst):
         if self.outputs is not None:
             self.outputs.inputs = self.inputs
             self.outputs.parameter = self.parameter
-            self.outputs = self.outputs.update_outputs()
+            self.outputs.update_outputs()
 
-        return self
+        #return self
 
     def execute_plan_without_KG(
         self, inputs, parameter, outputs, time_out: Optional[int] = None
