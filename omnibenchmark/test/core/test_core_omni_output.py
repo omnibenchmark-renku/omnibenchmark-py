@@ -5,6 +5,8 @@ import pytest
 
 ### Test OmniOutput class
 def test_omni_output_with_output_mapping(mock_out_mapping):
+    mock_out_mapping["input_files"] = None
+    mock_out_mapping["parameter"] = None
     test_output = OmniOutput(
         name="mock_res",
         out_names=["out_file1", "out_file2"],
@@ -48,6 +50,8 @@ def test_omni_output_without_mapping_works():
 
 
 def test_omni_output_automatic_default(mock_out_mapping):
+    mock_out_mapping["input_files"] = None
+    mock_out_mapping["parameter"] = None
     test_output = OmniOutput(
         name="mock_res",
         out_names=["out_file1", "out_file2"],

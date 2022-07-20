@@ -109,10 +109,12 @@ Once these steps ran successfully and your outputs were generated the module is 
 
 ## Release History
 
-* 0.0.4 - 0.0.6
+* 0.0.4 - 0.0.7
     * FIX:
     * convert defaults to string to generate plan 
-    * adapt output default  
+    * adapt output default
+    * dependency between command line call and renku input definitions
+    * ignore not existing defaults
 * 0.0.3
     * FIX:
     * automatic input detection from prefixes for files from the same dataset 

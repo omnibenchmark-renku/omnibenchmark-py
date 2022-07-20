@@ -14,7 +14,7 @@ from omnibenchmark.management.run_commands import (
 )
 from omnibenchmark.management.general_checks import find_orchestrator, is_renku_project
 from omnibenchmark.management.data_commands import update_dataset_files
-from omnibenchmark.utils.auto_output import get_default, get_default_input
+from omnibenchmark.utils.auto_output import get_default, convert_values_to_string
 from omnibenchmark.utils.user_input_checks import empty_object_to_none
 from omnibenchmark.utils.exceptions import InputError
 from omnibenchmark.utils.default_global_vars import OmniRenkuInst
@@ -89,9 +89,9 @@ class OmniObject(OmniRenkuInst):
         self.command = check_omni_command(self.command, self.script, self.outputs)
         out_files = get_all_output_file_names(self.outputs)
         check_output_directories(out_files)
-        input_default = empty_object_to_none(get_default_input(self.inputs))
-        param_default = empty_object_to_none(get_default(self.parameter))
-        out_default = empty_object_to_none(get_default(self.outputs))
+        input_default = empty_object_to_none(convert_values_to_string(self.command.input_val))
+        param_default = empty_object_to_none(convert_values_to_string(self.command.parameter_val))
+        out_default = empty_object_to_none(get_default(self.command.outputs))
         self.omni_plan = manage_renku_plan(
             out_files=out_files,
             omni_plan=self.omni_plan,

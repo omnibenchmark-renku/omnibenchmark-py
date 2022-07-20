@@ -4,6 +4,8 @@ import itertools
 
 from omnibenchmark.core.input_classes import OmniInput, OmniParameter, OutMapping
 from omnibenchmark.utils.decorators import option_list, option_str
+from omnibenchmark.utils.exceptions import InputError
+from omnibenchmark.utils.user_input_checks import empty_object_to_none
 
 
 @option_str
@@ -188,8 +190,9 @@ def get_all_output_combinations(
         out_list.append(out_map)
     return out_list
 
-def convert_values_to_string(d: Mapping) -> Mapping:
-    return {key: str(d[key]) for key in d.keys()}
+@option_list
+def convert_values_to_string(d: Optional[Mapping]):
+    return {key: str(d[key]) for key in d.keys()}         #type: ignore
 
 @option_list
 def get_default(omni_class: Optional[Union[OmniParameter, OmniInput]]):
@@ -209,6 +212,20 @@ def get_default_input(omni_input: Optional[OmniInput]):
     else:
         return []
 
+def check_default_settings(default_inputs: Optional[Mapping], default_outputs: Optional[Mapping], default_params: Optional[Mapping], defaults: OutMapping) -> OutMapping:
+    if (
+        default_outputs == defaults["output_files"]
+        and default_params == convert_values_to_string(defaults["parameter"])
+        and default_inputs == convert_values_to_string(defaults["input_files"])
+    ): 
+        return defaults
+    else:
+        raise InputError(
+            f'Default mappings do not match as expected.\n'
+            f'Please check the specified defaults:\n {default_inputs}, {default_outputs}, {default_params}\n.'
+            f'Default file mapping:\n {defaults}'
+        )
+
 
 def get_default_outputs(
     file_mapping: List[OutMapping],
@@ -220,13 +237,16 @@ def get_default_outputs(
     def_out = None
     for out_dict in file_mapping:
         if (
-            out_dict["input_files"] is not None
-            and out_dict["input_files"] == def_input
-            and out_dict["parameter"] == def_param
+            not all(element is None for element in [out_dict["input_files"], out_dict["parameter"]])
+            and convert_values_to_string(out_dict["input_files"]) == def_input
+            and convert_values_to_string(out_dict["parameter"]) == def_param
         ):
             def_out = out_dict["output_files"]
+            def_map = out_dict
     if isinstance(def_out, type(None)):
         def_out = file_mapping[0]["output_files"]
+        def_map = file_mapping[0]
+    def_map = check_default_settings(default_inputs = def_input, default_outputs= def_out, default_params=def_param, defaults=def_map)
     return def_out
 
 

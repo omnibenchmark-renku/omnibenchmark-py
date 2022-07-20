@@ -125,11 +125,15 @@ class OmniCommand:
         interpreter: str = None,
         command_line: str = None,
         outputs: OmniOutput = None,
+        input_val: Optional[Mapping] = None,
+        parameter_val: Optional[Mapping] = None,
     ):
         self.script = script
         self.interpreter = interpreter
         self.command_line = command_line
         self.outputs = outputs
+        self.iput_val = input_val,
+        self.parameter_val = parameter_val
 
         if self.command_line is None:
             if self.outputs is None or self.outputs.file_mapping is None:
@@ -137,7 +141,7 @@ class OmniCommand:
                     f'Can not infer command without Output definition. Please specify either "command_line" or "outputs".'
                 )
             output_val = self.outputs.default
-            input_val = next(
+            self.input_val = next(
                 (
                     out_dict["input_files"]
                     for out_dict in self.outputs.file_mapping
@@ -145,7 +149,7 @@ class OmniCommand:
                 ),
                 None,
             )
-            parameter_val = next(
+            self.parameter_val = next(
                 (
                     out_dict["parameter"]
                     for out_dict in self.outputs.file_mapping
@@ -160,9 +164,9 @@ class OmniCommand:
             self.command_line = automatic_command_generation(
                 self.script,
                 interpreter=self.interpreter,
-                inputs=input_val,
+                inputs=self.input_val,
                 outputs=output_val,
-                parameters=parameter_val,
+                parameters=self.parameter_val,
             )
         ## Add command checks!
 

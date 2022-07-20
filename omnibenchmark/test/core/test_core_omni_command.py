@@ -26,5 +26,5 @@ def test_omni_command_with_output(mock_omni_output):
     )
     assert (
         test_command.command_line
-        == 'julia path/to/some/sricpt.jl --in_file1 "path/to/in1" --out_file1 "path/to/out1" --out_file2 "path/to/out2" --param1 "str_value" --param2 "100"'
+        == 'julia path/to/some/sricpt.jl --dim_red_file "path/to/dim/red" --count_file "path/to/count" --out_file1 "path/to/out1" --out_file2 "path/to/out2" --param1 "0" --param2 "test"'
     )

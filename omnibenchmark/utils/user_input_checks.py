@@ -53,3 +53,21 @@ def parse_explicit_inputs(obj: Optional[Mapping]) -> List:
         return []
     else:
         return list(obj.values())
+
+def check_default_parameter(default_params: Optional[Mapping], param_combinations: Optional[List[Mapping]]) -> Optional[Mapping]:
+    if default_params is not None and (param_combinations is None or len(param_combinations) < 1):
+        raise InputError(
+            f'No parameter input detected, but default specified.\n'
+            f'Did you intend to run different parameter? If yes please check the parameter input.\n'
+            f'Otherwise please do not specify default parameter outside your script.'
+        )
+    if default_params is None or default_params in param_combinations or len(default_params) == 0:          #type: ignore
+        return default_params
+    else:
+        print(
+            f'WARNING: The specified parameter defaults are not part of the parameter space.\n'
+            f'The specified defaults will be ignored!\n'
+            f'Please check your defaults:\n {default_params}\n and the parameter space:\n {param_combinations}'
+        )
+        return param_combinations[0]                                            #type: ignore
+

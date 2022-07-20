@@ -351,6 +351,8 @@ def test_get_default_none():
 
 # get_default_outputs
 def test_get_default_outputs_file_mapping(mock_out_mapping):
+    mock_out_mapping["input_files"] = None
+    mock_out_mapping["parameter"] = None
     default_out = omni.get_default_outputs([mock_out_mapping])
     assert default_out == {"out_file1": "path/to/out1", "out_file2": "path/to/out2"}
 

@@ -1,7 +1,7 @@
 from typing import TypeVar, Mapping, List, TypedDict, Optional, Sequence
 from pathlib import Path
 
-from omnibenchmark.utils.user_input_checks import check_name_matching, flatten
+from omnibenchmark.utils.user_input_checks import check_name_matching, flatten, check_default_parameter
 from omnibenchmark.utils.auto_input import (
     get_input_files_from_prefix,
     get_parameter_from_dataset,
@@ -120,7 +120,7 @@ class OmniParameter:
             if self.combinations is None:
                 self.combinations = get_all_parameter_combinations(self.values)
 
-        if self.combinations is not None:
+        if self.combinations is not None and len(self.combinations) > 0:
             check_name_matching(
                 self.names, flatten([comb.keys() for comb in self.combinations])
             )
@@ -129,6 +129,9 @@ class OmniParameter:
             )
             if self.default is None:
                 self.default = self.combinations[0]
+        
+        self.default = check_default_parameter(self.default, self.combinations)
+            
 
     def update_parameter(
         self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str
@@ -157,7 +160,8 @@ class OmniParameter:
                 )
                 if self.default is None:
                     self.default = self.combinations[0]
-        #return self
+
+            self.default = check_default_parameter(self.default, self.combinations)
 
 
 class OutMapping(TypedDict):
