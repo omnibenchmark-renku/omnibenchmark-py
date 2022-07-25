@@ -132,7 +132,7 @@ class OmniCommand:
         self.interpreter = interpreter
         self.command_line = command_line
         self.outputs = outputs
-        self.iput_val = input_val,
+        self.input_val = input_val,
         self.parameter_val = parameter_val
 
         if self.command_line is None:
@@ -143,11 +143,11 @@ class OmniCommand:
             output_val = self.outputs.default
             self.input_val = next(
                 (
-                    out_dict["input_files"]
+                    out_dict["input_files"]                       #type:ignore
                     for out_dict in self.outputs.file_mapping
                     if out_dict["output_files"] == output_val
                 ),
-                None,
+                None,                                             #type:ignore
             )
             self.parameter_val = next(
                 (
@@ -158,17 +158,50 @@ class OmniCommand:
                 None,
             )
             if self.interpreter is None:
-                ext = os.path.splitext(script)[1]
+                ext = os.path.splitext(self.script)[1]
                 self.interpreter = get_interpreter_from_extension(ext)
 
             self.command_line = automatic_command_generation(
                 self.script,
                 interpreter=self.interpreter,
-                inputs=self.input_val,
+                inputs=self.input_val,                             #type:ignore
                 outputs=output_val,
                 parameters=self.parameter_val,
             )
         ## Add command checks!
+    
+    def update_command(self):
+        if self.outputs is None or self.outputs.file_mapping is None:
+            raise InputError(
+                f'Can not infer command without Output definition. Please specify either "command_line" or "outputs".'
+            )
+        output_val = self.outputs.default
+        self.input_val = next(
+            (
+                out_dict["input_files"]                       #type:ignore
+                for out_dict in self.outputs.file_mapping
+                if out_dict["output_files"] == output_val
+            ),
+            None,                                             #type:ignore
+        )
+        self.parameter_val = next(
+            (
+                out_dict["parameter"]
+                for out_dict in self.outputs.file_mapping
+                if out_dict["output_files"] == output_val
+            ),
+            None,
+        )
+        if self.interpreter is None:
+            ext = os.path.splitext(self.script)[1]
+            self.interpreter = get_interpreter_from_extension(ext)
+        self.command_line = automatic_command_generation(
+            self.script,
+            interpreter=self.interpreter,
+            inputs=self.input_val,                             #type:ignore
+            outputs=output_val,
+            parameters=self.parameter_val,
+        )
 
 
 class OmniPlan:

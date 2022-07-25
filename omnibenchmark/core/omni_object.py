@@ -44,6 +44,8 @@ class OmniObject(OmniRenkuInst):
         omni_plan: Optional[OmniPlan] = None,
         benchmark_name: Optional[str] = None,
         orchestrator: Optional[str] = None,
+        wflow_name: Optional[str] = None,
+        dataset_name: Optional[str] = None,
     ):
 
         self.logger = logging.getLogger("omnibenchmark.OmniObject")
@@ -59,6 +61,8 @@ class OmniObject(OmniRenkuInst):
         self.omni_plan = omni_plan
         self.orchestrator = orchestrator
         self.benchmark_name = benchmark_name
+        self.wflow_name = wflow_name
+        self.dataset_name = dataset_name
         self.renku: bool = is_renku_project()
         self.kg_url: str = super().KG_URL
 
@@ -69,6 +73,12 @@ class OmniObject(OmniRenkuInst):
             self.orchestrator = find_orchestrator(
                 benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
             )
+        
+        if self.wflow_name is None:
+            self.wflow_name = self.name
+
+        if self.dataset_name is None:
+            self.dataset_name = self.name
 
     def create_dataset(self) -> RenkuDataSet:
         """create renku-dataset defined by the attributes of the class instance
@@ -77,7 +87,7 @@ class OmniObject(OmniRenkuInst):
             RenkuDataSet: An object of class Dataset from renku.core.models.dataset containing the class instances attributes.
         """
         renku_dataset = renku_dataset_create(
-            self.name,
+            self.dataset_name,                        #type:ignore
             self.kg_url,
             title=self.title,
             description=self.description,
@@ -96,7 +106,7 @@ class OmniObject(OmniRenkuInst):
             out_files=out_files,
             omni_plan=self.omni_plan,
             command=self.command.command_line,
-            name=self.name,
+            name=self.wflow_name,
             description=self.description,
             default_output=out_default,
             default_input=input_default,
@@ -106,8 +116,8 @@ class OmniObject(OmniRenkuInst):
 
     def update_result_dataset(self):
         out_files = get_all_output_file_names(self.outputs)
-        update_dataset_files(urls=out_files, dataset_name=self.name)
-        renku_dataset_update(names=[self.name])
+        update_dataset_files(urls=out_files, dataset_name=self.dataset_name)
+        renku_dataset_update(names=[self.dataset_name])
 
     def update_object(self):
         if self.orchestrator is None:
@@ -141,7 +151,10 @@ class OmniObject(OmniRenkuInst):
             self.outputs.parameter = self.parameter
             self.outputs.update_outputs()
 
-        #return self
+        if self.command is not None:
+            self.command.outputs = self.outputs
+            self.command.update_command()
+            
 
     def execute_plan_without_KG(
         self, inputs, parameter, outputs, time_out: Optional[int] = None

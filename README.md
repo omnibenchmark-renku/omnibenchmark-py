@@ -108,7 +108,12 @@ Once these steps ran successfully and your outputs were generated the module is 
 
 
 ## Release History
-
+* 0.0.9
+    * FIX:
+    * add common sequence to auto file matching  
+* 0.0.8
+    * FIX:
+    * add update command to omni_obj.update_object()  
 * 0.0.4 - 0.0.7
     * FIX:
     * convert defaults to string to generate plan 

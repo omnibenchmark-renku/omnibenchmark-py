@@ -159,7 +159,6 @@ def renku_add_to_dataset(
     create: bool = False,
     sources: Optional[List[Union[str, Path]]] = None,
     destination: Optional[List[str]] = None,
-    ref: Optional[str] = None,
 ) -> Optional[RenkuDataSet]:
 
     if not omnibenchmark.management.general_checks.is_renku_project():
@@ -181,7 +180,6 @@ def renku_add_to_dataset(
             create=create,
             sources=sources,
             destination=destination,
-            ref=ref,
         )
     )
     return result

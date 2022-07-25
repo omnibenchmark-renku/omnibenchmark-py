@@ -8,6 +8,44 @@ import re
 import os
 import json
 
+def find_stem(arr):
+    n = len(arr)
+    # Take first word from array
+    # as reference
+    s = arr[0]
+    l = len(s)
+    res = ""
+    for i in range(l):
+        for j in range(i + 1, l + 1):
+ 
+            # generating all possible substrings
+            # of our reference string arr[0] i.e s
+            stem = s[i:j]
+            k = 1
+            for k in range(1, n):
+ 
+                # Check if the generated stem is
+                # common to all words
+                if stem not in arr[k]:
+                    break
+ 
+            # If current substring is present in
+            # all strings and its length is greater
+            # than current result
+            if (k + 1 == n and len(res) < len(stem)):
+                res = stem
+ 
+    return res
+
+
+def best_match_name_seq(map_dict: Mapping[str, str]) -> str:
+    na_list = [os.path.basename(fi_nam) for fi_nam in map_dict.values()]
+    nam_list = [os.path.splitext(nam)[0] for nam in na_list]
+    name_list = [os.path.splitext(nam)[0] for nam in nam_list]
+    com_sub = find_stem(name_list)
+    return com_sub
+    
+
 def match_files_by_name(file_type_dict: Mapping[str, List[str]]) -> Mapping[str, Mapping]:
     match_dict: Dict = {}
     fi_types = list(file_type_dict.keys())
@@ -26,7 +64,8 @@ def match_files_by_name(file_type_dict: Mapping[str, List[str]]) -> Mapping[str,
                     seq_top = seq_match
                     fi_top = fi_path
             match_dict[group_nam][fi_type] = fi_top
-    return(match_dict)
+    com_dict = {m_key + "_" + best_match_name_seq(match_dict[m_key]): match_dict[m_key] for m_key in match_dict.keys()}
+    return(com_dict)
 
 
 def get_input_files_from_prefix(
