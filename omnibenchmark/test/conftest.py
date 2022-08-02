@@ -353,14 +353,16 @@ def mock_plan_dict():
 
 @pytest.fixture
 def mock_omni_output(mock_out_mapping, mock_omni_parameter, mock_omni_input):
-    mock_out_mapping["input_files"] = mock_omni_input.input_files[mock_omni_input.default]
+    mock_out_mapping["input_files"] = mock_omni_input.input_files[
+        mock_omni_input.default
+    ]
     mock_out_mapping["parameter"] = mock_omni_parameter.default
     omni_out = OmniOutput(
         name="mock_res",
         out_names=["out_file1", "out_file2"],
         file_mapping=[mock_out_mapping],
         inputs=mock_omni_input,
-        parameter=mock_omni_parameter
+        parameter=mock_omni_parameter,
     )
     return omni_out
 

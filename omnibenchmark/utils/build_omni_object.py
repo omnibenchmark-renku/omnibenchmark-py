@@ -198,10 +198,6 @@ def build_omni_output_from_config(
     if isinstance(template_fun, List):
         template_fun = None
     template_vars = empty_object_to_none(config_outputs["template_vars"])
-    if isinstance(omni_input, type(None)):
-        omni_input = build_omni_input_from_config_inputs(config_in["inputs"])
-    if isinstance(omni_parameter, type(None)):
-        omni_parameter = build_omni_parameter_from_config_params(config_in["parameter"])
 
     if not isinstance(out_names, type(None)):
         return OmniOutput(

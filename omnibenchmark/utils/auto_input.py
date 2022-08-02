@@ -8,6 +8,7 @@ import re
 import os
 import json
 
+
 def find_stem(arr):
     n = len(arr)
     # Take first word from array
@@ -17,24 +18,24 @@ def find_stem(arr):
     res = ""
     for i in range(l):
         for j in range(i + 1, l + 1):
- 
+
             # generating all possible substrings
             # of our reference string arr[0] i.e s
             stem = s[i:j]
             k = 1
             for k in range(1, n):
- 
+
                 # Check if the generated stem is
                 # common to all words
                 if stem not in arr[k]:
                     break
- 
+
             # If current substring is present in
             # all strings and its length is greater
             # than current result
-            if (k + 1 == n and len(res) < len(stem)):
+            if k + 1 == n and len(res) < len(stem):
                 res = stem
- 
+
     return res
 
 
@@ -44,9 +45,11 @@ def best_match_name_seq(map_dict: Mapping[str, str]) -> str:
     name_list = [os.path.splitext(nam)[0] for nam in nam_list]
     com_sub = find_stem(name_list)
     return com_sub
-    
 
-def match_files_by_name(file_type_dict: Mapping[str, List[str]]) -> Mapping[str, Mapping]:
+
+def match_files_by_name(
+    file_type_dict: Mapping[str, List[str]]
+) -> Mapping[str, Mapping]:
     match_dict: Dict = {}
     fi_types = list(file_type_dict.keys())
     fi_start = fi_types[0]
@@ -55,17 +58,25 @@ def match_files_by_name(file_type_dict: Mapping[str, List[str]]) -> Mapping[str,
         group_nam = "inst" + str(fi_idx)
         match_dict[group_nam] = {fi_start: fi}
         for fi_type in fil_types:
+            fi_path_list = (
+                [file_type_dict[fi_type]]
+                if not isinstance(file_type_dict[fi_type], list)
+                else file_type_dict[fi_type]
+            )
             fi_top = ""
             seq_top = 0.0
-            for fi_path in file_type_dict[fi_type]:
+            for fi_path in fi_path_list:  # type:ignore
                 fi_name = os.path.basename(fi_path)
                 seq_match = SequenceMatcher(None, os.path.basename(fi), fi_name).ratio()
                 if seq_match > seq_top:
                     seq_top = seq_match
                     fi_top = fi_path
             match_dict[group_nam][fi_type] = fi_top
-    com_dict = {m_key + "_" + best_match_name_seq(match_dict[m_key]): match_dict[m_key] for m_key in match_dict.keys()}
-    return(com_dict)
+    com_dict = {
+        m_key + "_" + best_match_name_seq(match_dict[m_key]): match_dict[m_key]
+        for m_key in match_dict.keys()
+    }
+    return com_dict
 
 
 def get_input_files_from_prefix(
@@ -83,8 +94,10 @@ def get_input_files_from_prefix(
         input_files[data.name] = {}
         for file_type, prefixes in input_prefix.items():
             prefix_list = (
-                [prefixes] if not isinstance(prefixes, list) else prefixes        #type: ignore
-            )  
+                [prefixes]                              # type: ignore
+                if not isinstance(prefixes, list)
+                else prefixes  
+            )
             pat_list = [re.compile(pattern) for pattern in prefix_list]
             in_file = [
                 fi.path
@@ -107,11 +120,12 @@ def get_input_files_from_prefix(
         if len(tmp_dict) > 0:
             tmp_dict.update(input_files[data.name])
             group_dict = match_files_by_name(tmp_dict)
+            n = len(in_file) if len(in_file) <= 5 else 5
             print(
-                    f"WARNING: Ambigous input files. Found {in_file} for prefix {prefixes}.\n"
-                    f"Automatic group detection for files in {data.name}.\n"
-                    f"Please check matches to ensure correct groups: {group_dict}"
-                )
+                f"WARNING: Ambigous input files. Found {in_file[0:n]}, ...\n"
+                f"Automatic group detection for files in {data.name}.\n"
+                f"Please check matches to ensure correct groups: 'omni_obj.inputs.input_files'"
+            )
             del input_files[data.name]
             input_files.update(group_dict)
     file_types = input_prefix.keys()
@@ -123,7 +137,6 @@ def get_input_files_from_prefix(
     for data in incomplete_data:
         del input_files[data]
 
-    print(f"The following datasets are specified as inputs: {input_files.keys()}")
     return input_files
 
 

@@ -35,7 +35,7 @@ def test_apply_filter_num_bounds():
     value_list = [3, 7, "10", "20", 40, "70"]
     filt = {"lower": 10, "upper": "50", "exclude": 20}
     param_val = parameter_checks.apply_filter(value_list=value_list, filter_vals=filt)
-    assert param_val == [10, 40]
+    assert param_val == ["10", 40]
 
 
 def test_apply_filter_filter_list():
@@ -57,7 +57,7 @@ def test_apply_filter_invalid_keys(capsys):
     filt = {"lower": 10, "upper": "50", "not": 20}
     param_val = parameter_checks.apply_filter(value_list=value_list, filter_vals=filt)
     captured = capsys.readouterr()
-    assert param_val == [10, 20, 40]
+    assert param_val == ["10", "20", 40]
     assert re.match(r"WARNING: Invalid filter keys.\n*?", captured.out)
 
 

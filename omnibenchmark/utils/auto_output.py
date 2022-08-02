@@ -1,4 +1,4 @@
-from typing import Mapping, Optional, List, Union, Callable
+from typing import Mapping, Optional, List, Union, Callable, Any
 from string import Template
 import itertools
 
@@ -88,15 +88,19 @@ def get_out_names_from_input_params(
 @option_list
 def get_input_file_list(inputs: Optional[OmniInput]) -> List:
     return (
-        list(inputs.input_files.keys()) if inputs.input_files is not None else []       # type: ignore
-    )  
+        list(inputs.input_files.keys())            # type: ignore
+        if inputs.input_files is not None          # type: ignore
+        else []  
+    )
 
 
 @option_list
 def get_parameter_combinations(parameter: Optional[OmniParameter]) -> List:
     return (
-        parameter.combinations if parameter.combinations is not None else []             # type: ignore
-    )  
+        parameter.combinations                     # type: ignore
+        if parameter.combinations is not None      # type: ignore
+        else []  
+    )
 
 
 @option_list
@@ -190,16 +194,18 @@ def get_all_output_combinations(
         out_list.append(out_map)
     return out_list
 
+
 @option_list
 def convert_values_to_string(d: Optional[Mapping]):
-    return {key: str(d[key]) for key in d.keys()}         #type: ignore
+    return {key: str(d[key]) for key in d.keys()}  # type: ignore
+
 
 @option_list
 def get_default(omni_class: Optional[Union[OmniParameter, OmniInput]]):
-    default_val = omni_class.default            # type: ignore
+    default_val = omni_class.default  # type: ignore
     if isinstance(default_val, dict):
         default_val = convert_values_to_string(default_val)
-    return default_val  
+    return default_val
 
 
 @option_list
@@ -207,23 +213,29 @@ def get_default_input(omni_input: Optional[OmniInput]):
     def_input_nam = omni_input.default  # type: ignore
     if def_input_nam is not None:
         return convert_values_to_string(
-            omni_input.input_files[def_input_nam]   # type: ignore
-            ) 
+            omni_input.input_files[def_input_nam]  # type: ignore
+        )
     else:
         return []
 
-def check_default_settings(default_inputs: Optional[Mapping], default_outputs: Optional[Mapping], default_params: Optional[Mapping], defaults: OutMapping) -> OutMapping:
+
+def check_default_settings(
+    default_inputs: Optional[Mapping],
+    default_outputs: Optional[Mapping],
+    default_params: Optional[Mapping],
+    defaults: OutMapping,
+) -> OutMapping:
     if (
         default_outputs == defaults["output_files"]
         and default_params == convert_values_to_string(defaults["parameter"])
         and default_inputs == convert_values_to_string(defaults["input_files"])
-    ): 
+    ):
         return defaults
     else:
         raise InputError(
-            f'Default mappings do not match as expected.\n'
-            f'Please check the specified defaults:\n {default_inputs}, {default_outputs}, {default_params}\n.'
-            f'Default file mapping:\n {defaults}'
+            f"Default mappings do not match as expected.\n"
+            f"Please check the specified defaults:\n {default_inputs}, {default_outputs}, {default_params}\n."
+            f"Default file mapping:\n {defaults}"
         )
 
 
@@ -237,7 +249,10 @@ def get_default_outputs(
     def_out = None
     for out_dict in file_mapping:
         if (
-            not all(element is None for element in [out_dict["input_files"], out_dict["parameter"]])
+            not all(
+                element is None
+                for element in [out_dict["input_files"], out_dict["parameter"]]
+            )
             and convert_values_to_string(out_dict["input_files"]) == def_input
             and convert_values_to_string(out_dict["parameter"]) == def_param
         ):
@@ -246,15 +261,65 @@ def get_default_outputs(
     if isinstance(def_out, type(None)):
         def_out = file_mapping[0]["output_files"]
         def_map = file_mapping[0]
-    def_map = check_default_settings(default_inputs = def_input, default_outputs= def_out, default_params=def_param, defaults=def_map)
+    def_map = check_default_settings(
+        default_inputs=def_input,
+        default_outputs=def_out,
+        default_params=def_param,
+        defaults=def_map,
+    )
     return def_out
 
 
 def add_missing_file_map_keys(file_map: OutMapping) -> OutMapping:
     for map_key in ["input_files", "parameter"]:
         if map_key not in file_map.keys():
-            file_map[map_key] = None                         # type:ignore
+            file_map[map_key] = None  # type:ignore
     return file_map
+
 
 def autocomplete_file_mapping(file_mapping: List[OutMapping]) -> List[OutMapping]:
     return [add_missing_file_map_keys(file_map) for file_map in file_mapping]
+
+
+@option_list
+def get_input_param_names(
+    in_obj: Optional[Union[OmniInput, OmniParameter]]
+) -> List[str]:
+    return in_obj.names  # type:ignore
+
+
+@option_list
+def get_keys_list(map: Mapping[str, Any]) -> List[str]:
+    return list(map.keys())  # type:ignore
+
+
+def filter_file_mapping_missing_values(
+    file_mapping: OutMapping,
+    inputs: Optional[OmniInput] = None,
+    parameter: Optional[OmniParameter] = None,
+) -> Optional[OutMapping]:
+    in_files = get_input_param_names(inputs)
+    in_param = get_input_param_names(parameter)
+    if any(fi not in get_keys_list(file_mapping["input_files"]) for fi in in_files):
+        return None
+    elif any(
+        param not in get_keys_list(file_mapping["parameter"]) for param in in_param
+    ):
+        return None
+    else:
+        return file_mapping
+
+
+def filter_file_mapping_list(
+    file_mapping_list: List[OutMapping],
+    inputs: Optional[OmniInput] = None,
+    parameter: Optional[OmniParameter] = None,
+) -> Optional[List[OutMapping]]:
+    fi_map_list = [
+        filter_file_mapping_missing_values(
+            file_mapping=fi_map, inputs=inputs, parameter=parameter
+        )
+        for fi_map in file_mapping_list
+    ]
+    res = list(filter(None, fi_map_list))
+    return empty_object_to_none(res)

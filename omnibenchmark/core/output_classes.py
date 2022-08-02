@@ -7,6 +7,7 @@ from omnibenchmark.utils.auto_output import (
     get_all_output_combinations,
     get_default_outputs,
     autocomplete_file_mapping,
+    filter_file_mapping_list,
 )
 from omnibenchmark.utils.auto_run import map_plan_names_file_types
 from omnibenchmark.core.input_classes import OmniInput, OmniParameter, OutMapping
@@ -52,7 +53,7 @@ class OmniOutput:
                 )
 
             check_name_matching(self.out_names, self.output_end.keys())
-            self.file_mapping = get_all_output_combinations(  
+            self.file_mapping = get_all_output_combinations(
                 name=self.name,
                 output_end=self.output_end,
                 out_template=self.out_template,
@@ -61,32 +62,40 @@ class OmniOutput:
                 template_fun=self.template_fun,
                 **self.template_vars,
             )
-        
-        self.file_mapping = autocomplete_file_mapping(self.file_mapping)
 
-        check_name_matching(
-            self.out_names,
-            flatten(
-                [
-                    out_mapping["output_files"].keys()  # type: ignore
-                    for out_mapping in self.file_mapping
-                ]
-            ),
+        self.file_mapping = autocomplete_file_mapping(self.file_mapping)
+        self.file_mapping = filter_file_mapping_list(
+            file_mapping_list=self.file_mapping,
+            inputs=self.inputs,
+            parameter=self.parameter,
         )
 
-        if self.default is None:
-            self.default = get_default_outputs(
-                file_mapping=self.file_mapping,
-                inputs=self.inputs,
-                parameter=self.parameter,
+        if self.file_mapping is not None:
+            check_name_matching(
+                self.out_names,
+                flatten(
+                    [
+                        out_mapping["output_files"].keys()  # type: ignore
+                        for out_mapping in self.file_mapping
+                    ]
+                ),
             )
+
+            if self.default is None:
+                self.default = get_default_outputs(
+                    file_mapping=self.file_mapping,
+                    inputs=self.inputs,
+                    parameter=self.parameter,
+                )
         if self.default is not None:
             check_name_matching(self.out_names, self.default.keys())
 
     def update_outputs(self):
         if self.inputs is not None or self.parameter is not None:
-            self.template_vars = self.template_vars if self.template_vars is not None else {}
-            new_file_mapping = get_all_output_combinations( 
+            self.template_vars = (
+                self.template_vars if self.template_vars is not None else {}
+            )
+            new_file_mapping = get_all_output_combinations(
                 name=self.name,
                 output_end=self.output_end,
                 out_template=self.out_template,
@@ -97,25 +106,31 @@ class OmniOutput:
             )
             ex_file_mapping = self.file_mapping if self.file_mapping is not None else []
             all_file_mappings = ex_file_mapping + new_file_mapping
-            self.file_mapping = list({str(i):i for i in all_file_mappings}.values())
-
-        check_name_matching(
-            self.out_names,
-            flatten(
-                [
-                    out_mapping["output_files"].keys()  # type: ignore
-                    for out_mapping in self.file_mapping
-                ]
-            ),
-        )
-
-        if self.default is None:
-            self.default = get_default_outputs(
-                file_mapping=self.file_mapping,
+            self.file_mapping = list({str(i): i for i in all_file_mappings}.values())
+            self.file_mapping = filter_file_mapping_list(
+                file_mapping_list=self.file_mapping,
                 inputs=self.inputs,
                 parameter=self.parameter,
             )
-        #return self
+
+        if self.file_mapping is not None:
+            check_name_matching(
+                self.out_names,
+                flatten(
+                    [
+                        out_mapping["output_files"].keys()  # type: ignore
+                        for out_mapping in self.file_mapping
+                    ]
+                ),
+            )
+
+            if self.default is None:
+                self.default = get_default_outputs(
+                    file_mapping=self.file_mapping,
+                    inputs=self.inputs,
+                    parameter=self.parameter,
+                )
+        # return self
 
 
 class OmniCommand:
@@ -132,7 +147,7 @@ class OmniCommand:
         self.interpreter = interpreter
         self.command_line = command_line
         self.outputs = outputs
-        self.input_val = input_val,
+        self.input_val = (input_val,)
         self.parameter_val = parameter_val
 
         if self.command_line is None:
@@ -143,11 +158,11 @@ class OmniCommand:
             output_val = self.outputs.default
             self.input_val = next(
                 (
-                    out_dict["input_files"]                       #type:ignore
+                    out_dict["input_files"]  # type:ignore
                     for out_dict in self.outputs.file_mapping
                     if out_dict["output_files"] == output_val
                 ),
-                None,                                             #type:ignore
+                None,  # type:ignore
             )
             self.parameter_val = next(
                 (
@@ -164,12 +179,12 @@ class OmniCommand:
             self.command_line = automatic_command_generation(
                 self.script,
                 interpreter=self.interpreter,
-                inputs=self.input_val,                             #type:ignore
+                inputs=self.input_val,  # type:ignore
                 outputs=output_val,
                 parameters=self.parameter_val,
             )
         ## Add command checks!
-    
+
     def update_command(self):
         if self.outputs is None or self.outputs.file_mapping is None:
             raise InputError(
@@ -178,11 +193,11 @@ class OmniCommand:
         output_val = self.outputs.default
         self.input_val = next(
             (
-                out_dict["input_files"]                       #type:ignore
+                out_dict["input_files"]  # type:ignore
                 for out_dict in self.outputs.file_mapping
                 if out_dict["output_files"] == output_val
             ),
-            None,                                             #type:ignore
+            None,  # type:ignore
         )
         self.parameter_val = next(
             (
@@ -198,7 +213,7 @@ class OmniCommand:
         self.command_line = automatic_command_generation(
             self.script,
             interpreter=self.interpreter,
-            inputs=self.input_val,                             #type:ignore
+            inputs=self.input_val,  # type:ignore
             outputs=output_val,
             parameters=self.parameter_val,
         )

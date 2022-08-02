@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "omnibenchmark"
-version = "0.0.10"
+version = "0.0.12"
 authors = [
   { name="Almut Lütge", email="almut.lue@gmail.com" },
 ]
@@ -20,7 +20,7 @@ classifiers = [
 keywords  = ["benchmark", "omnibenchmark", "renku"]
 
 dependencies = [
-    "renku >= 1.5.0",
+    "renku >= 1.6.0",
     "requests",
     "iteration_utilities",
     "typeguard",
@@ -39,7 +39,7 @@ dev = ["black", "bumpver", "pytest", "mypy"]
 "Documentation" = "https://omnibenchmark.readthedocs.io"
 
 [tool.bumpver]
-current_version = "0.0.10"
+current_version = "0.0.12"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

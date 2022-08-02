@@ -1,4 +1,3 @@
-import logging
 from omnibenchmark.core.input_classes import OmniInput, OmniParameter
 from omnibenchmark.core.output_classes import OmniCommand, OmniOutput, OmniPlan
 from omnibenchmark.renku_commands.datasets import (
@@ -47,8 +46,6 @@ class OmniObject(OmniRenkuInst):
         wflow_name: Optional[str] = None,
         dataset_name: Optional[str] = None,
     ):
-
-        self.logger = logging.getLogger("omnibenchmark.OmniObject")
         self.name = name
         self.keyword = keyword
         self.title = title
@@ -73,7 +70,7 @@ class OmniObject(OmniRenkuInst):
             self.orchestrator = find_orchestrator(
                 benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
             )
-        
+
         if self.wflow_name is None:
             self.wflow_name = self.name
 
@@ -87,7 +84,7 @@ class OmniObject(OmniRenkuInst):
             RenkuDataSet: An object of class Dataset from renku.core.models.dataset containing the class instances attributes.
         """
         renku_dataset = renku_dataset_create(
-            self.dataset_name,                        #type:ignore
+            self.dataset_name,  # type:ignore
             self.kg_url,
             title=self.title,
             description=self.description,
@@ -99,8 +96,12 @@ class OmniObject(OmniRenkuInst):
         self.command = check_omni_command(self.command, self.script, self.outputs)
         out_files = get_all_output_file_names(self.outputs)
         check_output_directories(out_files)
-        input_default = empty_object_to_none(convert_values_to_string(self.command.input_val))
-        param_default = empty_object_to_none(convert_values_to_string(self.command.parameter_val))
+        input_default = empty_object_to_none(
+            convert_values_to_string(self.command.input_val)
+        )
+        param_default = empty_object_to_none(
+            convert_values_to_string(self.command.parameter_val)
+        )
         out_default = empty_object_to_none(get_default(self.command.outputs))
         self.omni_plan = manage_renku_plan(
             out_files=out_files,
@@ -154,7 +155,6 @@ class OmniObject(OmniRenkuInst):
         if self.command is not None:
             self.command.outputs = self.outputs
             self.command.update_command()
-            
 
     def execute_plan_without_KG(
         self, inputs, parameter, outputs, time_out: Optional[int] = None

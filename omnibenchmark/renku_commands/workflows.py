@@ -62,9 +62,10 @@ def renku_workflow_execute(
     provider: str = "cwltool",
     config: Optional[str] = None,
     values: Optional[str] = None,
+    skip_metadata_update: bool = False,
 ):
     workflow = (
-        execute_workflow_command()
+        execute_workflow_command(skip_metadata_update=skip_metadata_update)
         .build()
         .execute(
             name_or_id=name_or_id,

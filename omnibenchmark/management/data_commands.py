@@ -197,6 +197,7 @@ def get_data_url_by_keyword(
     all_ids, up_exist = get_field_by_dataset_property(
         string=keyword, url=query_url, filter_ex=filter_ex
     )
+    up_exist = list(unique_everseen(up_exist))
     if len(all_ids) + len(up_exist) < 1:
         print(f"WARNING:No datasets found with keyword {keyword}")
         return [], []

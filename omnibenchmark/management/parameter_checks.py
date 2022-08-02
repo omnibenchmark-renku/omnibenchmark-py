@@ -16,7 +16,7 @@ def apply_filter(value_list: List, filter_vals) -> List:
         if "upper" in filter_vals.keys():
             try:
                 value_list = [
-                    int(x) for x in value_list if int(x) <= int(filter_vals["upper"])
+                    x for x in value_list if float(x) <= float(filter_vals["upper"])
                 ]
             except:
                 raise ParameterError(
@@ -28,7 +28,7 @@ def apply_filter(value_list: List, filter_vals) -> List:
         if "lower" in filter_vals.keys():
             try:
                 value_list = [
-                    int(x) for x in value_list if int(x) >= int(filter_vals["lower"])
+                    x for x in value_list if float(x) >= float(filter_vals["lower"])
                 ]
             except:
                 raise ParameterError(

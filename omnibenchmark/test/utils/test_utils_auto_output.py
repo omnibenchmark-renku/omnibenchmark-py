@@ -1,6 +1,7 @@
 from typing import List
 import omnibenchmark.utils.auto_output as omni
 import pytest
+import copy
 
 ### Test auto output functions
 
@@ -377,3 +378,96 @@ def test_get_default_outputs_file_mapping_input_param(
         out_map_all, inputs=mock_omni_input, parameter=mock_omni_parameter
     )
     assert default_out == {"out_file1": "new_path/to/out1"}
+
+
+# filter_file_mapping_missing_values
+def test_filter_file_mapping_missing_values_missing_input(
+    mock_out_mapping, mock_omni_input, mock_omni_parameter
+):
+    fi_map = omni.filter_file_mapping_missing_values(
+        mock_out_mapping, inputs=mock_omni_input, parameter=mock_omni_parameter
+    )
+    assert fi_map == None
+
+
+def test_filter_file_mapping_missing_values_no_missing(
+    mock_out_mapping, mock_omni_input, mock_omni_parameter
+):
+    mock_out_mapping["input_files"] = {"dim_red_file": "any", "count_file": "some"}
+    fi_map = omni.filter_file_mapping_missing_values(
+        mock_out_mapping, inputs=mock_omni_input, parameter=mock_omni_parameter
+    )
+    assert fi_map == mock_out_mapping
+
+
+def test_filter_file_mapping_missing_values_only_one_input(
+    mock_out_mapping, mock_omni_input, mock_omni_parameter
+):
+    mock_out_mapping["input_files"] = {"dim_red_file": "any"}
+    fi_map = omni.filter_file_mapping_missing_values(
+        mock_out_mapping, inputs=mock_omni_input, parameter=mock_omni_parameter
+    )
+    assert fi_map == None
+
+
+def test_filter_file_mapping_missing_values_missing_param(
+    mock_out_mapping, mock_omni_input, mock_omni_parameter
+):
+    mock_out_mapping["input_files"] = {"dim_red_file": "any", "count_file": "some"}
+    mock_out_mapping["parameter"] = {"param1": 2}
+    fi_map = omni.filter_file_mapping_missing_values(
+        mock_out_mapping, inputs=mock_omni_input, parameter=mock_omni_parameter
+    )
+    assert fi_map == None
+
+
+def test_filter_file_mapping_missing_values_none_input(
+    mock_out_mapping, mock_omni_parameter
+):
+    mock_out_mapping["input_files"] = None
+    fi_map = omni.filter_file_mapping_missing_values(
+        mock_out_mapping, inputs=None, parameter=mock_omni_parameter
+    )
+    assert fi_map == mock_out_mapping
+
+
+# filter_file_mapping_list
+def test_filter_file_mapping_list_all_valid(
+    mock_out_mapping, mock_omni_input, mock_omni_parameter
+):
+    mock_out_mapping["input_files"] = {"dim_red_file": "any", "count_file": "some"}
+    mock_list = [mock_out_mapping, mock_out_mapping]
+
+    fi_list = omni.filter_file_mapping_list(
+        mock_list, inputs=mock_omni_input, parameter=mock_omni_parameter
+    )
+    assert fi_list == [mock_out_mapping, mock_out_mapping]
+
+
+def test_filter_file_mapping_list_one_valid(
+    mock_out_mapping, mock_omni_input, mock_omni_parameter
+):
+    out_map2 = copy.deepcopy(mock_out_mapping)
+    mock_out_mapping["input_files"] = {"dim_red_file": "any", "count_file": "some"}
+    mock_list = [mock_out_mapping, out_map2]
+
+    fi_list = omni.filter_file_mapping_list(
+        mock_list, inputs=mock_omni_input, parameter=mock_omni_parameter
+    )
+    assert fi_list == [mock_out_mapping]
+
+
+def test_filter_file_mapping_list_none_valid(mock_out_mapping, mock_omni_input):
+    mock_list = [mock_out_mapping, mock_out_mapping]
+
+    fi_list = omni.filter_file_mapping_list(
+        mock_list, inputs=mock_omni_input, parameter=None
+    )
+    assert fi_list == None
+
+
+def test_filter_file_mapping_list_no_in_params(mock_out_mapping,):
+    mock_list = [mock_out_mapping, mock_out_mapping]
+
+    fi_list = omni.filter_file_mapping_list(mock_list, inputs=None, parameter=None)
+    assert fi_list == [mock_out_mapping, mock_out_mapping]

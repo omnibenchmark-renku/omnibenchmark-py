@@ -108,6 +108,9 @@ Once these steps ran successfully and your outputs were generated the module is 
 
 
 ## Release History
+* 0.0.12
+    * FIX:
+    * accept float as parameter values and keep after filtering  
 * 0.0.9
     * FIX:
     * add common sequence to auto file matching  
