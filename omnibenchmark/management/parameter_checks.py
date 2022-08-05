@@ -7,6 +7,19 @@ import json
 
 
 def apply_filter(value_list: List, filter_vals) -> List:
+    """Apply parameter filter
+
+    Args:
+        value_list (List): List with all parameter values
+        filter_vals (_type_): List with all filter values
+
+    Raises:
+        ParameterError: Filter can be defined as dictionaries with 'lower', 'upper' or 'exclude' keys 
+                        specifying boundaries or path to a file specifying what to exclude. 
+
+    Returns:
+        List: List with filtered parameter values
+    """
     if isinstance(filter_vals, Dict):
         if any(key not in ["upper", "lower", "exclude"] for key in filter_vals.keys()):
             print(
@@ -54,6 +67,15 @@ def apply_filter(value_list: List, filter_vals) -> List:
 def filter_parameter(
     values: Mapping[str, List], filter: Optional[Mapping[str, Any]]
 ) -> Mapping[str, List]:
+    """Filter parameter space
+
+    Args:
+        values (Mapping[str, List]): Parameter names with values
+        filter (Optional[Mapping[str, Any]]): parameter filter
+
+    Returns:
+        Mapping[str, List]: Filtered parameter space
+    """
 
     if filter is None:
         return values
@@ -73,6 +95,14 @@ def filter_parameter(
 def get_all_parameter_combinations(
     values: Mapping[str, List]
 ) -> List[Mapping[str, str]]:
+    """Get all possible parameter combinations from a set of parameter and their possible values
+
+    Args:
+        values (Mapping[str, List]): parameter names with all possible values
+
+    Returns:
+        List[Mapping[str, str]]: List of all parameter combinations
+    """
     comb_list: List = []
     all_combinations = []
     if not isinstance(values, type(None)):
@@ -90,7 +120,13 @@ def dict_values_to_str(convert_dict: Mapping) -> Mapping:
 def filter_parameter_combinations(  # type: ignore
     combinations: List[Mapping[str, str]], filter: Optional[Mapping[str, Any]]
 ) -> List[Mapping[str, str]]:
+    """Filter specific parameter combinations from a list of all combinations
+    Args:
+        filter (Optional[Mapping[str, Any]]): combinations to be removed
 
+    Returns:
+        List[Mapping[str, str]]: List of filtered combinations
+    """
     if filter is None:
         return combinations
     if "file" not in filter.keys():

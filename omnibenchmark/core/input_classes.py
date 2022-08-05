@@ -22,6 +22,8 @@ PathLike = TypeVar("PathLike", str, Path, None)
 
 
 class OmniInput:
+    """Class to store metadata of datasets and files that are specified as inputs in an omnibenchmark project
+    """
     def __init__(
         self,
         names: List[str],
@@ -73,6 +75,14 @@ class OmniInput:
     def update_inputs(
         self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str
     ):
+        """Update datasets and files that belong to this OmniInput object. This will also import new Datasets with the specified keyword..
+
+        Args:
+            orchestrator (str):  Orchestrator url that links all valid projects.
+            query_url (str): URL to the knowledgebase dataset query API.
+            data_url (str): URL to the knowledgebase dataset API. 
+            gitlab_url (str): General Gitlab url. 
+        """
         if self.keyword is not None:
             for key in self.keyword:
                 update_datasets_by_keyword(
@@ -94,10 +104,12 @@ class OmniInput:
             if self.input_files is not None:
                 if self.default is None:
                     self.default = next(iter(self.input_files.items()))[0]
-        # return self
+
 
 
 class OmniParameter:
+    """Class to store metadata of datasets and files that are specified as parameter in an omnibenchmark project
+    """
     def __init__(
         self,
         names: List[str],
@@ -139,6 +151,13 @@ class OmniParameter:
     def update_parameter(
         self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str
     ):
+        """Update datasets and files that belong to this OmniParameter object. This will also import new Datasets with the specified keyword.
+        Args:
+            orchestrator (str): Orchestrator url that links all valid projects.
+            query_url (str): URL to the knowledgebase dataset query API.
+            data_url (str): URL to the knowledgebase dataset API. 
+            gitlab_url (str): General Gitlab url. 
+        """
         if self.keyword is not None:
             for key in self.keyword:
                 update_datasets_by_keyword(

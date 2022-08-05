@@ -22,6 +22,11 @@ logger = logging.getLogger("omnibenchmark.management.run_commands")
 
 
 def update_activity(out_map: OutMapping):
+    """update existing activities
+
+    Args:
+        out_map (OutMapping): Output Mapping with the path to update activities for
+    """
     if out_map["output_files"] is not None:
         out_paths = list(out_map["output_files"].values())
     else:
@@ -30,6 +35,15 @@ def update_activity(out_map: OutMapping):
 
 
 def create_activity(out_map: OutMapping, omni_plan: OmniPlan):
+    """Run an activity to generate a specific output from a plan
+
+    Args:
+        out_map (OutMapping): Output mapping with inputs, parameter and output files
+        omni_plan (OmniPlan): plan, workflow description to use
+
+    Raises:
+        NameError: All elements from outmapping need to have an unique mapping in the plan
+    """
     plan = omni_plan.plan
     map_dict = omni_plan.param_mapping
     file_dict = get_file_type_dict(out_map)
@@ -114,8 +128,21 @@ def manage_renku_plan(
 def check_omni_command(
     command: Optional[OmniCommand],
     script: Optional[Union[PathLike, str]],
-    outputs=Optional[OmniOutput],
+    outputs: Optional[OmniOutput],
 ) -> OmniCommand:
+    """Generate and check a command from a specified script and outputs
+
+    Args:
+        command (Optional[OmniCommand]): An Omnicommand object to check
+        script (Optional[Union[PathLike, str]]): A script to generate the command for.
+        outputs (Optional[OmniOutput]): OmniOutput that is associated to the command.
+
+    Raises:
+        InputError: Minimal a script to run the command on needs to be specified.
+
+    Returns:
+        OmniCommand: An OmniCommand object
+    """
     if command is None:
         if script is None:
             raise InputError(
@@ -126,6 +153,14 @@ def check_omni_command(
 
 
 def get_all_output_file_names(output: OmniOutput) -> List[str]:
+    """Get a list of all files specified as outputs
+
+    Args:
+        output (OmniOutput): An OmniOutputr object
+
+    Returns:
+        List[str]: A list of output file names
+    """
     if output.file_mapping is not None:
         return flatten(
             [
@@ -139,7 +174,12 @@ def get_all_output_file_names(output: OmniOutput) -> List[str]:
 
 
 def manage_renku_activities(outputs: OmniOutput, omni_plan: OmniPlan):
-    # Manage activities
+    """Manage renku activities by updating existing ones and generating new activities for output files without.
+
+    Args:
+        outputs (OmniOutput): An OmniOutput object
+        omni_plan (OmniPlan): A plan/workflow description with mappings to the output
+    """
     out_files = get_all_output_file_names(outputs)
     activity_out = wflow.filter_activity_exist(out_files)
     activity_map = get_file_mapping_from_out_files(
@@ -158,6 +198,11 @@ def manage_renku_activities(outputs: OmniOutput, omni_plan: OmniPlan):
 
 
 def check_output_directories(out_files: List[str]):
+    """Check if output directoroes exist and generate them if not
+
+    Args:
+        out_files (List[str]): List of output files
+    """
     out_dir_list = [os.path.dirname(out_file) for out_file in out_files]
     out_dirs = set(out_dir_list)
     for dir in out_dirs:

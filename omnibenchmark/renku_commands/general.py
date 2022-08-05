@@ -7,6 +7,13 @@ def renku_save(
     destination: Optional[str] = None,
     paths: Optional[List[str]] = None,
 ):
+    """Commit and push all changes to GitLab
+
+    Args:
+        message (Optional[str], optional): Commit message. Defaults to None.
+        destination (Optional[str], optional): repository url. Defaults to None.
+        paths (Optional[List[str]], optional): Paths to commits. Defaults to None.
+    """
 
     saved_paths, branch = (
         save_and_push_command()

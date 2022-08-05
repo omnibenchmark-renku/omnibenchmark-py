@@ -10,6 +10,14 @@ import json
 
 
 def find_stem(arr):
+    """Find a common substring from a list of strings
+
+    Args:
+        arr (Array): Array of strings
+
+    Returns:
+        str: longest common substring
+    """
     n = len(arr)
     # Take first word from array
     # as reference
@@ -40,6 +48,14 @@ def find_stem(arr):
 
 
 def best_match_name_seq(map_dict: Mapping[str, str]) -> str:
+    """Get the longest common substring from a mapping of file names without directories
+
+    Args:
+        map_dict (Mapping[str, str]): Mapping of file names
+
+    Returns:
+        str: Longest common substring
+    """
     na_list = [os.path.basename(fi_nam) for fi_nam in map_dict.values()]
     nam_list = [os.path.splitext(nam)[0] for nam in na_list]
     name_list = [os.path.splitext(nam)[0] for nam in nam_list]
@@ -50,6 +66,14 @@ def best_match_name_seq(map_dict: Mapping[str, str]) -> str:
 def match_files_by_name(
     file_type_dict: Mapping[str, List[str]]
 ) -> Mapping[str, Mapping]:
+    """Find corresponding files by best matching names
+
+    Args:
+        file_type_dict (Mapping[str, List[str]]): Dictionary specifying all file types and their corresponding files
+
+    Returns:
+        Mapping[str, Mapping]: Mapping of best matches for all files between file types.
+    """
     match_dict: Dict = {}
     fi_types = list(file_type_dict.keys())
     fi_start = fi_types[0]
@@ -82,6 +106,15 @@ def match_files_by_name(
 def get_input_files_from_prefix(
     input_prefix: Mapping[str, List[str]], keyword: List[str]
 ) -> Mapping[str, Mapping]:
+    """Find input files by prefix
+
+    Args:
+        input_prefix (Mapping[str, List[str]]): Dictionary with all file types and their valid prefixes.
+        keyword (List[str]): Keyword of datasets that contain input files
+
+    Returns:
+        Mapping[str, Mapping]: Input file types with their corresponding files.
+    """
     input_files: Dict = {}
     datasets = Dataset.list()
     key_data = [
@@ -143,6 +176,18 @@ def get_input_files_from_prefix(
 def get_parameter_from_dataset(
     names: List[str], keyword: List[str]
 ) -> Mapping[str, List]:
+    """Get parameter from a renku dataset
+
+    Args:
+        names (List[str]): Parameter names
+        keyword (List[str]): Keyword of the parameter dataset.
+
+    Raises:
+        ParameterError: _description_
+
+    Returns:
+        Mapping[str, List]: Mapping with parameters and all possible values
+    """
     values: Dict = {}
     datasets = Dataset.list()
     key_data = [

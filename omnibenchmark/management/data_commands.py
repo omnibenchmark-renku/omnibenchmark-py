@@ -15,6 +15,15 @@ from iteration_utilities import unique_everseen  # type: ignore
 def query_datasets_by_string(
     string: str, url: str = "https://renkulab.io/knowledge-graph/datasets?query="
 ) -> List[Mapping[Any, Any]]:
+    """Query datasets in the knowledge base by astring.
+
+    Args:
+        string (str): String to query datasets for
+        url (str): URL to the knowledgebase dataset query API. Defaults to "https://renkulab.io/knowledge-graph/datasets?query=".
+
+    Returns:
+        List[Mapping[Any, Any]]: List of all datasets associated to that string with their metadata
+    """
     query_url = url + string
     response = requests.get(query_url)
     return response.json()
@@ -27,6 +36,17 @@ def query_datasets_by_property(
     match_string: Optional[str] = None,
     property_name: str = "keywords",
 ) -> List[Mapping[Any, Any]]:
+    """Query datasets in a knowledge base by string and matching property.
+
+    Args:
+        string (str): String to query datasets for
+        url (str): URL to the knowledgebase dataset query API. Defaults to "https://renkulab.io/knowledge-graph/datasets?query=".
+        match_string (Optional[str], optional): String to filter matching properties by. Will be the same as the query string, if None. Defaults to None.
+        property_name (str, optional): Property to filter datasets by. Defaults to "keywords".
+
+    Returns:
+        List[Mapping[Any, Any]]: List of all datasets associated to that string with the property matching the "match_string" with their metadata.
+    """
     if match_string is None:
         match_string = string
     all_data_json = query_datasets_by_string(string=string, url=url)
@@ -44,6 +64,14 @@ def query_datasets_by_property(
 
 # Filter exisiting datasets
 def filter_existing(data_json: List) -> Tuple[List, List]:
+    """Split list of datasets into a list of thse that already exist in the project and those that do not exist by name.
+
+    Args:
+        data_json (List): List of datasets with their metadata mappings
+
+    Returns:
+        Tuple[List, List]: First List contains not existing datasets and the second list existing datasets in the current project
+    """
     update_list: List = []
     import_list: List = []
     datasets = Dataset.list()
@@ -64,6 +92,18 @@ def get_field_by_dataset_property(
     field: str = "identifier",
     filter_ex: bool = False,
 ) -> Tuple[List[str], List[str]]:
+    """Get a specific field of all datasets that match a specified query.
+
+    Args:
+        string (str): String to query datasets for
+        url (str, optional): URL to the knowledgebase dataset query API. Defaults to "https://renkulab.io/knowledge-graph/datasets?query=".
+        property_name (str, optional): Dataset property to match with the query string. Defaults to "keywords".
+        field (str, optional): Dataset field to return. Defaults to "identifier".
+        filter_ex (bool, optional): If true return the name of all existing datasets instead. Defaults to False.
+
+    Returns:
+        Tuple[List[str], List[str]]: List with the "field" value of all (or of the non existing datasets). List with names of existing datasets.
+    """
     data_json = query_datasets_by_property(
         string=string, url=url, property_name=property_name
     )
@@ -81,6 +121,15 @@ def get_field_by_dataset_property(
 def get_data_info_by_id(
     id: str, url: str = "https://renkulab.io/knowledge-graph/datasets/"
 ) -> Mapping[Any, Any]:
+    """Get dataset metadat by dataset id
+
+    Args:
+        id (str): Renku dataset identifier
+        url (str, optional): URL to the knowledgebase dataset API. Defaults to "https://renkulab.io/knowledge-graph/datasets/".
+
+    Returns:
+        Mapping[Any, Any]: Dataset metadata (e.g., name, description, keywords, links, creator, ...)
+    """
     query_url = url + id
     response = requests.get(query_url)
     return response.json()
@@ -89,6 +138,16 @@ def get_data_info_by_id(
 def find_dataset_linked_to_wflow(
     info_list: List[Mapping], top: int = 2, filter_pat: str = "meta"
 ) -> List[Mapping]:
+    """Check a list of datasets for workflows associated to their linked files.
+
+    Args:
+        info_list (List[Mapping]): List of datasets and their metadata to filter
+        top (int, optional): Number of associated files to check for workflow association Defaults to 2.
+        filter_pat (str, optional): Filter pattern to exclude files by. Defaults to "meta".
+
+    Returns:
+        List[Mapping]: List of datasets and metadata with files that have a workflow linked to them.
+    """
     origin_info = []
     for info in info_list:
         data_files = info["hasPart"]
@@ -111,6 +170,14 @@ def find_dataset_linked_to_wflow(
 
 
 def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
+    """Filter a list of datasets to get only the original dataset if their are multiple datasets found with the same name.
+
+    Args:
+        info_list (List[Mapping]): List of datasets with metadata to filter
+
+    Returns:
+        List[Mapping]: Dataset list with unique datasets
+    """
     info_list = list(unique_everseen(info_list))
     name_list = [info["name"] for info in info_list]
     dup_names = set(
@@ -143,6 +210,15 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
 def get_origin_dataset_ids(
     ids: List[str], url: str = "https://renkulab.io/knowledge-graph/datasets/"
 ) -> List[Mapping]:
+    """Filter a list of dataset ids for original dataset ids (datasets associated to projects, where they were generated and not imported).
+
+    Args:
+        ids (List[str]): List of dataset ids to filter
+        url (str, optional): URL to the knowledgebase dataset API. Defaults to "https://renkulab.io/knowledge-graph/datasets/".
+
+    Returns:
+        List[Mapping]: Filtered datasets and their metadata
+    """
     all_infos: List = []
     for data_id in ids:
         data_info = get_data_info_by_id(id=data_id, url=url)
@@ -158,7 +234,15 @@ def get_origin_dataset_ids(
     return origin_infos
 
 
-def get_project_info_from_url(project_url=str) -> Mapping[Any, Any]:
+def get_project_info_from_url(project_url:str) -> Mapping[Any, Any]:
+    """Get project metadata from url
+
+    Args:
+        project_url (str): URL to the knowledgebase dproject URL.
+
+    Returns:
+        Mapping[Any, Any]: Project metadata dictionary
+    """
     response = requests.get(project_url)
     return response.json()
 
@@ -166,6 +250,16 @@ def get_project_info_from_url(project_url=str) -> Mapping[Any, Any]:
 def check_orchestrator(
     data_info: Mapping, o_url: str, gitlab_url: str = "https://renkulab.io/gitlab"
 ) -> Optional[str]:
+    """Check if a dataset is associated to a project that is part of the specified orchestrators projects.
+
+    Args:
+        data_info (Mapping): Dataset metadata to check
+        o_url (str): orchestrator url to check if the dataset project is associated to.
+        gitlab_url (url, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
+
+    Returns:
+        Optional[str]: Dataset url, if the dataset is associated to a project that is part of the orchestrator.
+    """
     project_url = data_info["project"]["_links"][0]["href"]
     project_info = get_project_info_from_url(project_url)
     o_info = get_project_info_from_url(o_url)
@@ -194,6 +288,19 @@ def get_data_url_by_keyword(
     data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
     gitlab_url: str = "https://renkulab.io/gitlab",
 ) -> Tuple[List[str], List[str]]:
+    """Get all valid dataset urls by matching keywords.
+
+    Args:
+        keyword (str): keyword to find datasets by
+        o_url (str): Orchestrator url that links all valid projects
+        filter_ex (bool, optional): If existing datasets should be filtered automatically. Defaults to False.
+        query_url (str, optional): URL to the knowledgebase dataset query API. Defaults to "https://renkulab.io/knowledge-graph/datasets?query=".
+        data_url (str, optional): URL to the knowledgebase dataset API. Defaults to "https://renkulab.io/knowledge-graph/datasets/".
+        gitlab_url (str, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
+
+    Returns:
+        Tuple[List[str], List[str]]: 1. List with all matching non-existing dataset urls, 2. List with all matching existig dataset urls.
+    """
     all_ids, up_exist = get_field_by_dataset_property(
         string=keyword, url=query_url, filter_ex=filter_ex
     )
@@ -231,6 +338,16 @@ def update_datasets_by_keyword(
     data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
     gitlab_url: str = "https://renkulab.io/gitlab",
 ):
+    """Import and/or update all datasets that match a certain keyword
+
+    Args:
+        keyword (str): Keyword to match datasets
+        o_url (str):  Orchestrator url that links all valid projects
+        filter_ex (bool, optional): If existing datasets should be filtered automatically. Defaults to True.
+        query_url (_type_, optional): URL to the knowledgebase dataset query API. Defaults to "https://renkulab.io/knowledge-graph/datasets?query=".
+        data_url (_type_, optional): URL to the knowledgebase dataset API. Defaults to "https://renkulab.io/knowledge-graph/datasets/".
+        gitlab_url (_type_, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
+    """
     imp_ids, up_names = get_data_url_by_keyword(
         keyword=keyword,
         o_url=o_url,
@@ -247,6 +364,12 @@ def update_datasets_by_keyword(
 
 
 def update_dataset_files(urls: List[str], dataset_name: str):
+    """Add or update a list of files to/in a specified dataset.
+
+    Args:
+        urls (List[str]): File paths to add/update
+        dataset_name (str): Dataset name to add files to/update files in
+    """
     datasets = Dataset.list()
     name_list = [dataset.name for dataset in datasets]
     if dataset_name not in name_list:

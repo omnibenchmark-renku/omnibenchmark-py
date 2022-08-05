@@ -26,7 +26,7 @@ class OmniObject(OmniRenkuInst):
 
     """OmniBench object
 
-    An Omnibenchmark component.
+    An Omnibenchmark component. Clas sto store metadata, inputs, outputs and parameter of an omnibenchmark project.
     """
 
     def __init__(
@@ -116,11 +116,18 @@ class OmniObject(OmniRenkuInst):
         manage_renku_activities(outputs=self.outputs, omni_plan=self.omni_plan)
 
     def update_result_dataset(self):
+        """Add output files to the objects dataset and update the dataset
+        """
         out_files = get_all_output_file_names(self.outputs)
         update_dataset_files(urls=out_files, dataset_name=self.dataset_name)
         renku_dataset_update(names=[self.dataset_name])
 
     def update_object(self):
+        """Update the objects inputs, arameter and output definition. Does not run or update workflows/activities.
+
+        Raises:
+            InputError: Only runs when an orchestrator url is specified and the object can be associated to an existing benchmark.
+        """
         if self.orchestrator is None:
             if self.benchmark_name is not None:
                 self.orchestrator = find_orchestrator(

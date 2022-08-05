@@ -1,7 +1,7 @@
 """Omnibenchmark"""
 
 # Version of the omnibenchmark package
-__version__ = "0.0.11"
+__version__ = "0.0.12"
 
 from omnibenchmark import core, management, renku_commands, utils
 

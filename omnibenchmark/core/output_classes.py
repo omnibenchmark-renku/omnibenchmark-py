@@ -21,6 +21,8 @@ import os
 
 
 class OmniOutput:
+    """Class to store metadata of datasets and files that are specified as output in an omnibenchmark project
+    """
     def __init__(
         self,
         name: str,
@@ -91,6 +93,8 @@ class OmniOutput:
             check_name_matching(self.out_names, self.default.keys())
 
     def update_outputs(self):
+        """Update output definitions according to the specified inputs/parameter. Does not update workflows or activities. 
+        """
         if self.inputs is not None or self.parameter is not None:
             self.template_vars = (
                 self.template_vars if self.template_vars is not None else {}
@@ -134,6 +138,8 @@ class OmniOutput:
 
 
 class OmniCommand:
+    """Class to store metadata and attributes of a command in an omnibenchmark project
+    """
     def __init__(
         self,
         script: Union[PathLike, str],
@@ -186,6 +192,11 @@ class OmniCommand:
         ## Add command checks!
 
     def update_command(self):
+        """Update command according to the specifed inputs/parameter/output
+
+        Raises:
+            InputError: Needs an OmniOutput object or the command line specified.
+        """
         if self.outputs is None or self.outputs.file_mapping is None:
             raise InputError(
                 f'Can not infer command without Output definition. Please specify either "command_line" or "outputs".'
@@ -220,6 +231,8 @@ class OmniCommand:
 
 
 class OmniPlan:
+    """Class to store the workflow definition/plan of an Omniobject
+    """
     def __init__(
         self, plan: PlanViewModel, param_mapping: Optional[Mapping[str, str]] = None
     ):
@@ -227,6 +240,14 @@ class OmniPlan:
         self.param_mapping = param_mapping
 
     def predict_mapping_from_file_dict(
-        self, file_dict=Mapping[str, str]
+        self, file_dict: Mapping[str, str]
     ) -> Mapping[str, str]:
+        """Predict the corresponding mappings of input/parameter/output as defined in the plan and the OmniObject
+
+        Args:
+            file_dict (Mapping[str, str]): input/parameter/output mapping as stored in the OmniObject
+
+        Returns:
+            Mapping[str, str]: Mapping between the plan names of input/parameter/outputs and the OmniObject names.
+        """
         return map_plan_names_file_types(plan=self.plan, file_dict=file_dict)

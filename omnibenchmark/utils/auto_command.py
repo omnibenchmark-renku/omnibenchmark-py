@@ -64,6 +64,14 @@ def get_command_start_from_interpreter(interpreter: str) -> str:
 
 
 def parse_command_line_args(arg_map: Mapping[str, str]) -> List[str]:
+    """Parse arguments from a mapping as command line arguments of a renku run.
+
+    Args:
+        arg_map (Mapping[str, str]): Mapping of arguments
+
+    Returns:
+        List[str]: List of parsed commands
+    """
     return [
         '--{} "{}"'.format(str(arg_nam), arg_val)
         for arg_nam, arg_val in arg_map.items()

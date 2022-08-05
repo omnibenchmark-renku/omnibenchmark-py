@@ -30,6 +30,20 @@ def find_orchestrator(
     key_header: str = "Benchmark_name",
     o_header: str = "Orchestrator",
 ) -> Optional[str]:
+    """Assigns an orchestrator url based on the benchmark name by checking the omnibenchmark website.
+
+    Args:
+        benchmark_name (str): Name of the benchmark that thge object is part of.
+        bench_url (_type_, optional): url to the omnibenchmark site with benchmark associations. Defaults to "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks".
+        key_header (str, optional): Header/column name specifying the benchmark names. Defaults to "Benchmark_name".
+        o_header (str, optional): Header/column name specifying the orchestrator names. Defaults to "Orchestrator".
+
+    Raises:
+        InputError: Key_header and o_header need to be valid column names
+
+    Returns:
+        Optional[str]: Url to the orchestrator taht is linked to a specified benchmark.
+    """
     bench_html = requests.get(bench_url)
     doc = lh.fromstring(bench_html.content)
     tr_elements = doc.xpath("//tr")

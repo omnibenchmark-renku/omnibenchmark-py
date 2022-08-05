@@ -10,7 +10,14 @@ from omnibenchmark.utils.user_input_checks import empty_object_to_none
 
 @option_str
 def join_parameter(parameter: Optional[Mapping[str, str]] = None) -> str:
+    """Get a joined string with all parameter names and their value
 
+    Args:
+        parameter (Optional[Mapping[str, str]], optional): Parameter mapping. Defaults to None.
+
+    Returns:
+        str: Joined string
+    """
     all_params = "__".join(
         [
             "{}_{}".format(str(param_nam), param_val)
@@ -26,6 +33,15 @@ def join_parameter(parameter: Optional[Mapping[str, str]] = None) -> str:
 def join_inputs_parameter(
     input: Optional[str] = None, parameter: Optional[Mapping[str, str]] = None
 ) -> str:
+    """Get a joined string of parameter and inputs with their respective values
+
+    Args:
+        input (Optional[str], optional): Input types and values. Defaults to None.
+        parameter (Optional[Mapping[str, str]], optional): Parameter names and values. Defaults to None.
+
+    Returns:
+        str: A joined string
+    """
     param_str = join_parameter(parameter)
     try:
         if param_str == "":
@@ -87,6 +103,14 @@ def get_out_names_from_input_params(
 
 @option_list
 def get_input_file_list(inputs: Optional[OmniInput]) -> List:
+    """Get a List with all input file types
+
+    Args:
+        inputs (Optional[OmniInput]): An OmniInput object
+
+    Returns:
+        List: A list with all input file types
+    """
     return (
         list(inputs.input_files.keys())            # type: ignore
         if inputs.input_files is not None          # type: ignore
@@ -96,6 +120,14 @@ def get_input_file_list(inputs: Optional[OmniInput]) -> List:
 
 @option_list
 def get_parameter_combinations(parameter: Optional[OmniParameter]) -> List:
+    """Extract parameter combinations as specified in an OmniParameter object
+
+    Args:
+        parameter (Optional[OmniParameter]): An OmniParameter object
+
+    Returns:
+        List: List with all specified parameter combinations
+    """
     return (
         parameter.combinations                     # type: ignore
         if parameter.combinations is not None      # type: ignore
@@ -107,6 +139,15 @@ def get_parameter_combinations(parameter: Optional[OmniParameter]) -> List:
 def get_input_parameter_combinations(
     inputs: Optional[OmniInput] = None, parameter: Optional[OmniParameter] = None
 ) -> List:
+    """Get a list with all parameter and input combinations as OutFileMapping, but no outputs, yet
+
+    Args:
+        inputs (Optional[OmniInput], optional): An OmniInput object. Defaults to None.
+        parameter (Optional[OmniParameter], optional): An OmniParameter object. Defaults to None.
+
+    Returns:
+        List: _description_
+    """
     ins = get_input_file_list(inputs)
     para = get_parameter_combinations(parameter)
     out_list = []
@@ -154,7 +195,19 @@ def get_all_output_combinations(
     template_fun: Optional[Callable[..., Mapping]] = None,
     **kwargs,
 ) -> List[OutMapping]:
+    """Get OutMappings for all possible input and parameter combinations
 
+    Args:
+        name (str): Output name
+        output_end (Mapping[str, str]): Mapping of output file types with their corresponding file endings
+        inputs (Optional[OmniInput], optional): An OmniInput object. Defaults to None.
+        parameter (Optional[OmniParameter], optional): An OmniParameter object. Defaults to None.
+        out_template (str, optional): A template to automatically generate output file names. Defaults to "data//__.".
+        template_fun (Optional[Callable[..., Mapping]], optional): Function to apply for automatic output file generation. Defaults to None.
+
+    Returns:
+        List[OutMapping]: A List of all possible OutMappings
+    """
     comb_list = get_input_parameter_combinations(inputs=inputs, parameter=parameter)
     out_list = []
 
@@ -225,6 +278,20 @@ def check_default_settings(
     default_params: Optional[Mapping],
     defaults: OutMapping,
 ) -> OutMapping:
+    """Check if the specified defaults for inputs/parameter/outputs match the specified default OutMapping
+
+    Args:
+        default_inputs (Optional[Mapping]): Default inputs
+        default_outputs (Optional[Mapping]): Default outputs
+        default_params (Optional[Mapping]): Default parameter
+        defaults (OutMapping): Default OutMapping
+
+    Raises:
+        InputError: Specified defaults need to match.
+
+    Returns:
+        OutMapping: Default OutMapping
+    """
     if (
         default_outputs == defaults["output_files"]
         and default_params == convert_values_to_string(defaults["parameter"])
@@ -244,6 +311,16 @@ def get_default_outputs(
     inputs: Optional[OmniInput] = None,
     parameter: Optional[OmniParameter] = None,
 ) -> Optional[Mapping]:
+    """Get default outputs from the file mapping and default inputs/parameter
+
+    Args:
+        file_mapping (List[OutMapping]): List of OutMappings
+        inputs (Optional[OmniInput], optional): An OmniInput object. Defaults to None.
+        parameter (Optional[OmniParameter], optional): An OmniParameter object. Defaults to None.
+
+    Returns:
+        Optional[Mapping]: Default Output files
+    """
     def_input = get_default_input(inputs)
     def_param = get_default(parameter)
     def_out = None
@@ -271,6 +348,14 @@ def get_default_outputs(
 
 
 def add_missing_file_map_keys(file_map: OutMapping) -> OutMapping:
+    """Add 'input_files', 'parameter' as keys to OutMapping if they are missing
+
+    Args:
+        file_map (OutMapping): OutMapping
+
+    Returns:
+        OutMapping: OutMapping with all keys.
+    """
     for map_key in ["input_files", "parameter"]:
         if map_key not in file_map.keys():
             file_map[map_key] = None  # type:ignore
@@ -298,6 +383,16 @@ def filter_file_mapping_missing_values(
     inputs: Optional[OmniInput] = None,
     parameter: Optional[OmniParameter] = None,
 ) -> Optional[OutMapping]:
+    """Filter incomplete file mappings (e.g., if a file type specified as input is missing)
+
+    Args:
+        file_mapping (OutMapping): An OutMapping
+        inputs (Optional[OmniInput], optional): An OmniInput object. Defaults to None.
+        parameter (Optional[OmniParameter], optional): An OmniParameter object. Defaults to None.
+
+    Returns:
+        Optional[OutMapping]: Complete OutMapping
+    """
     in_files = get_input_param_names(inputs)
     in_param = get_input_param_names(parameter)
     if any(fi not in get_keys_list(file_mapping["input_files"]) for fi in in_files):
@@ -315,6 +410,16 @@ def filter_file_mapping_list(
     inputs: Optional[OmniInput] = None,
     parameter: Optional[OmniParameter] = None,
 ) -> Optional[List[OutMapping]]:
+    """Filter list of file mappings for imcomplete mappings
+
+    Args:
+        file_mapping_list (List[OutMapping]): List of OutMappings
+        inputs (Optional[OmniInput], optional): An OmniInput object. Defaults to None.
+        parameter (Optional[OmniParameter], optional): An OmniParameter object. Defaults to None.
+
+    Returns:
+        Optional[List[OutMapping]]: List of complete OutMappings
+    """
     fi_map_list = [
         filter_file_mapping_missing_values(
             file_mapping=fi_map, inputs=inputs, parameter=parameter

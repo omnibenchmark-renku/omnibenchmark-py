@@ -76,6 +76,17 @@ def renku_dataset_create(
 def renku_dataset_import(
     uri: str, name: str = None, extract: bool = False, yes: bool = True
 ):
+    """Import renku dataset by url
+
+    Args:
+        uri (str): URL to the dataset to import
+        name (str, optional): Name of the imported dataset. Defaults to None.
+        extract (bool, optional): If the dataset is zipped and shall be extracted. Defaults to False.
+        yes (bool, optional): Skip manual confirmation. Defaults to True.
+
+    Raises:
+        ProjectError: Project to import the dataset into needs to be a renku project
+    """
     if not omnibenchmark.management.general_checks.is_renku_project():
         raise ProjectError(
             "Directory is not a renku project.\n"
@@ -108,6 +119,23 @@ def renku_dataset_update(
     update_all: bool = False,
     dry_run: bool = False,
 ):
+    """Update an imported renku dataset from source
+
+    Args:
+        names (List[str]):name of the dataset
+        creators (Optional[List[str]], optional): Original dataset creator. Defaults to None.
+        include (Optional[List[str]], optional): Files to include into the update. Defaults to None.
+        exclude (Optional[List[str]], optional): Files to exclude from updating. Defaults to None.
+        ref (Optional[str], optional): commit hash to update the dataset from. Defaults to None.
+        delete (bool, optional): Delete files that do not exist in source. Defaults to True.
+        no_external (bool, optional): Only update internal datasets. Defaults to True.
+        update_all (bool, optional): Update all dataset files. Defaults to False.
+        dry_run (bool, optional): Dry run the update. Defaults to False.
+
+    Raises:
+        ProjectError: The project needs to be a renku project
+        errors.ParameterError: Specify only one of exclude/include and update_all
+    """
     if not omnibenchmark.management.general_checks.is_renku_project():
         raise ProjectError(
             "Directory is not a renku project.\n"
@@ -160,6 +188,21 @@ def renku_add_to_dataset(
     sources: Optional[List[Union[str, Path]]] = None,
     destination: Optional[List[str]] = None,
 ) -> Optional[RenkuDataSet]:
+    """Add files to renku dataset
+
+    Args:
+        urls (List[str]): Urls to add
+        dataset_name (str): Name of the dataset
+        external (bool, optional): Do urls point to external files. Defaults to False.
+        force (bool, optional): Force overwriting of files. Defaults to False.
+        overwrite (bool, optional): Ovrwrite files. Defaults to True.
+        create (bool, optional): Create the dataset if it does not exist already. Defaults to False.
+        sources (Optional[List[Union[str, Path]]], optional): Sources to add files from. Defaults to None.
+        destination (Optional[List[str]], optional): Destinations of the added files. Defaults to None.
+
+    Raises:
+        ProjectError: The project needs to be a renku project
+    """
 
     if not omnibenchmark.management.general_checks.is_renku_project():
         raise ProjectError(
