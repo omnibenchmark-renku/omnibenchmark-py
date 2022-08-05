@@ -9,6 +9,14 @@ from os import PathLike
 
 
 def map_plan_names(plan: Plan) -> Mapping[str, str]:
+    """Get default inputs/parameter/outputs from a plan
+
+    Args:
+        plan (Plan): A renku plan
+
+    Returns:
+        Mapping[str, str]: A mapping of defaults secified by the renku plan
+    """
     plan_map = {}
     for input in plan.inputs:
         plan_map[input.name] = input.default_value
@@ -21,6 +29,14 @@ def map_plan_names(plan: Plan) -> Mapping[str, str]:
 
 
 def get_file_type_dict(file_mapping: OutMapping) -> Mapping[str, str]:
+    """Get a dictionary of file names and file types with types as keys. 
+
+    Args:
+        file_mapping (OutMapping): An OutMapping
+
+    Returns:
+        Mapping[str, str]: A mapping of file types (keys) and their file names (values)
+    """
     type_map: Dict = {}
     for file_dict in list(file_mapping.values()):
         if file_dict is not None:
@@ -32,6 +48,14 @@ def get_file_type_dict(file_mapping: OutMapping) -> Mapping[str, str]:
 def get_file_name_dict(
     file_mapping: List[Mapping[str, Optional[str]]]
 ) -> Mapping[str, str]:
+    """Get a dictionary of file names and file types with names as keys. 
+
+    Args:
+        file_mapping (List[Mapping[str, Optional[str]]]): A List of OutMappings
+
+    Returns:
+        Mapping[str, str]: A mapping of file names (keys) and their file types (values)
+    """
     map_dict: Dict = defaultdict(list)
     for mapping in file_mapping:
         joined_dict = {
@@ -41,7 +65,16 @@ def get_file_name_dict(
     return map_dict
 
 
-def map_plan_names_by_prefix(plan: Plan, plan_dict=Mapping[str, str]) -> Dict[str, str]:
+def map_plan_names_by_prefix(plan: Plan, plan_dict: Mapping[str, str]) -> Dict[str, str]:
+    """Get a mapping of plan names from the specified prefixes
+
+    Args:
+        plan (Plan): A renku plan.
+        plan_dict (Mapping[str, str].): A dictionary of all possible inputs/parameter/outputs.
+
+    Returns:
+        Dict[str, str]: A mapping of plan names and file types
+    """
     map_dict: Dict = {}
     rev_dict: Dict = {}
     for key, value in plan_dict.items():
@@ -71,6 +104,15 @@ def map_plan_names_by_prefix(plan: Plan, plan_dict=Mapping[str, str]) -> Dict[st
 def map_plan_names_file_types(
     plan: Plan, file_dict: Mapping[str, str]
 ) -> Mapping[str, str]:
+    """Get a mapping of plan names and file types from an existing plan.
+
+    Args:
+        plan (Plan): A ren,u plan
+        file_dict (Mapping[str, str]): A mapping of file types and names
+
+    Returns:
+        Mapping[str, str]: A mapping of plan names and file types
+    """
     plan_dict = map_plan_names(plan)
     map_dict = map_plan_names_by_prefix(plan, plan_dict)
     for plan_name, plan_element in plan_dict.items():
@@ -81,15 +123,24 @@ def map_plan_names_file_types(
 
 
 def get_file_mapping_from_out_files(
-    out_files: List[Union[PathLike, str, None]], file_mapping=Optional[List[OutMapping]]
+    out_files: List[Union[PathLike, str, None]], file_mapping: Optional[List[OutMapping]] = None
 ) -> List[OutMapping]:
+    """Get the OutMapping from the output file names
+
+    Args:
+        out_files (List[Union[PathLike, str, None]]): A list of  output file names
+        file_mapping (Optional[List[OutMapping]]): A List of OutMappings.
+
+    Returns:
+        List[OutMapping]: A List of OutMappings.
+    """
     try:
         map_list = [
             mapping
-            for mapping in file_mapping
+            for mapping in file_mapping                                         #type:ignore
             if any(
                 out_file in out_files
-                for out_file in list(mapping["output_files"].values())
+                for out_file in list(mapping["output_files"].values())          #type:ignore
             )
         ]
     except:
@@ -99,15 +150,23 @@ def get_file_mapping_from_out_files(
 
 
 def get_file_list_from_out_mapping(
-    out_mapping=Optional[List[OutMapping]],
+    out_mapping: List[OutMapping],
 ) -> Optional[List[str]]:
+    """Get a list of all files from a list of OutMappings
+
+    Args:
+        out_mapping (List[OutMapping]): A List of OutMappings
+
+    Returns:
+        Optional[List[str]]: A List of all files.
+    """
     all_files = []
     for mapping in out_mapping:
         try:
             file_list: Iterable = [
                 file_path
                 for file_dict in mapping.values()
-                for file_path in file_dict.values()
+                for file_path in file_dict.values()    #type:ignore
             ]
         except:
             file_list: Iterable = []  # type:ignore

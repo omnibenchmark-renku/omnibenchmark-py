@@ -58,6 +58,18 @@ def parse_explicit_inputs(obj: Optional[Mapping]) -> List:
 def check_default_parameter(
     default_params: Optional[Mapping], param_combinations: Optional[List[Mapping]]
 ) -> Optional[Mapping]:
+    """Check if the specified default parameter are part of the available parameter combinations
+
+    Args:
+        default_params (Optional[Mapping]): Default parameter mapping
+        param_combinations (Optional[List[Mapping]]): List of all available parameter combinations
+
+    Raises:
+        InputError: If parameter defaults are specified, but no parameter dataset is detected.
+
+    Returns:
+        Optional[Mapping]: Default parameter mapping
+    """
     if default_params is not None and (
         param_combinations is None or len(param_combinations) < 1
     ):

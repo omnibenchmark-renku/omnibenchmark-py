@@ -94,6 +94,14 @@ def into_list(obj: Union[str, list]) -> list:
 def build_omni_input_from_config_inputs(
     config_inputs: ConfigInput,
 ) -> Optional[OmniInput]:
+    """Build an OmniInput object from a ConfigInput dictionary
+
+    Args:
+        config_inputs (ConfigInput): A ConfigInput dictionary
+
+    Returns:
+        Optional[OmniInput]: An OmniInput object
+    """
     inputs: defaultdict = defaultdict(list, config_inputs)
     in_pre = inputs["prefix"]
     in_names = empty_object_to_none(into_list(inputs["files"]))
@@ -127,6 +135,14 @@ def build_omni_input_from_config_inputs(
 def build_omni_parameter_from_config_params(
     config_params: ConfigParam,
 ) -> Optional[OmniParameter]:
+    """Build an OmniParameter object from a ConfigParam dictionary
+
+    Args:
+        config_params (ConfigParam): A ConfigParam dictionary
+
+    Returns:
+        Optional[OmniParameter]: An OmniParameter object
+    """
     params: defaultdict = defaultdict(list, config_params)
     param_names = empty_object_to_none(params["names"])
     param_values = empty_object_to_none(params["values"])
@@ -172,6 +188,16 @@ def build_omni_output_from_config(
     omni_input: Optional[OmniInput] = None,
     omni_parameter: Optional[OmniParameter] = None,
 ) -> Optional[OmniOutput]:
+    """Build an OmniOutput from a ConfigDict
+
+    Args:
+        config (ConfigDict): A ConfigDict
+        omni_input (Optional[OmniInput], optional): An OmniInput object. Defaults to None.
+        omni_parameter (Optional[OmniParameter], optional): An Omniparameter object. Defaults to None.
+
+    Returns:
+        Optional[OmniOutput]: An OmniOutput object.
+    """
     config_in: defaultdict = defaultdict(dict, config)
     config_outputs = defaultdict(list, config_in["outputs"])
     out_files = config_outputs["files"]
@@ -222,6 +248,15 @@ def build_omni_output_from_config(
 def build_omni_command_from_config(
     config: ConfigDict, omni_output: Optional[OmniOutput] = None
 ) -> Optional[OmniCommand]:
+    """Build an OmniCommand object from a ConfigDict_
+
+    Args:
+        config (ConfigDict): A configDict instance
+        omni_output (Optional[OmniOutput], optional): An OmniOutput object. Defaults to None.
+
+    Returns:
+        Optional[OmniCommand]: An OmniCommand object
+    """
     if omni_output is None:
         omni_output = build_omni_output_from_config(config)
     config_in: defaultdict = defaultdict(list, config)
@@ -243,6 +278,14 @@ def build_omni_command_from_config(
 
 
 def build_omni_object_from_config(config: ConfigDict) -> OmniObject:
+    """Build an OmniObject from a Config dict instance
+
+    Args:
+        config (ConfigDict): A ConfigDict instance.
+
+    Returns:
+        OmniObject: An OmniObject object.
+    """
     config_in: defaultdict = defaultdict(dict, config)
     omni_input = build_omni_input_from_config_inputs(config_in["inputs"])
     omni_parameter = build_omni_parameter_from_config_params(config_in["parameter"])
@@ -278,6 +321,14 @@ def build_omni_object_from_config(config: ConfigDict) -> OmniObject:
 
 
 def get_omni_object_from_yaml(yaml_file: PathLike) -> OmniObject:
+    """Build an OmniObject from defenitions of a yaml file
+
+    Args:
+        yaml_file (PathLike): Path to yaml file
+
+    Returns:
+        OmniObject: An OmniObject object.
+    """
     with open(yaml_file) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     check_type("config", config, ConfigDict)
