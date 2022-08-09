@@ -1,6 +1,6 @@
 # Omnibenchmark
 
-Generate and manage omnibenchmark modules for open and continous benchmarking.
+Generate and manage omnibenchmark modules for open and continuous benchmarking.
 Each module represents a single building block of a benchmark, e.g., dataset, method, metric.
 Omnibenchmark-py provides a structure to generate modules and automatically run them.
 
