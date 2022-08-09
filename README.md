@@ -121,9 +121,11 @@ data:
 script: "path/to/method/dataset/metric/script.py"
 # Interpreter to run the script (Optional, automatic detection)
 interpreter: "python"
-# Benchmark that the object is associated to. Only datasets from modules of this benchmark will automatically be imported
+# Benchmark that the object is associated to.
 benchmark_name: "omni_celltype"
-#Orchestrator url of the benchmark (Optional, automatic detection)Omnibenchmark classes types. (Optional)
+# Orchestrator url of the benchmark (Optional, automatic detection)
+orchestrator: "https://www.orchestrator_url.com"
+# Input section to describe output file types. (Optional)
 inputs:
     # Keyword to find input datasets, that shall be imported 
     keywords: ["import_this", "import_that"]
