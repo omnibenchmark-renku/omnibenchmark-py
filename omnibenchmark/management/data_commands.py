@@ -84,6 +84,22 @@ def filter_existing(data_json: List) -> Tuple[List, List]:
     return import_list, update_list
 
 
+# Apply predefined filter
+def import_filter(data_json: List, filter_names: Optional[List[str]] = None) -> List:
+    """Filter import datasets by specified names.
+
+    Args:
+        data_json (List): List of datasets with their metadata mappings
+        filter_names (Optional[List[str]], optional): Names to be filtered from the dataset list. Defaults to None.
+
+    Returns:
+        List: Filtered list of dataset metadata
+    """
+    if filter_names is None:
+        return data_json
+    else:
+        return [data for data in data_json if data["name"] not in filter_names]
+
 # Get dataset field by matching property
 def get_field_by_dataset_property(
     string: str,
@@ -91,6 +107,7 @@ def get_field_by_dataset_property(
     property_name: str = "keywords",
     field: str = "identifier",
     filter_ex: bool = False,
+    filter_names: Optional[List[str]] = None,
 ) -> Tuple[List[str], List[str]]:
     """Get a specific field of all datasets that match a specified query.
 
@@ -100,6 +117,7 @@ def get_field_by_dataset_property(
         property_name (str, optional): Dataset property to match with the query string. Defaults to "keywords".
         field (str, optional): Dataset field to return. Defaults to "identifier".
         filter_ex (bool, optional): If true return the name of all existing datasets instead. Defaults to False.
+        filter_names (Optional[List[str]], optional): Names to be filtered from the dataset list. Defaults to None.
 
     Returns:
         Tuple[List[str], List[str]]: List with the "field" value of all (or of the non existing datasets). List with names of existing datasets.
@@ -107,6 +125,7 @@ def get_field_by_dataset_property(
     data_json = query_datasets_by_property(
         string=string, url=url, property_name=property_name
     )
+    data_json = import_filter(data_json=data_json, filter_names=filter_names)
     up_json: List = []
     if filter_ex:
         data_json, up_json = filter_existing(data_json=data_json)
@@ -284,6 +303,7 @@ def get_data_url_by_keyword(
     keyword: str,
     o_url: str,
     filter_ex: bool = False,
+    filter_names: Optional[List[str]] = None,
     query_url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
     data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
     gitlab_url: str = "https://renkulab.io/gitlab",
@@ -294,6 +314,7 @@ def get_data_url_by_keyword(
         keyword (str): keyword to find datasets by
         o_url (str): Orchestrator url that links all valid projects
         filter_ex (bool, optional): If existing datasets should be filtered automatically. Defaults to False.
+        filter_names (Optional[List[str]], optional): Names to be filtered from the dataset list. Defaults to None.
         query_url (str, optional): URL to the knowledgebase dataset query API. Defaults to "https://renkulab.io/knowledge-graph/datasets?query=".
         data_url (str, optional): URL to the knowledgebase dataset API. Defaults to "https://renkulab.io/knowledge-graph/datasets/".
         gitlab_url (str, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
@@ -302,7 +323,7 @@ def get_data_url_by_keyword(
         Tuple[List[str], List[str]]: 1. List with all matching non-existing dataset urls, 2. List with all matching existig dataset urls.
     """
     all_ids, up_exist = get_field_by_dataset_property(
-        string=keyword, url=query_url, filter_ex=filter_ex
+        string=keyword, url=query_url, filter_ex=filter_ex, filter_names=filter_names
     )
     up_exist = list(unique_everseen(up_exist))
     if len(all_ids) + len(up_exist) < 1:
@@ -334,6 +355,7 @@ def update_datasets_by_keyword(
     keyword: str,
     o_url: str,
     filter_ex: bool = True,
+    filter_names: Optional[List[str]] = None,
     query_url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
     data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
     gitlab_url: str = "https://renkulab.io/gitlab",
@@ -344,6 +366,7 @@ def update_datasets_by_keyword(
         keyword (str): Keyword to match datasets
         o_url (str):  Orchestrator url that links all valid projects
         filter_ex (bool, optional): If existing datasets should be filtered automatically. Defaults to True.
+        filter_names (Optional[List[str]], optional): Names to be filtered from the dataset list. Defaults to None.
         query_url (_type_, optional): URL to the knowledgebase dataset query API. Defaults to "https://renkulab.io/knowledge-graph/datasets?query=".
         data_url (_type_, optional): URL to the knowledgebase dataset API. Defaults to "https://renkulab.io/knowledge-graph/datasets/".
         gitlab_url (_type_, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
@@ -352,6 +375,7 @@ def update_datasets_by_keyword(
         keyword=keyword,
         o_url=o_url,
         filter_ex=filter_ex,
+        filter_names=filter_names,
         query_url=query_url,
         data_url=data_url,
         gitlab_url=gitlab_url,

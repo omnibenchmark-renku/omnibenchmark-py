@@ -36,6 +36,20 @@ class OmniOutput:
         template_fun: Optional[Callable[..., Mapping]] = None,
         template_vars: Optional[Mapping] = None,
     ):
+        """Class to manage outputs of an omnibenchmark module
+
+        Args:
+            name (str): Name that is specific for all outputs. Typically the omnibenchmark module name/OmniObject name
+            out_names (List[str]): Names of the output file types
+            output_end (Optional[Mapping[str, str]], optional): Endings of the output filetypes. Defaults to None.
+            out_template (str, optional): Template to generate output file names. Defaults to "data/${name}/${name}_${unique_values}_${out_name}.${out_end}".
+            file_mapping (Optional[List[OutMapping]], optional): Mapping of input files, parameter values and output files. Defaults to None.
+            inputs (Optional[OmniInput], optional): Object specifying all valid inputs. Defaults to None.
+            parameter (Optional[OmniParameter], optional): Object speccifying the parameter space. Defaults to None.
+            default (Optional[Mapping], optional): Default output files. Defaults to None.
+            template_fun (Optional[Callable[..., Mapping]], optional): Function to use to automatically generate output filenames. Defaults to None.
+            template_vars (Optional[Mapping], optional): Variables that are used by template_fun. Defaults to None.
+        """
         self.name = name
         self.out_names = out_names
         self.output_end = output_end
@@ -134,7 +148,6 @@ class OmniOutput:
                     inputs=self.inputs,
                     parameter=self.parameter,
                 )
-        # return self
 
 
 class OmniCommand:
@@ -149,6 +162,16 @@ class OmniCommand:
         input_val: Optional[Mapping] = None,
         parameter_val: Optional[Mapping] = None,
     ):
+        """Initialize an instance of the class OmniCommand
+
+        Args:
+            script (Union[PathLike, str]): Path to the script run by the command
+            interpreter (str, optional): Interpreter to run the script with. Defaults to None.
+            command_line (str, optional): Command line to be run. Defaults to None.
+            outputs (OmniOutput, optional): Object specifying all outputs. Defaults to None.
+            input_val (Optional[Mapping], optional): Input file tyoes and paths to run the command on. Defaults to None.
+            parameter_val (Optional[Mapping], optional): Parameter names and values to run the command with. Defaults to None.
+        """
         self.script = script
         self.interpreter = interpreter
         self.command_line = command_line
@@ -236,6 +259,12 @@ class OmniPlan:
     def __init__(
         self, plan: PlanViewModel, param_mapping: Optional[Mapping[str, str]] = None
     ):
+        """Initialize an instance of the class OmniPlan
+
+        Args:
+            plan (PlanViewModel): A plan view model as defined in renku
+            param_mapping (Optional[Mapping[str, str]], optional): A mapping between the component names of the plan and the OmniObject. Defaults to None.
+        """
         self.plan = plan
         self.param_mapping = param_mapping
 

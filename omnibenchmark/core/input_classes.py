@@ -31,12 +31,24 @@ class OmniInput:
         input_files: Optional[Mapping[str, Mapping[str, str]]] = None,
         keyword: Optional[List[str]] = None,
         default: Optional[str] = None,
+        filter_names: Optional[List[str]] = None,
     ):
+        """Class to manage inputs of an omnibenchmark
+
+        Args:
+            names (List[str]): Names of the input filetypes
+            prefix (Optional[Mapping[str, List[str]]], optional): Prefixes (or substrings) of the input filetypes. Defaults to None.
+            input_files (Optional[Mapping[str, Mapping[str, str]]], optional): Input files ordered by file types. Defaults to None.
+            keyword (Optional[List[str]], optional): Keyword to define which datasets are imported as input datasets. Defaults to None.
+            default (Optional[str], optional): Default input name (e.g., dataset). Defaults to None.
+            filter_names (Optional[List[str]], optional): Input dataset names to be ignored. Defaults to None.
+        """
         self.names = names
         self.prefix = prefix
         self.input_files = input_files
         self.keyword = keyword
         self.default = default
+        self.filter_names = filter_names
 
         if self.input_files is None:
 
@@ -87,6 +99,7 @@ class OmniInput:
             for key in self.keyword:
                 update_datasets_by_keyword(
                     keyword=key,
+                    filter_names=self.filter_names,
                     o_url=orchestrator,
                     query_url=query_url,
                     data_url=data_url,
@@ -119,6 +132,16 @@ class OmniParameter:
         filter: Optional[Mapping[str, str]] = None,
         combinations: Optional[List[Mapping[str, str]]] = None,
     ):
+        """Initiate an instance of the class OmniParameter
+
+        Args:
+            names (List[str]): Name of all valid parameter
+            values (Optional[Mapping[str, List]], optional): Parameter values - is usually automatically detected from teh parameter dataset. Defaults to None.
+            default (Optional[Mapping[str, str]], optional): Default parameter values. Defaults to None.
+            keyword (Optional[List[str]], optional): Keyword to import the parameter dataset with. Defaults to None.
+            filter (Optional[Mapping[str, str]], optional): Filter to use for the parameter space. Defaults to None.
+            combinations (Optional[List[Mapping[str, str]]], optional): All possible parameter combinations. Defaults to None.
+        """
         self.names = names
         self.values = values
         self.default = default

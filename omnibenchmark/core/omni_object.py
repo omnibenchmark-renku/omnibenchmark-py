@@ -26,7 +26,7 @@ class OmniObject(OmniRenkuInst):
 
     """OmniBench object
 
-    An Omnibenchmark component. Clas sto store metadata, inputs, outputs and parameter of an omnibenchmark project.
+    An Omnibenchmark component. Class to store metadata, inputs, outputs and parameter of an omnibenchmark project.
     """
 
     def __init__(
@@ -46,6 +46,24 @@ class OmniObject(OmniRenkuInst):
         wflow_name: Optional[str] = None,
         dataset_name: Optional[str] = None,
     ):
+        """An object to manage an omnibenchmark module
+
+        Args:
+            name (str): Module name 
+            keyword (Optional[List[str]], optional): Keyword associated to the modules output dataset. Defaults to None.
+            title (Optional[str], optional): Title of the modules output dataset. Defaults to None.
+            description (Optional[str], optional): Description of the modules output dataset. Defaults to None.
+            script (Optional[PathLike], optional): Script to generate the modules workflow for. Defaults to None.
+            command (Optional[OmniCommand], optional): Workflow command - will be automatically generated if missing. Defaults to None.
+            inputs (Optional[OmniInput], optional): Definitions of the workflow inputs. Defaults to None.
+            parameter (Optional[OmniParameter], optional): Definitions of the workflow parameter. Defaults to None.
+            outputs (Optional[OmniOutput], optional): Definitions of the workflow outputs. Defaults to None.
+            omni_plan (Optional[OmniPlan], optional): The workflow description. Defaults to None.
+            benchmark_name (Optional[str], optional): Name of the benchmark the module is associated to. Defaults to None.
+            orchestrator (Optional[str], optional): Orchestrator url of the benchmark th emodule is associated to. Automatic detection. Defaults to None.
+            wflow_name (Optional[str], optional): Workflow name. Will be set to the module name if none. Defaults to None.
+            dataset_name (Optional[str], optional): Dataset name. Will be set to the module name if none. Defaults to None.
+        """
         self.name = name
         self.keyword = keyword
         self.title = title

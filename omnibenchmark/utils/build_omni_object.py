@@ -32,6 +32,7 @@ class ConfigInput(TypedDict, total=False):
     prefix: Optional[dict]
     input_files: Optional[dict]
     default: Optional[str]
+    filter_names: Optional[List]
 
 
 class ConfigOutput(TypedDict, total=False):
@@ -114,6 +115,7 @@ def build_omni_input_from_config_inputs(
         list(set(flatten([list(in1.keys()) for in1 in get_values(in_files)])))
     )
     default_in = empty_object_to_none(inputs["default"])
+    filter_names = empty_object_to_none(into_list(inputs["filter_names"]))
     in_names = in_names or get_keys(prefix) or in_file_types
 
     if in_names is not None:
@@ -123,6 +125,7 @@ def build_omni_input_from_config_inputs(
             keyword=keywords,
             input_files=in_files,
             default=default_in,
+            filter_names=filter_names,
         )
     else:
         logger.warning(
