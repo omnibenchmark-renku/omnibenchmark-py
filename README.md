@@ -210,90 +210,90 @@ Classes to manage omnibenchmark modules and their interactions. The main class i
 #### OmniObject
 Main class to manage an omnibenchmark module. 
 It takes the following arguments:
-* **name (str)**: Module name 
-* **keyword (Optional[List[str]], optional)**: Keyword associated to the modules output dataset. Defaults to None.
-* **title (Optional[str], optional)**: Title of the modules output dataset. Defaults to None.
-* **description (Optional[str], optional)**: Description of the modules output dataset. Defaults to None.
-* **script (Optional[PathLike], optional)**: Script to generate the modules workflow for. Defaults to None.
-* **command (Optional[OmniCommand], optional)**: Workflow command - will be automatically generated if missing. Defaults to None.
-* **inputs (Optional[OmniInput], optional)**: Definitions of the workflow inputs. Defaults to None.
-* **parameter (Optional[OmniParameter], optional)**: Definitions of the workflow parameter. Defaults to None.
-* **outputs (Optional[OmniOutput], optional)**: Definitions of the workflow outputs. Defaults to None.
-* **omni_plan (Optional[OmniPlan], optional)**: The workflow description. Defaults to None.
-* **benchmark_name (Optional[str], optional)**: Name of the benchmark the module is associated to. Defaults to None.
-* **orchestrator (Optional[str], optional)**: Orchestrator url of the benchmark th emodule is associated to. Automatic detection. Defaults to None.
-* **wflow_name (Optional[str], optional)**: Workflow name. Will be set to the module name if none. Defaults to None.
-* **dataset_name (Optional[str], optional)**: Dataset name. Will be set to the module name if none. Defaults to None.
+* **`name (str)`**: Module name 
+* **`keyword (Optional[List[str]], optional)`**: Keyword associated to the modules output dataset.
+* **`title (Optional[str], optional)`**: Title of the modules output dataset.
+* **`description (Optional[str], optional)`**: Description of the modules output dataset.
+* **`script (Optional[PathLike], optional)`**: Script to generate the modules workflow for.
+* **`command (Optional[OmniCommand], optional)`**: Workflow command - will be automatically generated if missing.
+* **`inputs (Optional[OmniInput], optional)`**: Definitions of the workflow inputs.
+* **`parameter (Optional[OmniParameter], optional)`**: Definitions of the workflow parameter.
+* **`outputs (Optional[OmniOutput], optional)`**: Definitions of the workflow outputs.
+* **`omni_plan (Optional[OmniPlan], optional)`**: The workflow description.
+* **`benchmark_name (Optional[str], optional)`**: Name of the benchmark the module is associated to.
+* **`orchestrator (Optional[str], optional)`**: Orchestrator url of the benchmark th emodule is associated to. Automatic detection.
+* **`wflow_name (Optional[str], optional)`**: Workflow name. Will be set to the module name if none.
+* **`dataset_name (Optional[str], optional)`**: Dataset name. Will be set to the module name if none.
 
 The following class methods can be run on an instance of an OmniObject:
-* **create_dataset()**: Method to create a renku dataset with the in the object specified attributes in the current renku project. 
-* **update_object()**: Method to check for new imports or updates in input datasets or the parameter dataset. Will update object attributes accordingly.
-* **run_renku()**: Method to generate and update the workflow and all output files as specified in the object.
-* **update_result_dataset()**: Method to update and add all output datasets to the dataset specified in the object.
+* **`create_dataset()`**: Method to create a renku dataset with the in the object specified attributes in the current renku project. 
+* **`update_object()`**: Method to check for new imports or updates in input and the parameter datasets. Will update object attributes accordingly.
+* **`run_renku()`**: Method to generate and update the workflow and all output files as specified in the object.
+* **`update_result_dataset()`**: Method to update and add all output datasets to the dataset specified in the object.
 
 ---
 
 #### OmniInput
 Class to manage inputs of an omnibenchmark module.
 This class has the following attributes:
-* **names (List[str])**: Names of the input filetypes
-* **prefix (Optional[Mapping[str, List[str]]], optional)**: Prefixes (or substrings) of the input filetypes. Defaults to None.
-* **input_files (Optional[Mapping[str, Mapping[str, str]]], optional)**: Input files ordered by file types. Defaults to None.
-* **keyword (Optional[List[str]], optional)**: Keyword to define which datasets are imported as input datasets. Defaults to None.
-* **default (Optional[str], optional)***: Default input name (e.g., dataset). Defaults to None.
-* **filter_names (Optional[List[str]], optional)**: Input dataset names to be ignored. Defaults to None.
+* **`names (List[str])`**: Names of the input filetypes
+* **`prefix (Optional[Mapping[str, List[str]]], optional)`**: Prefixes (or substrings) of the input filetypes.
+* **`input_files (Optional[Mapping[str, Mapping[str, str]]], optional)`**: Input files ordered by file types.
+* **`keyword (Optional[List[str]], optional)`**: Keyword to define which datasets are imported as input datasets.
+* **`default (Optional[str], optional)`**: Default input name (e.g., dataset).
+* **`filter_names (Optional[List[str]], optional)`**: Input dataset names to be ignored.
 
 The following class methods can be run on an instance of an OmniInput:
-* **update_inputs()**: Method to import new and update existing input datasets and update the object accordingly
+* **`update_inputs()`**: Method to import new and update existing input datasets and update the object accordingly
 
 ---
 
 #### OmniOutput
 Class to manage outputs of an omnibenchmark module. 
 This class has the following attributes:
-* **name (str)**: Name that is specific for all outputs. Typically the omnibenchmark module name/OmniObject name
-* **out_names (List[str])**: Names of the output file types
-* **output_end (Optional[Mapping[str, str]], optional)**: Endings of the output filetypes. Defaults to None.
-* **out_template (str, optional)***: Template to generate output file names. Defaults to "data/${name}/${name}_${unique_values}_${out_name}.${out_end}".
-* **file_mapping (Optional[List[OutMapping]], optional)**: Mapping of input files, parameter values and output files. Defaults to None.
-* **inputs (Optional[OmniInput], optional)***: Object specifying all valid inputs. Defaults to None.
-* **parameter (Optional[OmniParameter], optional)**: Object speccifying the parameter space. Defaults to None.
-* **default (Optional[Mapping], optional)***: Default output files. Defaults to None.
-* **template_fun (Optional[Callable[..., Mapping]], optional)**: Function to use to automatically generate output filenames. Defaults to None.
-* **template_vars (Optional[Mapping], optional)**: Variables that are used by template_fun. Defaults to None.
+* **`name (str)`**: Name that is specific for all outputs. Typically the module name/OmniObject name.
+* **`out_names (List[str])`**: Names of the output file types
+* **`output_end (Optional[Mapping[str, str]], optional)`**: Endings of the output filetypes.
+* **`out_template (str, optional)`**: Template to generate output file names.
+* **`file_mapping (Optional[List[OutMapping]], optional)`**: Mapping of input files, parameter values and output files.
+* **`inputs (Optional[OmniInput], optional)`**: Object specifying all valid inputs.
+* **`parameter (Optional[OmniParameter], optional)`**: Object speccifying the parameter space.
+* **`default (Optional[Mapping], optional)`**: Default output files.
+* **`template_fun (Optional[Callable[..., Mapping]], optional)`**: Function to use to automatically generate output filenames.
+* **`template_vars (Optional[Mapping], optional)`**: Variables that are used by template_fun.
 
 The following class methods can be run on an instance of an OmniInput:
-* **update_outputs()**: Method to update the output definitions according to the objects attributes.
+* **`update_outputs()`**: Method to update the output definitions according to the objects attributes.
 
 ---
 
 #### OmniParameter
 Class to manage parameter of an omnibenchmark module.
 This class has the following attributes:
-* **names (List[str])**: Name of all valid parameter
-* **values (Optional[Mapping[str, List]], optional)**: Parameter values - is usually automatically detected from teh parameter dataset. Defaults to None.
-* **default (Optional[Mapping[str, str]], optional)**: Default parameter values. Defaults to None.
-* **keyword (Optional[List[str]], optional)***: Keyword to import the parameter dataset with. Defaults to None.
-* **filter (Optional[Mapping[str, str]], optional)**: Filter to use for the parameter space. Defaults to None.
-* **combinations (Optional[List[Mapping[str, str]]], optional)**: All possible parameter combinations. Defaults to None.
+* **`names (List[str])`**: Name of all valid parameter
+* **`values (Optional[Mapping[str, List]], optional)`**: Parameter values - usually automatically detected.
+* **`default (Optional[Mapping[str, str]], optional)`**: Default parameter values.
+* **`keyword (Optional[List[str]], optional)`**: Keyword to import the parameter dataset with.
+* **`filter (Optional[Mapping[str, str]], optional)`**: Filter to use for the parameter space.
+* **`combinations (Optional[List[Mapping[str, str]]], optional)`**: All possible parameter combinations.
 
 The following class methods can be run on an instance of an OmniInput:
-* **update_parameter()**: Method to import and update parameter datasets and update the object/parameter space accordingly.
+* **`update_parameter()`**: Method to import and update parameter datasets and update the object/parameter space accordingly.
 
 ---
 
 #### OmniCommand
 Class to manage the main workflow command of an omnibenchmark module. 
 This class has the following attributes:
-* **script (Union[PathLike, str])**: Path to the script run by the command
-* **interpreter (str, optional)**: Interpreter to run the script with. Defaults to None.
-* **command_line (str, optional)**: Command line to be run. Defaults to None.
-* **outputs (OmniOutput, optional)**: Object specifying all outputs. Defaults to None.
-* **input_val (Optional[Mapping], optional)**: Input file tyoes and paths to run the command on. Defaults to None.
-* **parameter_val (Optional[Mapping], optional)**: Parameter names and values to run the command with. Defaults to None.
+* **`script (Union[PathLike, str])`**: Path to the script run by the command
+* **`interpreter (str, optional)`**: Interpreter to run the script with.
+* **`command_line (str, optional)`**: Command line to be run.
+* **`outputs (OmniOutput, optional)`**: Object specifying all outputs.
+* **`input_val (Optional[Mapping], optional)`**: Input file tyoes and paths to run the command on.
+* **`parameter_val (Optional[Mapping], optional)`**: Parameter names and values to run the command with.
 
 The following class methods can be run on an instance of an OmniInput:
-* **update_command()**: Method to update the command according to the outputs,inputs,parameter.
+* **`update_command()`**: Method to update the command according to the outputs,inputs,parameter.
 
 ---
 
@@ -301,11 +301,11 @@ The following class methods can be run on an instance of an OmniInput:
 Class to manage the workflow of an omnibenchmark module. 
 This class has the following attributes:
 
-* **plan (PlanViewModel)**: A plan view model as defined in renku
-* **param_mapping (Optional[Mapping[str, str]], optional)**: A mapping between the component names of the plan and the OmniObject. Defaults to None.
+* **`plan (PlanViewModel)`**: A plan view model as defined in renku
+* **`param_mapping (Optional[Mapping[str, str]], optional)`**: A mapping between the component names of the plan and the OmniObject.
 
 The following class methods can be run on an instance of an OmniInput:
-* **predict_mapping_from_file_dict()**: Method to predict the mapping from the (input-, output-, parameter) file mapping used to generate the command.
+* **`predict_mapping_from_file_dict()`**: Method to predict the mapping from the (input-, output-, parameter) file mapping used to generate the command.
 
 ---
 
