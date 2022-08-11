@@ -7,7 +7,7 @@ data:
 script: "path/to/method/dataset/metric/script.py"
 interpreter: "python"
 command_line: "python path/to/method/dataset/metric/script.py --count_file data/import_this_dataset/...mtx.gz"
-benchmark_name: "omni_celltype"
+benchmark_name: "omni_clustering"
 orchestrator: "https://renkulab.io/knowledge-graph/projects/omnibenchmark/orchestrator"
 inputs:
   keywords: ["import_this"]
