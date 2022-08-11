@@ -26,7 +26,7 @@ def is_renku_project(path: Union[os.PathLike, str] = os.getcwd()) -> bool:
 
 def find_orchestrator(
     benchmark_name: str,
-    bench_url: str = "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks",
+    bench_url: str = "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks.html",
     key_header: str = "Benchmark_name",
     o_header: str = "Orchestrator",
 ) -> Optional[str]:
@@ -34,7 +34,7 @@ def find_orchestrator(
 
     Args:
         benchmark_name (str): Name of the benchmark that thge object is part of.
-        bench_url (_type_, optional): url to the omnibenchmark site with benchmark associations. Defaults to "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks".
+        bench_url (_type_, optional): url to the omnibenchmark site with benchmark associations. Defaults to "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks.html".
         key_header (str, optional): Header/column name specifying the benchmark names. Defaults to "Benchmark_name".
         o_header (str, optional): Header/column name specifying the orchestrator names. Defaults to "Orchestrator".
 

@@ -11,4 +11,4 @@ class OmniRenkuInst(object):
     GIT_URL = "https://renkulab.io/gitlab"
     GRAPHQL_URL = "https://renkulab.io/knowledge-graph/graphql"
     GIT_API = "https://renkulab.io/gitlab/api/v4/"
-    BENCH_URL = "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks"
+    BENCH_URL = "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks.html"
