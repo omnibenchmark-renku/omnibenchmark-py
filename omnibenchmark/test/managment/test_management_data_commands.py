@@ -98,6 +98,7 @@ def test_get_field_by_dataset_property_no_filter(mock_dataset_json, monkeypatch)
     assert res1 == ["XXXXXX"]
     assert res2 == []
 
+
 def test_get_field_by_dataset_property_filter_names(mock_dataset_json, monkeypatch):
     class MockResponse:
         @staticmethod
@@ -109,9 +110,12 @@ def test_get_field_by_dataset_property_filter_names(mock_dataset_json, monkeypat
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    res1, res2 = data_commands.get_field_by_dataset_property("mock", filter_names="mock_dataset")
+    res1, res2 = data_commands.get_field_by_dataset_property(
+        "mock", filter_names="mock_dataset"
+    )
     assert res1 == []
     assert res2 == []
+
 
 def test_get_field_by_dataset_property_with_filter(
     mock_dataset_json, monkeypatch, get_renkuDataset_List

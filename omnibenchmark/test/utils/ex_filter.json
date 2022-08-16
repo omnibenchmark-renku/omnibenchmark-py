@@ -1,0 +1,11 @@
+[
+    {
+	    "input_files": {
+            "in_file1": "path/to/in1"
+        },
+        "parameter": {
+            "param1": "str_value", 
+            "param2": 100
+        }
+    }
+]   

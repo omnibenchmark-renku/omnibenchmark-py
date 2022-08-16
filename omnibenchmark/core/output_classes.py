@@ -23,6 +23,7 @@ import os
 class OmniOutput:
     """Class to store metadata of datasets and files that are specified as output in an omnibenchmark project
     """
+
     def __init__(
         self,
         name: str,
@@ -33,6 +34,7 @@ class OmniOutput:
         inputs: Optional[OmniInput] = None,
         parameter: Optional[OmniParameter] = None,
         default: Optional[Mapping] = None,
+        filter_json: Optional[str] = None,
         template_fun: Optional[Callable[..., Mapping]] = None,
         template_vars: Optional[Mapping] = None,
     ):
@@ -47,6 +49,7 @@ class OmniOutput:
             inputs (Optional[OmniInput], optional): Object specifying all valid inputs. Defaults to None.
             parameter (Optional[OmniParameter], optional): Object speccifying the parameter space. Defaults to None.
             default (Optional[Mapping], optional): Default output files. Defaults to None.
+            filter_json(Optional[str], optional): Path to json file with filter combinations. Defaults to None.
             template_fun (Optional[Callable[..., Mapping]], optional): Function to use to automatically generate output filenames. Defaults to None.
             template_vars (Optional[Mapping], optional): Variables that are used by template_fun. Defaults to None.
         """
@@ -58,6 +61,7 @@ class OmniOutput:
         self.inputs = inputs
         self.parameter = parameter
         self.default = default
+        self.filter_json = filter_json
         self.template_fun = template_fun
         self.template_vars = template_vars if template_vars is not None else {}
 
@@ -84,6 +88,7 @@ class OmniOutput:
             file_mapping_list=self.file_mapping,
             inputs=self.inputs,
             parameter=self.parameter,
+            filter_json=self.filter_json,
         )
 
         if self.file_mapping is not None:
@@ -129,6 +134,7 @@ class OmniOutput:
                 file_mapping_list=self.file_mapping,
                 inputs=self.inputs,
                 parameter=self.parameter,
+                filter_json=self.filter_json,
             )
 
         if self.file_mapping is not None:
@@ -142,7 +148,8 @@ class OmniOutput:
                 ),
             )
 
-            if self.default is None:
+            omni_outfiles = [file_map["output_files"] for file_map in self.file_mapping]
+            if self.default is None or self.default not in omni_outfiles:
                 self.default = get_default_outputs(
                     file_mapping=self.file_mapping,
                     inputs=self.inputs,
@@ -153,6 +160,7 @@ class OmniOutput:
 class OmniCommand:
     """Class to store metadata and attributes of a command in an omnibenchmark project
     """
+
     def __init__(
         self,
         script: Union[PathLike, str],
@@ -181,9 +189,55 @@ class OmniCommand:
 
         if self.command_line is None:
             if self.outputs is None or self.outputs.file_mapping is None:
-                raise InputError(
-                    f'Can not infer command without Output definition. Please specify either "command_line" or "outputs".'
+                print(
+                    f"WARNING: No outputs/output file mapping in the current project detected.\n"
+                    f"Run OmniObject.update_object() to update outputs, inputs and parameter.\n"
+                    f"Currently this object can not be used to generate a workflow."
                 )
+            else:
+                output_val = self.outputs.default
+                self.input_val = next(
+                    (
+                        out_dict["input_files"]  # type:ignore
+                        for out_dict in self.outputs.file_mapping
+                        if out_dict["output_files"] == output_val
+                    ),
+                    None,  # type:ignore
+                )
+                self.parameter_val = next(
+                    (
+                        out_dict["parameter"]
+                        for out_dict in self.outputs.file_mapping
+                        if out_dict["output_files"] == output_val
+                    ),
+                    None,
+                )
+                if self.interpreter is None:
+                    ext = os.path.splitext(self.script)[1]
+                    self.interpreter = get_interpreter_from_extension(ext)
+
+                self.command_line = automatic_command_generation(
+                    self.script,
+                    interpreter=self.interpreter,
+                    inputs=self.input_val,  # type:ignore
+                    outputs=output_val,
+                    parameters=self.parameter_val,
+                )
+        ## Add command checks!
+
+    def update_command(self):
+        """Update command according to the specifed inputs/parameter/output
+
+        Raises:
+            InputError: Needs an OmniOutput object or the command line specified.
+        """
+        if self.outputs is None or self.outputs.file_mapping is None:
+            print(
+                f"WARNING: No outputs/output file mapping in the current project detected.\n"
+                f"Run OmniObject.update_object() to update outputs, inputs and parameter.\n"
+                f"Currently this object can not be used to generate a workflow."
+            )
+        else:
             output_val = self.outputs.default
             self.input_val = next(
                 (
@@ -204,7 +258,6 @@ class OmniCommand:
             if self.interpreter is None:
                 ext = os.path.splitext(self.script)[1]
                 self.interpreter = get_interpreter_from_extension(ext)
-
             self.command_line = automatic_command_generation(
                 self.script,
                 interpreter=self.interpreter,
@@ -212,50 +265,12 @@ class OmniCommand:
                 outputs=output_val,
                 parameters=self.parameter_val,
             )
-        ## Add command checks!
-
-    def update_command(self):
-        """Update command according to the specifed inputs/parameter/output
-
-        Raises:
-            InputError: Needs an OmniOutput object or the command line specified.
-        """
-        if self.outputs is None or self.outputs.file_mapping is None:
-            raise InputError(
-                f'Can not infer command without Output definition. Please specify either "command_line" or "outputs".'
-            )
-        output_val = self.outputs.default
-        self.input_val = next(
-            (
-                out_dict["input_files"]  # type:ignore
-                for out_dict in self.outputs.file_mapping
-                if out_dict["output_files"] == output_val
-            ),
-            None,  # type:ignore
-        )
-        self.parameter_val = next(
-            (
-                out_dict["parameter"]
-                for out_dict in self.outputs.file_mapping
-                if out_dict["output_files"] == output_val
-            ),
-            None,
-        )
-        if self.interpreter is None:
-            ext = os.path.splitext(self.script)[1]
-            self.interpreter = get_interpreter_from_extension(ext)
-        self.command_line = automatic_command_generation(
-            self.script,
-            interpreter=self.interpreter,
-            inputs=self.input_val,  # type:ignore
-            outputs=output_val,
-            parameters=self.parameter_val,
-        )
 
 
 class OmniPlan:
     """Class to store the workflow definition/plan of an Omniobject
     """
+
     def __init__(
         self, plan: PlanViewModel, param_mapping: Optional[Mapping[str, str]] = None
     ):

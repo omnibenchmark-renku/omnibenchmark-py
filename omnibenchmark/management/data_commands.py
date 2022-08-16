@@ -100,6 +100,7 @@ def import_filter(data_json: List, filter_names: Optional[List[str]] = None) -> 
     else:
         return [data for data in data_json if data["name"] not in filter_names]
 
+
 # Get dataset field by matching property
 def get_field_by_dataset_property(
     string: str,
@@ -253,7 +254,7 @@ def get_origin_dataset_ids(
     return origin_infos
 
 
-def get_project_info_from_url(project_url:str) -> Mapping[Any, Any]:
+def get_project_info_from_url(project_url: str) -> Mapping[Any, Any]:
     """Get project metadata from url
 
     Args:

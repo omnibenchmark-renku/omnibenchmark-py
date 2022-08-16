@@ -1,11 +1,13 @@
 from typing import Mapping, Optional, List, Union, Callable, Any
 from string import Template
 import itertools
+import json
 
 from omnibenchmark.core.input_classes import OmniInput, OmniParameter, OutMapping
 from omnibenchmark.utils.decorators import option_list, option_str
 from omnibenchmark.utils.exceptions import InputError
 from omnibenchmark.utils.user_input_checks import empty_object_to_none
+from omnibenchmark.management.parameter_checks import dict_values_to_str
 
 
 @option_str
@@ -112,9 +114,9 @@ def get_input_file_list(inputs: Optional[OmniInput]) -> List:
         List: A list with all input file types
     """
     return (
-        list(inputs.input_files.keys())            # type: ignore
-        if inputs.input_files is not None          # type: ignore
-        else []  
+        list(inputs.input_files.keys())  # type: ignore
+        if inputs.input_files is not None  # type: ignore
+        else []
     )
 
 
@@ -129,9 +131,9 @@ def get_parameter_combinations(parameter: Optional[OmniParameter]) -> List:
         List: List with all specified parameter combinations
     """
     return (
-        parameter.combinations                     # type: ignore
-        if parameter.combinations is not None      # type: ignore
-        else []  
+        parameter.combinations  # type: ignore
+        if parameter.combinations is not None  # type: ignore
+        else []
     )
 
 
@@ -299,11 +301,13 @@ def check_default_settings(
     ):
         return defaults
     else:
-        raise InputError(
-            f"Default mappings do not match as expected.\n"
-            f"Please check the specified defaults:\n {default_inputs}, {default_outputs}, {default_params}\n."
-            f"Default file mapping:\n {defaults}"
+        print(
+            f"WARNING: Default mappings do not match.\n"
+            f"If you did not specify defaults, ignore this warning.\n"
+            f"Otherwise, please check that your combination is valid.\n"
+            f"The following default file mapping is used:\n {defaults}"
         )
+        return defaults
 
 
 def get_default_outputs(
@@ -405,10 +409,71 @@ def filter_file_mapping_missing_values(
         return file_mapping
 
 
+def rm_key(d: Mapping, key: str) -> Mapping:
+    new_d = dict(d)
+    del new_d[key]
+    return new_d
+
+
+def filter_file_mapping_list_input_param_combinations(
+    file_mapping: List[OutMapping], filter_list: Mapping
+) -> List[OutMapping]:
+    """Filter specific input, parameter combinations from the output file mapping list.
+
+    Args:
+        file_mapping (List[OutMapping]): List of Output file mappings
+        filter_list (Optional[Mapping], optional): List with combinations to filter.
+
+    Returns:
+        List[OutMapping]: Filtered list of OutMappings
+    """
+    filter_format = [
+        {filt_key: dict_values_to_str(filt_val) for filt_key, filt_val in filt.items()}
+        for filt in filter_list
+    ]
+
+    return [
+        comb
+        for comb in file_mapping
+        if rm_key(
+            {
+                file_key: dict_values_to_str(file_val)  # type:ignore
+                for file_key, file_val in comb.items()
+            },
+            "output_files",
+        )
+        not in filter_format
+    ]
+
+
+def filter_file_mapping_list_input_param_combinations_json(
+    file_mapping: List[OutMapping], filter_json: Optional[str] = None
+) -> List[OutMapping]:
+    """Filter specific input, parameter combinations defined in a filter.json file from the output file mapping list.
+
+    Args:
+        file_mapping (List[OutMapping]): Mapping between input, output and parameter files
+        filter_json (Optional[str], optional): Path to json file with the specified combinations. Defaults to None.
+
+    Returns:
+        List[OutMapping]: Filtered list of OutMappings
+    """
+    try:
+        with open(filter_json) as f:  # type:ignore
+            filter_list = json.load(f)
+    except (FileNotFoundError, TypeError):
+        return file_mapping
+
+    return filter_file_mapping_list_input_param_combinations(
+        file_mapping=file_mapping, filter_list=filter_list
+    )
+
+
 def filter_file_mapping_list(
     file_mapping_list: List[OutMapping],
     inputs: Optional[OmniInput] = None,
     parameter: Optional[OmniParameter] = None,
+    filter_json: Optional[str] = None,
 ) -> Optional[List[OutMapping]]:
     """Filter list of file mappings for imcomplete mappings
 
@@ -427,4 +492,10 @@ def filter_file_mapping_list(
         for fi_map in file_mapping_list
     ]
     res = list(filter(None, fi_map_list))
-    return empty_object_to_none(res)
+    res_comb = filter_file_mapping_list_input_param_combinations_json(
+        file_mapping=res, filter_json=filter_json
+    )
+    return empty_object_to_none(res_comb)
+
+
+

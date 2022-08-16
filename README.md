@@ -261,6 +261,7 @@ This class has the following attributes:
 * **`inputs (Optional[OmniInput], optional)`**: Object specifying all valid inputs.
 * **`parameter (Optional[OmniParameter], optional)`**: Object speccifying the parameter space.
 * **`default (Optional[Mapping], optional)`**: Default output files.
+* **`filter_json(Optional[str], optional)`**: Path to json file with filter combinations.
 * **`template_fun (Optional[Callable[..., Mapping]], optional)`**: Function to use to automatically generate output filenames.
 * **`template_vars (Optional[Mapping], optional)`**: Variables that are used by template_fun.
 
@@ -317,6 +318,14 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.17-19
+    * FIX:
+    * Update defaults after filtering
+* 0.0.16
+    * Add filter for input/parameter combinations
+* 0.0.15
+    * FIX:
+    * Replace command error with warning to allow to build an object before inputs are imported
 * 0.0.14
     * FIX:
     * Change benchmark url

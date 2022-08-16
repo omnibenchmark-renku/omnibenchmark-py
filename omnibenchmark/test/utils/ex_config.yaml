@@ -31,6 +31,7 @@ outputs:
         end: ".mtx.gz"
     meta:
         end: ".json"
+  filter_json: "path/to/json/with/in/param/comb/to/filter"
   file_mapping:
     mapping1: 
       output_files:

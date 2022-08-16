@@ -80,9 +80,9 @@ def check_default_parameter(
         )
     if (
         default_params is None
-        or default_params in param_combinations               # type: ignore
+        or default_params in param_combinations  # type: ignore
         or len(default_params) == 0
-    ):  
+    ):
         return default_params
     else:
         print(

@@ -8,6 +8,7 @@ def option_list(function):
     """
     Return an empty list, if no or only None type arguments are provided
     """
+
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         arg_list = list(args) + list(kwargs.values())
@@ -23,6 +24,7 @@ def option_str(function):
     """
     Return an empty string, if no or only None type arguments are provided
     """
+
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         arg_list = list(args) + list(kwargs.values())
@@ -38,6 +40,7 @@ def option_dict_list(function):
     """
     Return an empty list, if none of the provided arguments is a dictionary
     """
+
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         arg_list = list(args) + list(kwargs.values())
@@ -53,6 +56,7 @@ def option_dict_none(function):
     """
     Return an None, if none of the provided arguments is a dictionary
     """
+
     @functools.wraps(function)
     def wrapper(*args, **kwargs):
         arg_list = list(args) + list(kwargs.values())

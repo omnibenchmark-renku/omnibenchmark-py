@@ -24,6 +24,7 @@ PathLike = TypeVar("PathLike", str, Path, None)
 class OmniInput:
     """Class to store metadata of datasets and files that are specified as inputs in an omnibenchmark project
     """
+
     def __init__(
         self,
         names: List[str],
@@ -115,7 +116,7 @@ class OmniInput:
                     flatten([pre.keys() for pre in self.input_files.values()]),
                 )
             if self.input_files is not None:
-                if self.default is None:
+                if self.default is None or self.default not in self.input_files.keys():
                     self.default = next(iter(self.input_files.items()))[0]
 
 
@@ -123,6 +124,7 @@ class OmniInput:
 class OmniParameter:
     """Class to store metadata of datasets and files that are specified as parameter in an omnibenchmark project
     """
+
     def __init__(
         self,
         names: List[str],
@@ -166,7 +168,7 @@ class OmniParameter:
             self.combinations = filter_parameter_combinations(
                 self.combinations, self.filter
             )
-            if self.default is None:
+            if self.default is None or len(self.default) == 0:
                 self.default = self.combinations[0]
 
         self.default = check_default_parameter(self.default, self.combinations)
@@ -203,7 +205,7 @@ class OmniParameter:
                 self.combinations = filter_parameter_combinations(
                     self.combinations, self.filter
                 )
-                if self.default is None:
+                if self.default is None or len(self.default) == 0:
                     self.default = self.combinations[0]
 
             self.default = check_default_parameter(self.default, self.combinations)

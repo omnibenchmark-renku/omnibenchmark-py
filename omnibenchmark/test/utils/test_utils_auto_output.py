@@ -431,6 +431,38 @@ def test_filter_file_mapping_missing_values_none_input(
     assert fi_map == mock_out_mapping
 
 
+# filter_file_mapping_list_input_param_combinations_json
+def test_filter_file_mapping_list_input_param_combinations_json_none(mock_out_mapping):
+    mock_list = [mock_out_mapping, mock_out_mapping]
+
+    fi_list = omni.filter_file_mapping_list_input_param_combinations_json(mock_list)
+    assert fi_list == [mock_out_mapping, mock_out_mapping]
+
+
+def test_filter_file_mapping_list_input_param_combinations_json_filter_file(
+    mock_out_mapping
+):
+    mock_list = [mock_out_mapping, mock_out_mapping]
+
+    fi_list = omni.filter_file_mapping_list_input_param_combinations_json(
+        mock_list, "omnibenchmark/test/utils/ex_filter.json"
+    )
+    assert fi_list == []
+
+
+def test_filter_file_mapping_list_input_param_combinations_json_filter_one(
+    mock_out_mapping
+):
+    mock_map = copy.deepcopy(mock_out_mapping)
+    mock_map["parameter"]["param2"] = 20
+    mock_list = [mock_out_mapping, mock_map]
+
+    fi_list = omni.filter_file_mapping_list_input_param_combinations_json(
+        mock_list, "omnibenchmark/test/utils/ex_filter.json"
+    )
+    assert fi_list == [mock_map]
+
+
 # filter_file_mapping_list
 def test_filter_file_mapping_list_all_valid(
     mock_out_mapping, mock_omni_input, mock_omni_parameter

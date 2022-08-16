@@ -65,7 +65,9 @@ def get_file_name_dict(
     return map_dict
 
 
-def map_plan_names_by_prefix(plan: Plan, plan_dict: Mapping[str, str]) -> Dict[str, str]:
+def map_plan_names_by_prefix(
+    plan: Plan, plan_dict: Mapping[str, str]
+) -> Dict[str, str]:
     """Get a mapping of plan names from the specified prefixes
 
     Args:
@@ -123,7 +125,8 @@ def map_plan_names_file_types(
 
 
 def get_file_mapping_from_out_files(
-    out_files: List[Union[PathLike, str, None]], file_mapping: Optional[List[OutMapping]] = None
+    out_files: List[Union[PathLike, str, None]],
+    file_mapping: Optional[List[OutMapping]] = None,
 ) -> List[OutMapping]:
     """Get the OutMapping from the output file names
 
@@ -137,10 +140,10 @@ def get_file_mapping_from_out_files(
     try:
         map_list = [
             mapping
-            for mapping in file_mapping                                         #type:ignore
+            for mapping in file_mapping  # type:ignore
             if any(
                 out_file in out_files
-                for out_file in list(mapping["output_files"].values())          #type:ignore
+                for out_file in list(mapping["output_files"].values())  # type:ignore
             )
         ]
     except:
@@ -166,7 +169,7 @@ def get_file_list_from_out_mapping(
             file_list: Iterable = [
                 file_path
                 for file_dict in mapping.values()
-                for file_path in file_dict.values()    #type:ignore
+                for file_path in file_dict.values()  # type:ignore
             ]
         except:
             file_list: Iterable = []  # type:ignore

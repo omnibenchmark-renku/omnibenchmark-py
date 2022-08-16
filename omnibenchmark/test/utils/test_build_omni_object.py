@@ -267,6 +267,13 @@ def test_build_omni_object_from_config_no_orchestrator_bench_name(mock_config):
     assert omni_obj.orchestrator is None
 
 
+def test_build_omni_object_from_config_no_outputs_commandline(mock_config):
+    del mock_config["outputs"]
+    del mock_config["command_line"]
+    omni_obj = omni.build_omni_object_from_config(mock_config)
+    assert isinstance(omni_obj, OmniObject)
+
+
 def test_build_omni_object_from_config_no_name_fails(mock_config):
     del mock_config["data"]
     with pytest.raises(InputError, match=r"Invalid config file:*?"):

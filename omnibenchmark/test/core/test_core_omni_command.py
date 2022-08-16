@@ -28,3 +28,18 @@ def test_omni_command_with_output(mock_omni_output):
         test_command.command_line
         == 'julia path/to/some/sricpt.jl --dim_red_file "path/to/dim/red" --count_file "path/to/count" --out_file1 "path/to/out1" --out_file2 "path/to/out2" --param1 "0" --param2 "test"'
     )
+
+
+def test_omni_command_without_command_line():
+    test_command = OmniCommand(script="path/to/some/sricpt.jl")
+    assert isinstance(test_command, OmniCommand)
+    assert test_command.command_line is None
+
+
+def test_omni_command_without_command_line_and_file_mapping(mock_omni_output):
+    mock_omni_output.file_mapping = None
+    test_command = OmniCommand(
+        script="path/to/some/sricpt.jl", outputs=mock_omni_output
+    )
+    assert isinstance(test_command, OmniCommand)
+    assert test_command.command_line is None

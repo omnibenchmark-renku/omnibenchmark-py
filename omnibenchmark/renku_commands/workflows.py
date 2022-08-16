@@ -112,7 +112,7 @@ def renku_update_activity(
     provider: str = "cwltool",
     ignore_deleted: bool = True,
     config: Optional[str] = None,
-    skip_metadata_update: bool = False, 
+    skip_metadata_update: bool = False,
 ):
     """Update renku existing activities
 

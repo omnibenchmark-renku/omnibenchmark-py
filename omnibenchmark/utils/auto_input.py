@@ -127,9 +127,9 @@ def get_input_files_from_prefix(
         input_files[data.name] = {}
         for file_type, prefixes in input_prefix.items():
             prefix_list = (
-                [prefixes]                              # type: ignore
+                [prefixes]  # type: ignore
                 if not isinstance(prefixes, list)
-                else prefixes  
+                else prefixes
             )
             pat_list = [re.compile(pattern) for pattern in prefix_list]
             in_file = [

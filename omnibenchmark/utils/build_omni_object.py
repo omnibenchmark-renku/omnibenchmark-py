@@ -40,6 +40,7 @@ class ConfigOutput(TypedDict, total=False):
     files: Optional[Mapping]
     file_mapping: Optional[Mapping]
     default: Optional[Mapping]
+    filter_json: Optional[str]
     template_fun: Optional[Callable]
     template_vars: Optional[Mapping]
 
@@ -223,6 +224,7 @@ def build_omni_output_from_config(
     file_map = config_outputs["file_mapping"]
     file_mapping = empty_object_to_none([vals for vals in get_values(file_map)])
     default_out = empty_object_to_none(config_outputs["default"])
+    filter_json = empty_object_to_none(config_outputs["filter_json"])
     template_fun = config_outputs["template_fun"]
     if isinstance(template_fun, List):
         template_fun = None
@@ -238,6 +240,7 @@ def build_omni_output_from_config(
             inputs=omni_input,
             parameter=omni_parameter,
             default=default_out,
+            filter_json=filter_json,
             template_fun=template_fun,
             template_vars=template_vars,
         )
