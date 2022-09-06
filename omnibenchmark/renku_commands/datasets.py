@@ -116,6 +116,9 @@ def renku_dataset_update(
     ref: Optional[str] = None,
     delete: bool = True,
     no_external: bool = True,
+    no_local: bool = False,
+    no_remote: bool = False,
+    check_data_directory: bool = False,
     update_all: bool = False,
     dry_run: bool = False,
 ):
@@ -160,7 +163,7 @@ def renku_dataset_update(
         raise errors.ParameterError("Cannot pass include/exclude with update_all")
 
     result = (
-        update_datasets_command()
+        update_datasets_command(dry_run=dry_run)
         .build()
         .execute(
             names=names,
@@ -172,6 +175,9 @@ def renku_dataset_update(
             no_external=no_external,
             update_all=update_all,
             dry_run=dry_run,
+            no_local=no_local,
+            no_remote=no_remote,
+            check_data_directory=check_data_directory,
         )
     )
 
@@ -181,11 +187,10 @@ def renku_dataset_update(
 def renku_add_to_dataset(
     urls: List[str],
     dataset_name: str,
-    external: bool = False,
     force: bool = False,
     overwrite: bool = True,
     create: bool = False,
-    sources: Optional[List[Union[str, Path]]] = None,
+    datadir: Optional[Union[str, Path]] = None,
     destination: Optional[List[str]] = None,
 ) -> Optional[RenkuDataSet]:
     """Add files to renku dataset
@@ -211,18 +216,20 @@ def renku_add_to_dataset(
             "No files were added."
         )
 
+    if datadir is None:
+        datadir = "data/" + dataset_name
+
     result = (
         add_to_dataset_command()
         .build()
         .execute(
             urls=urls,
             dataset_name=dataset_name,
-            external=external,
             force=force,
             overwrite=overwrite,
             create=create,
-            sources=sources,
             destination=destination,
+            datadir=datadir,
         )
     )
     return result

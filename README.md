@@ -22,9 +22,9 @@ For a detailed documentation and tutorials check the [omnibenchmark documentatio
 
 ### Quick start
 
-Omnibenchmark uses the `renku` platform to run open and continous benchmarks. To contribute an independent module to one of the existing benchmarks please start by creating a new [renku project](#Create-a-new-renku-project). Each module consist of a Docker image, that defines it's environment, a dataset to store outputs and metadata, a workflow that describes how to generate outputs and input and parameter datasets with input files and parameter definitions, if they are used. Thus each module is an independent benchmark part and can be run, used and modified independently as such. Modules are connected by importing (result) datasets from other modules as input datasets and will automatically be updated according to them.   
+Omnibenchmark uses the `renku` platform to run open and continuous benchmarks. To contribute an independent module to one of the existing benchmarks please start by creating a new [renku project](#Create-a-new-renku-project). Each module consists of a Docker image, that defines its environment, a dataset to store outputs and metadata, a workflow that describes how to generate outputs and input and parameter datasets with input files and parameter definitions, if they are used. Thus each module is an independent benchmark part and can be run, used and modified independently as such. Modules are connected by importing (result) datasets from other modules as input datasets and will automatically be updated according to them.   
 All relevant information on how to run a specific module are stored as [`OmniObject`](#omnibenchmark-classes).
-The most convinient way to generate an instance of an `OmniObject` is to build it from an `config.yaml` file:
+The most convenient way to generate an instance of an `OmniObject` is to build it from a `config.yaml` file:
 
 ``` python
 ## modules
@@ -101,10 +101,10 @@ Omnibenchmark modules are build as separate renku projects. Contributions to one
 A new project can be created by a few clicks as described [here](https://renku.readthedocs.io/en/latest/tutorials/first_steps/01_create_project.html). Templates can be chosen depending on the projects code or the Basic Python template. Project can then be populated/changed in an interactive renku session (see session tab of the project) or within the GitLab instance or clone of the project (Overview tab --> View in GitLab). 
 
 ### Project requirements
-Project requirements can be defined by adapting the `Dockerfile` and specifying the all required R packages with their versions in the `install.R` file and all required python modules with their versions in the `requirements.txt` file. The later needs to contain at least `omnibenchmark`. If you work in an interactive session you need to save/commit your changes either by running `renku save` or `git add/commit/push` and close and restart the session once the new Docker image has been build. The built is triggered automatically when commiting changes, but can take a while depending on the requirments. 
+Project requirements can be defined by adapting the `Dockerfile` and specifying the all required R packages with their versions in the `install.R` file and all required python modules with their versions in the `requirements.txt` file. The later needs to contain at least `omnibenchmark`. If you work in an interactive session you need to save/commit your changes either by running `renku save` or `git add/commit/push` and close and restart the session once the new Docker image has been build. The built is triggered automatically when commiting changes, but can take a while depending on the requirments.
 
 ### The config.yaml file
-Usually all specific information about a benchmark project can be specified in a `config.yaml` file. Below we show an example with all standard fields and explanations to them. Many fields are optional and do not apply to all modules. All unneccessary fields can be skipped. There are further optional fields for specfic edge cases, that are described in an extra `config.yaml` file. In general the `config.yaml` file consists of a data, an input, an output and a parameter section as well as a few extra fields to define the main benchmark script and benchmark type. Except for the data section the other sections are optional. Multiple values can be parsed as Lists. 
+Usually all specific information about a benchmark project can be specified in a `config.yaml` file. Below we show an example with all standard fields and explanations to them. Many fields are optional and do not apply to all modules. All unneccessary fields can be skipped. There are further optional fields for specfic edge cases, that are described in an extra `config.yaml` file. In general the `config.yaml` file consists of a data, an input, an output and a parameter section as well as a few extra fields to define the main benchmark script and benchmark type. Except for the data section the other sections are optional. Multiple values can be parsed as lists.
 
 ```yaml
 # Data section to describe the object and the associated (result) dataset
@@ -205,7 +205,7 @@ parameter:
 ```
 
 ### Omnibenchmark classes
-Classes to manage omnibenchmark modules and their interactions. The main class is the [OmniObject](#omniobject), that consollidates all relevant information and functions of a module. This object has further subclasses that define inputs, outputs, commands and the workflow. 
+Classes to manage omnibenchmark modules and their interactions. The main class is the [OmniObject](#omniobject), that consollidates all relevant information and functions of a module. This object has further subclasses that define inputs, outputs, commands and the workflow.
 
 ---
 
@@ -301,7 +301,7 @@ The following class methods can be run on an instance of an OmniInput:
 ---
 
 #### OmniPlan
-Class to manage the workflow of an omnibenchmark module. 
+Class to manage the workflow of an omnibenchmark module.
 This class has the following attributes:
 
 * **`plan (PlanViewModel)`**: A plan view model as defined in renku
@@ -318,6 +318,9 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.20
+    * FIX:
+    * Update renku_dataset_update to work with renku 1.7.0
 * 0.0.17-19
     * FIX:
     * Update defaults after filtering
