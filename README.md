@@ -318,6 +318,9 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.22
+    * FIX:
+    * Ignore datasets with broken urls
 * 0.0.17-19
     * FIX:
     * Update defaults after filtering
