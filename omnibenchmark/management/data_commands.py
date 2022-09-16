@@ -282,6 +282,12 @@ def check_orchestrator(
     """
     project_url = data_info["project"]["_links"][0]["href"]
     project_info = get_project_info_from_url(project_url)
+    if "identifier" not in project_info.keys():
+        print(
+            f"Warning: Can't find dataset at {project_url}.\n"
+            f"Please check {data_info['name']}.\n"
+        )
+        return None
     o_info = get_project_info_from_url(o_url)
     renku_git = gitlab.Gitlab(gitlab_url)
     o_git = renku_git.projects.get(o_info["identifier"])
