@@ -2,14 +2,16 @@ from __future__ import annotations
 import logging
 from typing import Any, TypeVar, Optional, List, Union, Dict
 from pathlib import Path
-from renku.command.dataset import create_dataset_command
 from renku.domain_model.dataset import Dataset as RenkuDataSet
 import omnibenchmark.management.general_checks
 from omnibenchmark.management.data_checks import dataset_name_exist, renku_dataset_exist
 from renku.command.dataset import (
+    create_dataset_command,
     import_dataset_command,
     update_datasets_command,
     add_to_dataset_command,
+    file_unlink_command,
+    remove_dataset_command,
 )
 from renku.core import errors
 from omnibenchmark.utils.exceptions import ProjectError
@@ -233,3 +235,60 @@ def renku_add_to_dataset(
         )
     )
     return result
+
+
+def renku_unlink_from_dataset(
+    name: str,
+    include: Optional[List[str]] = None,
+    exclude: Optional[List[str]] = None,
+    yes: bool = True,
+):
+    """Unlink files from renku dataset
+
+    Args:
+        name (str): Dataset name to unlink files from.
+        include (Optional[str], optional): Pattern of files to include. Defaults to None.
+        exclude (Optional[str], optional): Pattern of files to exclude. Defaults to None.
+        yes (bool, optional): confirm file unlinking. Defaults to True.
+
+    Raises:
+        ProjectError: Project needs to be a renku project to perform renku actions.
+        errors.ParameterError: At least one of include or exclude need to be defined.
+    """
+
+    if not omnibenchmark.management.general_checks.is_renku_project():
+        raise ProjectError(
+            "Directory is not a renku project.\n"
+            "Make sure you are in the correct context.\n"
+            "No files were added."
+        )
+    if not include and not exclude:
+        raise errors.ParameterError(
+            (
+                "Include or exclude filters not found.\n"
+                "Please specify at least one of include and/or exclude'\n"
+            )
+        )
+
+    file_unlink_command().build().execute(
+        name=name, include=include, exclude=exclude, yes=yes
+    )
+
+
+def renku_dataset_remove(data_name: str):
+    """Remove renku dataset from the current project
+
+    Args:
+        data_name (str): Name of the dataset to remove from the project
+
+    Raises:
+        ProjectError: raised if the project is not a renku project.
+    """
+    if not omnibenchmark.management.general_checks.is_renku_project():
+        raise ProjectError(
+            "Directory is not a renku project.\n"
+            "Make sure you are in the correct context.\n"
+            "No files were added."
+        )
+
+    remove_dataset_command().build().execute(data_name)

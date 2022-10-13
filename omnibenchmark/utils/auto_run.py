@@ -29,7 +29,7 @@ def map_plan_names(plan: Plan) -> Mapping[str, str]:
 
 
 def get_file_type_dict(file_mapping: OutMapping) -> Mapping[str, str]:
-    """Get a dictionary of file names and file types with types as keys. 
+    """Get a dictionary of file names and file types with types as keys.
 
     Args:
         file_mapping (OutMapping): An OutMapping
@@ -48,7 +48,7 @@ def get_file_type_dict(file_mapping: OutMapping) -> Mapping[str, str]:
 def get_file_name_dict(
     file_mapping: List[Mapping[str, Optional[str]]]
 ) -> Mapping[str, str]:
-    """Get a dictionary of file names and file types with names as keys. 
+    """Get a dictionary of file names and file types with names as keys.
 
     Args:
         file_mapping (List[Mapping[str, Optional[str]]]): A List of OutMappings

@@ -10,11 +10,13 @@ from omnibenchmark.management.run_commands import (
     check_omni_command,
     get_all_output_file_names,
     check_output_directories,
+    revert_run,
 )
 from omnibenchmark.management.general_checks import find_orchestrator, is_renku_project
+from omnibenchmark.management.data_checks import find_outputs_with_missing_inputs
 from omnibenchmark.management.data_commands import update_dataset_files
 from omnibenchmark.utils.auto_output import get_default, convert_values_to_string
-from omnibenchmark.utils.user_input_checks import empty_object_to_none
+from omnibenchmark.utils.user_input_checks import empty_object_to_none, flatten
 from omnibenchmark.utils.exceptions import InputError
 from omnibenchmark.utils.default_global_vars import OmniRenkuInst
 from renku.domain_model.dataset import Dataset as RenkuDataSet
@@ -49,7 +51,7 @@ class OmniObject(OmniRenkuInst):
         """An object to manage an omnibenchmark module
 
         Args:
-            name (str): Module name 
+            name (str): Module name
             keyword (Optional[List[str]], optional): Keyword associated to the modules output dataset. Defaults to None.
             title (Optional[str], optional): Title of the modules output dataset. Defaults to None.
             description (Optional[str], optional): Description of the modules output dataset. Defaults to None.
@@ -133,39 +135,51 @@ class OmniObject(OmniRenkuInst):
         )
         manage_renku_activities(outputs=self.outputs, omni_plan=self.omni_plan)
 
-    def update_result_dataset(self):
-        """Add output files to the objects dataset and update the dataset
-        """
-        out_files = get_all_output_file_names(self.outputs)
-        update_dataset_files(urls=out_files, dataset_name=self.dataset_name)
-        renku_dataset_update(names=[self.dataset_name])
+    def update_result_dataset(self, clean:bool = True):
+        """Add output files to the objects dataset and update the dataset"""
+        if self.outputs is None:
+            print(
+                f'No output files detected. Nothing to update for {self.dataset_name}.'
+            )
+            return
+        out_files = get_all_output_file_names(self.outputs)                    
+        update_dataset_files(urls=out_files, dataset_name=self.dataset_name)   # type:ignore
+        renku_dataset_update(names=[self.dataset_name])                        # type:ignore
+        out_no_input = find_outputs_with_missing_inputs()
+        if len(out_no_input) > 0:
+            revert_run(out_files=out_no_input, dataset_name=self.dataset_name, remove=clean)
 
-    def update_object(self):
-        """Update the objects inputs, arameter and output definition. Does not run or update workflows/activities.
-
-        Raises:
-            InputError: Only runs when an orchestrator url is specified and the object can be associated to an existing benchmark.
+    def update_object(self, check_o_url: bool = True, n_latest: int = 9):
+        """Update the objects inputs, parameter and output definition. Does not run or update workflows/activities.
+        Args:
+            check_o_url (bool): If linking to an orchestrator shall be checked. 
+                                WARNING: If False ALL existing datasets with that keyword will be imported!
+            n_latest (int): Number of latest pipelines to include into orchestrator checks 
         """
+        if not check_o_url:
+            self.orchestrator = "placeholder/string"
         if self.orchestrator is None:
             if self.benchmark_name is not None:
                 self.orchestrator = find_orchestrator(
                     benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
                 )
             if self.orchestrator is None:
-                raise InputError(
-                    f"Can not update object without specification of benchmark. \n"
-                    f"Please indicate which benchmark this object is associated to by running: \n"
+                print(
+                    f"WARNING: No orchestrator specified! \n"
+                    f"No new datasets will be imported. Consider specifying an orchestrator by running:\n"
                     f"OmniObject.orchestrator = find_orchestrator(BENCHMARK_NAME) \n"
-                    f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs"
+                    f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs."
                 )
-        if self.inputs is not None:
+        if self.inputs is not None and self.orchestrator is not None:
             self.inputs.update_inputs(
                 orchestrator=self.orchestrator,
                 query_url=self.DATA_QUERY_URL,
                 data_url=self.DATA_URL,
                 gitlab_url=self.GIT_URL,
+                check_o_url=check_o_url,
+                n_latest=n_latest,
             )
-        if self.parameter is not None:
+        if self.parameter is not None and self.orchestrator is not None:
             self.parameter.update_parameter(
                 orchestrator=self.orchestrator,
                 query_url=self.DATA_QUERY_URL,
@@ -180,6 +194,16 @@ class OmniObject(OmniRenkuInst):
         if self.command is not None:
             self.command.outputs = self.outputs
             self.command.update_command()
+
+    def clean_revert_run(self):
+        """Unlink and delete all output files, and revert all activities related to this object and delete the corresponding plan.
+
+        This is intended in cases of overthroughing everything and starting with a clean repository.
+        """
+        out_files = flatten(
+            [list(fi["output_files"].values()) for fi in self.outputs.file_mapping]
+        )
+        revert_run(out_files=out_files, dataset_name=self.dataset_name)
 
     def execute_plan_without_KG(
         self, inputs, parameter, outputs, time_out: Optional[int] = None

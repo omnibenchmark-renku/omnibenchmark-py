@@ -21,8 +21,7 @@ import os
 
 
 class OmniOutput:
-    """Class to store metadata of datasets and files that are specified as output in an omnibenchmark project
-    """
+    """Class to store metadata of datasets and files that are specified as output in an omnibenchmark project"""
 
     def __init__(
         self,
@@ -112,8 +111,7 @@ class OmniOutput:
             check_name_matching(self.out_names, self.default.keys())
 
     def update_outputs(self):
-        """Update output definitions according to the specified inputs/parameter. Does not update workflows or activities. 
-        """
+        """Update output definitions according to the specified inputs/parameter. Does not update workflows or activities."""
         if self.inputs is not None or self.parameter is not None:
             self.template_vars = (
                 self.template_vars if self.template_vars is not None else {}
@@ -158,8 +156,7 @@ class OmniOutput:
 
 
 class OmniCommand:
-    """Class to store metadata and attributes of a command in an omnibenchmark project
-    """
+    """Class to store metadata and attributes of a command in an omnibenchmark project"""
 
     def __init__(
         self,
@@ -268,8 +265,7 @@ class OmniCommand:
 
 
 class OmniPlan:
-    """Class to store the workflow definition/plan of an Omniobject
-    """
+    """Class to store the workflow definition/plan of an Omniobject"""
 
     def __init__(
         self, plan: PlanViewModel, param_mapping: Optional[Mapping[str, str]] = None

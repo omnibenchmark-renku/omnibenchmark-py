@@ -31,7 +31,7 @@ def renku_workflow_run(
     """Run a renku workflow
 
     Args:
-        command_line (str): Command to run 
+        command_line (str): Command to run
         name (str, optional): Workflow name. Defaults to None.
         description (str, optional): Workflow description. Defaults to None.
         keyword (str, optional): Workflow keyword. Defaults to None.
@@ -146,22 +146,30 @@ def renku_update_activity(
             print(tabulate_activities(activities, modified_inputs))
 
 
-def renku_workflow_revert(activity_id: str, metadata_only: bool = False, force: bool = False, plan: bool = False):
+def renku_workflow_revert(
+    activity_id: str,
+    metadata_only: bool = False,
+    force: bool = False,
+    plan: bool = False,
+):
     """Revert an existing activity by id and remove the generated outputs and corresponding plan
 
     Args:
-        activity_id (str): activity id to be removed. 
+        activity_id (str): activity id to be removed.
         metadata_only (bool, optional): remove metadata only, but not the generated outputs. Defaults to False.
         force (bool, optional): force, even when activity is part of a composed workflow. Defaults to False.
-        plan (bool, optional): remove the corresponding plan that generated the activity as well. Defaults to True.
+        plan (bool, optional): remove the corresponding plan that generated the activity as well. Defaults to False.
 
     Raises:
-        errors.ParameterError: _description_
+        errors.ParameterError: If reverting the activity will break downstream workflows
     """
     try:
         revert_activity_command().build().execute(
-                metadata_only=metadata_only, force=force, delete_plan=plan, activity_id=activity_id
-            )
+            metadata_only=metadata_only,
+            force=force,
+            delete_plan=plan,
+            activity_id=activity_id,
+        )
     except errors.ActivityDownstreamNotEmptyError:
         raise errors.ParameterError(
             "Activity has downstream dependent activities: Pass '--force' if you want to revert the activity anyways."

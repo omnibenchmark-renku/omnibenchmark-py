@@ -22,8 +22,7 @@ PathLike = TypeVar("PathLike", str, Path, None)
 
 
 class OmniInput:
-    """Class to store metadata of datasets and files that are specified as inputs in an omnibenchmark project
-    """
+    """Class to store metadata of datasets and files that are specified as inputs in an omnibenchmark project"""
 
     def __init__(
         self,
@@ -60,7 +59,7 @@ class OmniInput:
                 )
 
             check_name_matching(self.names, self.prefix.keys())
-            self.input_files = get_input_files_from_prefix(self.prefix, self.keyword)
+            self.input_files = get_input_files_from_prefix(self.prefix, self.keyword, self.filter_names)
 
         if len(self.input_files) < 1:
             self.input_files = None
@@ -86,15 +85,15 @@ class OmniInput:
             self.default_files = self.input_files[self.default]
 
     def update_inputs(
-        self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str
+        self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str, check_o_url: bool = True, n_latest: int = 9,
     ):
         """Update datasets and files that belong to this OmniInput object. This will also import new Datasets with the specified keyword..
 
         Args:
             orchestrator (str):  Orchestrator url that links all valid projects.
             query_url (str): URL to the knowledgebase dataset query API.
-            data_url (str): URL to the knowledgebase dataset API. 
-            gitlab_url (str): General Gitlab url. 
+            data_url (str): URL to the knowledgebase dataset API.
+            gitlab_url (str): General Gitlab url.
         """
         if self.keyword is not None:
             for key in self.keyword:
@@ -105,11 +104,13 @@ class OmniInput:
                     query_url=query_url,
                     data_url=data_url,
                     gitlab_url=gitlab_url,
+                    check_o_url=check_o_url,
+                    n_latest=n_latest,
                 )
             if self.prefix is not None:
                 check_name_matching(self.names, self.prefix.keys())
                 self.input_files = get_input_files_from_prefix(
-                    self.prefix, self.keyword
+                    self.prefix, self.keyword, self.filter_names
                 )
                 check_name_matching(
                     self.names,
@@ -120,10 +121,8 @@ class OmniInput:
                     self.default = next(iter(self.input_files.items()))[0]
 
 
-
 class OmniParameter:
-    """Class to store metadata of datasets and files that are specified as parameter in an omnibenchmark project
-    """
+    """Class to store metadata of datasets and files that are specified as parameter in an omnibenchmark project"""
 
     def __init__(
         self,
@@ -180,8 +179,8 @@ class OmniParameter:
         Args:
             orchestrator (str): Orchestrator url that links all valid projects.
             query_url (str): URL to the knowledgebase dataset query API.
-            data_url (str): URL to the knowledgebase dataset API. 
-            gitlab_url (str): General Gitlab url. 
+            data_url (str): URL to the knowledgebase dataset API.
+            gitlab_url (str): General Gitlab url.
         """
         if self.keyword is not None:
             for key in self.keyword:

@@ -23,7 +23,7 @@ def test_get_input_files_from_prefix_works(mock_api_Dataset, mock_prefix, monkey
         input_prefix=mock_prefix, keyword=["mock", "some"]
     )
     assert test_join == {
-        "mock_dataset": {"dim_red_file": "some/path/to/genes_file.txt"}
+        "mock_dataset_4875b": {"dim_red_file": "some/path/to/genes_file.txt"}
     }
 
 
@@ -69,7 +69,7 @@ def test_get_input_files_from_prefix_works_regexpr(
         input_prefix=mock_prefix, keyword=["mock", "some"]
     )
     assert test_join == {
-        "mock_dataset": {"dim_red_file": "some/path/to/genes_file.txt"}
+        "mock_dataset_4875b": {"dim_red_file": "some/path/to/genes_file.txt"}
     }
 
 

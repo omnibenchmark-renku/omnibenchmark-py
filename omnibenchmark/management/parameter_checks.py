@@ -14,8 +14,8 @@ def apply_filter(value_list: List, filter_vals) -> List:
         filter_vals (_type_): List with all filter values
 
     Raises:
-        ParameterError: Filter can be defined as dictionaries with 'lower', 'upper' or 'exclude' keys 
-                        specifying boundaries or path to a file specifying what to exclude. 
+        ParameterError: Filter can be defined as dictionaries with 'lower', 'upper' or 'exclude' keys
+                        specifying boundaries or path to a file specifying what to exclude.
 
     Returns:
         List: List with filtered parameter values

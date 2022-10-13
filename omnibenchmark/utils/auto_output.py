@@ -496,6 +496,3 @@ def filter_file_mapping_list(
         file_mapping=res, filter_json=filter_json
     )
     return empty_object_to_none(res_comb)
-
-
-

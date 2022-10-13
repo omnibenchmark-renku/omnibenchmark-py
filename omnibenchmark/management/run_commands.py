@@ -7,13 +7,16 @@ from omnibenchmark.utils.auto_run import (
     get_file_type_dict,
     get_file_name_dict,
 )
-from renku.domain_model.workflow.plan import Plan
-from omnibenchmark.utils.exceptions import InputError
+from renku.domain_model.workflow.plan import Plan as PlanDomainModel
+from omnibenchmark.utils.exceptions import InputError, ParameterError
 from omnibenchmark.management import wflow_checks as wflow
+from omnibenchmark.management.data_commands import unlink_dataset_files
 import omnibenchmark.renku_commands.workflows as omni_wflow
 from omnibenchmark.utils.user_input_checks import parse_explicit_inputs, flatten
 from omnibenchmark.core.output_classes import OmniCommand, OmniOutput, OmniPlan
+from omnibenchmark.renku_commands.general import renku_save
 from renku.command.view_model.plan import PlanViewModel
+from renku.api import Activity, Plan
 import os
 from os import PathLike
 import logging
@@ -73,7 +76,7 @@ def manage_renku_plan(
     default_output: Optional[Mapping] = None,
     default_input: Optional[Mapping] = None,
     default_parameter: Optional[Mapping] = None,
-) -> Plan:
+) -> PlanDomainModel:
     """Check if a renku plan for a set of output files exist and generate one from default parameter if not.
 
     Args:
@@ -87,7 +90,7 @@ def manage_renku_plan(
         default_parameter (Optional[Mapping[str, Optional[str]]], optional): Default parameter. Defaults to None.
 
     Returns:
-        Plan: A renku plan object.
+        PlanDomainModel: A renku plan object.
     """
 
     plan = wflow.check_plan_exist(out_files)
@@ -192,9 +195,11 @@ def manage_renku_activities(outputs: OmniOutput, omni_plan: OmniPlan):
 
     for out_map in no_activities:
         create_activity(out_map, omni_plan)
+        renku_save()
 
     for activity in activity_map:
         update_activity(activity)
+        renku_save()
 
 
 def check_output_directories(out_files: List[str]):
@@ -207,3 +212,76 @@ def check_output_directories(out_files: List[str]):
     out_dirs = set(out_dir_list)
     for dir in out_dirs:
         os.makedirs(dir, exist_ok=True)
+
+
+def revert_run(
+    out_files: Optional[List[str]] = None,
+    in_files: Optional[List[str]] = None,
+    plan_id: Optional[str] = None,
+    dataset_name: Optional[str] = None,
+    remove: bool = True,
+):
+    """Remove a plan and revert all associated activities. Basically revert all actions of a specific omni_obj.run_renku().
+
+    Args:
+        out_files (Optional[List[str]], optional): Output files that are associate dto the activities to revert. Defaults to None.
+        in_files (Optional[List[str]], optional): Input files that are associate dto the activities to revert. Defaults to None.
+        plan_id (Optional[str], optional): Plan to revert including all associated activities. Defaults to None.
+        dataset_name (Optional[str], optional): Dataset names if outputs resulting from the activities shall be unlinked before. Defaults to None.
+        remove (bool, optional): Shall output files automatically be deleted. Defaults to True.
+
+    Raises:
+        ParameterError: At least one of out_files, in_files or plan id need to be specified
+        InputError: Could not find a plan associated to this id.
+    """
+    if out_files is None and in_files is None and plan_id is None:
+        raise ParameterError(
+            "Missing out_files, in_files and plan. \n"
+            "Please specify at least one of out_files, in_files or plan to be reverted. \n"
+        )
+
+    activities = []
+    out_fis = []
+    if in_files is not None:
+        activities = flatten([Activity.filter(input=in_fi) for in_fi in in_files])
+
+    if plan_id is not None:
+        renku_plan = [plan for plan in Plan.list() if plan.id in plan_id]
+        if len(renku_plan) == 0:
+            raise InputError(
+                f"Invalid plan_id. Could not find any plan associated with {plan_id} in this project."
+            )
+        activities = activities + renku_plan[0].activities
+
+    if len(activities) > 0:
+        out_fis = flatten(
+            [[act_out.path for act_out in act.generated_outputs] for act in activities]
+        )
+
+    if out_files is not None:
+        activities = activities + flatten(
+            [Activity.filter(outputs=out_fi) for out_fi in out_files]
+        )
+        out_fis = out_fis + out_files
+
+    if len(activities) == 0:
+        print(
+            f" WARNING: Could not find workflow executions related to your input:\n"
+            f"out_files: {out_files}.\n"
+            f"in_files: {in_files}.\n"
+            f"plan_id: {plan_id}.\n"
+            f"Nothing to revert."
+        )
+        return
+
+    if dataset_name is not None:
+        unlink_dataset_files(
+            out_files=out_fis, dataset_name=dataset_name, remove=remove
+        )
+
+    # revert activities
+    activity_ids = list(set([act.id for act in activities]))
+    [
+        omni_wflow.renku_workflow_revert(activity_id=act_id, plan=True)
+        for act_id in activity_ids
+    ]

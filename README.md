@@ -318,7 +318,21 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
-
+* 0.0.28
+    * Commit after generating/updating each activity
+    * Add argument to disable orchestrator check
+    * FIX:
+    * Include latest pipelines with optional numbers into orchestrator check 
+* 0.0.27
+    * Change automatic output naming mechanism
+    * Ensure stable output names independent of other inputs
+* 0.0.26
+    * Add revert_run function
+    * Remove outputs and activties with non existing inputs
+    * Remove datasets with non matching keywords
+* 0.0.23
+    * FIX:
+    * Adapt changes to renku 1.7.1
 * 0.0.22
     * FIX:
     * Ignore datasets with broken urls

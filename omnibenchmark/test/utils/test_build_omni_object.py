@@ -86,7 +86,7 @@ def test_build_omni_parameter_from_config_params_no_values(mock_config):
 
 
 def test_build_omni_parameter_from_config_params_no_combinations_but_default(
-    mock_config
+    mock_config,
 ):
     del mock_config["parameter"]["combinations"]
     with pytest.raises(

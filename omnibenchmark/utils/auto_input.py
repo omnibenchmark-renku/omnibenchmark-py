@@ -1,9 +1,10 @@
 """Functions to facilitate automatic input generation from file/object, usually config.yaml"""
 
-from typing import Dict, Mapping, List
+from typing import Dict, Mapping, List, Optional
 from omnibenchmark.utils.exceptions import ParameterError
 from renku.ui.api.models.dataset import Dataset
 from difflib import SequenceMatcher
+import hashlib
 import re
 import os
 import json
@@ -38,11 +39,11 @@ def find_stem(arr):
                 if stem not in arr[k]:
                     break
 
-            # If current substring is present in
-            # all strings and its length is greater
-            # than current result
-            if k + 1 == n and len(res) < len(stem):
-                res = stem
+                # If current substring is present in
+                # all strings and its length is greater
+                # than current result
+                if k + 1 == n and len(res) < len(stem):
+                    res = stem
 
     return res
 
@@ -60,7 +61,20 @@ def best_match_name_seq(map_dict: Mapping[str, str]) -> str:
     nam_list = [os.path.splitext(nam)[0] for nam in na_list]
     name_list = [os.path.splitext(nam)[0] for nam in nam_list]
     com_sub = find_stem(name_list)
-    return com_sub
+    return com_sub.rstrip("_- .")
+
+def get_name_hash_from_input_dict(infile_dict: Mapping[str,str]) -> str:
+    """Get  the md5 hash of the joined values of a dictionary (e.g. of all input file names in an input file dict) 
+
+    Args:
+        infile_dict (Mapping[str,str]): A dictionary with file types as key and file names as values.
+
+    Returns:
+        (str): The md5 hash of the concatenated file names
+    """
+    in_string = "".join(list(infile_dict.values()))
+    hash_object = hashlib.md5(in_string.encode())
+    return hash_object.hexdigest()
 
 
 def match_files_by_name(
@@ -76,7 +90,7 @@ def match_files_by_name(
     """
     match_dict: Dict = {}
     fi_types = list(file_type_dict.keys())
-    fi_start = fi_types[0]
+    fi_start = max(file_type_dict, key= lambda x: len(set(file_type_dict[x])))
     fil_types = [fi_type for fi_type in fi_types if not fi_type == fi_start]
     for fi_idx, fi in enumerate(file_type_dict[fi_start]):
         group_nam = "inst" + str(fi_idx)
@@ -97,14 +111,30 @@ def match_files_by_name(
                     fi_top = fi_path
             match_dict[group_nam][fi_type] = fi_top
     com_dict = {
-        m_key + "_" + best_match_name_seq(match_dict[m_key]): match_dict[m_key]
+        get_name_hash_from_input_dict(match_dict[m_key])[0:5] + "_" + best_match_name_seq(match_dict[m_key]): match_dict[m_key]
         for m_key in match_dict.keys()
     }
     return com_dict
 
+def check_dataset_name(input_dict: Mapping[str, str], data_name: str) -> str:
+    """Check if data_name includes the longest matching sequence of all input files
+
+    Args:
+        input_dict (Mapping[str, str]): An input file type- name mapping
+        data_name (str): Dataset name to check
+
+    Returns:
+        str: Either the dataset name, if it is equal the longest matching sequence or a name of the dataset name, longest match seq and an input file name hash.
+    """
+    best_match = best_match_name_seq(input_dict)
+    if best_match == data_name:
+        return data_name
+    else:
+        new_name = data_name + "_" + get_name_hash_from_input_dict(input_dict)[0:5] + "_" + best_match
+        return new_name.rstrip("_- .")
 
 def get_input_files_from_prefix(
-    input_prefix: Mapping[str, List[str]], keyword: List[str]
+    input_prefix: Mapping[str, List[str]], keyword: List[str], filter_names: Optional[List[str]] = None
 ) -> Mapping[str, Mapping]:
     """Find input files by prefix
 
@@ -160,15 +190,27 @@ def get_input_files_from_prefix(
                 f"Please check matches to ensure correct groups: 'omni_obj.inputs.input_files'"
             )
             del input_files[data.name]
-            input_files.update(group_dict)
+            group_data_dict = {data.name + "_" + k: group_dict[k] for k in group_dict.keys()}
+            input_files.update(group_data_dict)
     file_types = input_prefix.keys()
     incomplete_data = [
         data
         for data in input_files.keys()
         if not all(fi_type in input_files[data].keys() for fi_type in file_types)
     ]
+    if filter_names is not None:
+        filter_list = [filter_nam for filter_nam in filter_names if filter_nam in input_files.keys()]
+        incomplete_data = incomplete_data + filter_list
     for data in incomplete_data:
         del input_files[data]
+    dataset_names = [data.name for data in key_data]
+
+    for input_nam in list(input_files.keys()):
+        if input_nam in dataset_names:
+            new_name = check_dataset_name(input_files[input_nam], input_nam)
+            if new_name != input_nam:
+                input_files[new_name] = input_files[input_nam]
+                del input_files[input_nam]
 
     return input_files
 

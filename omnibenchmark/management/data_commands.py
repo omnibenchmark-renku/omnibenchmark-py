@@ -1,21 +1,25 @@
 """Commands related to import and update relevant datasets"""
 from typing import List, Mapping, Any, Optional, Tuple
-from renku.ui.api.models.dataset import Dataset
+from renku.api import Dataset
 from omnibenchmark.renku_commands.datasets import (
     renku_dataset_import,
     renku_dataset_update,
     renku_add_to_dataset,
+    renku_unlink_from_dataset,
+    renku_dataset_remove,
 )
+from omnibenchmark.utils.exceptions import InputError
 import requests
-import os.path
+import os
 import gitlab
+from omnibenchmark.renku_commands.general import renku_save
 from iteration_utilities import unique_everseen  # type: ignore
 
 # Find datasets by string
 def query_datasets_by_string(
     string: str, url: str = "https://renkulab.io/knowledge-graph/datasets?query="
 ) -> List[Mapping[Any, Any]]:
-    """Query datasets in the knowledge base by astring.
+    """Query datasets in the knowledge base by a string.
 
     Args:
         string (str): String to query datasets for
@@ -268,7 +272,7 @@ def get_project_info_from_url(project_url: str) -> Mapping[Any, Any]:
 
 
 def check_orchestrator(
-    data_info: Mapping, o_url: str, gitlab_url: str = "https://renkulab.io/gitlab"
+    data_info: Mapping, o_url: str, gitlab_url: str = "https://renkulab.io/gitlab", n_latest: int = 9
 ) -> Optional[str]:
     """Check if a dataset is associated to a project that is part of the specified orchestrators projects.
 
@@ -291,9 +295,11 @@ def check_orchestrator(
     o_info = get_project_info_from_url(o_url)
     renku_git = gitlab.Gitlab(gitlab_url)
     o_git = renku_git.projects.get(o_info["identifier"])
-    success = o_git.pipelines.list(status="success")
+    success = o_git.pipelines.list(status="success", all = False)
+    latest = o_git.pipelines.list(order_by="updated_at", all = False)[:n_latest]   #type:ignore
+    query_pipes = list(set(success + latest))                                      #type:ignore
     bridge_projects: List = []
-    for pipe in success:
+    for pipe in query_pipes:
         bridge_projects.extend(
             [
                 brid.downstream_pipeline["project_id"]
@@ -314,6 +320,8 @@ def get_data_url_by_keyword(
     query_url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
     data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
     gitlab_url: str = "https://renkulab.io/gitlab",
+    check_o_url: bool = True,
+    n_latest: int = 9,
 ) -> Tuple[List[str], List[str]]:
     """Get all valid dataset urls by matching keywords.
 
@@ -342,10 +350,13 @@ def get_data_url_by_keyword(
             f"WARNING:Could not identify dataset sources. Please check each of {data_url}{all_ids} to make sure they are the intended source"
         )
         return [], []
-    omni_ids = [
-        check_orchestrator(data_info=info, o_url=o_url, gitlab_url=gitlab_url)
-        for info in origin_infos
-    ]
+    if check_o_url:
+        omni_ids = [
+            check_orchestrator(data_info=info, o_url=o_url, gitlab_url=gitlab_url, n_latest=n_latest)
+            for info in origin_infos
+        ]
+    else:
+        omni_ids = [data_info["url"] for data_info in origin_infos]
     omni_ids = list(filter(None, omni_ids))
     if len(omni_ids) < 1:
         if len(up_exist) < 1:
@@ -358,6 +369,21 @@ def get_data_url_by_keyword(
     return omni_ids, up_exist  # type:ignore
 
 
+def find_datasets_with_non_matching_keywords(keywords: List[str], include: Optional[List[str]] = None, remove: bool = True):
+    """Find datasets with non matching keywords
+
+    Args:
+        keywords (List[str]): Keywords to keep datasets with
+        remove (bool, optional): Remove datasets and clean up. Defaults to True.
+    """
+    datasets = Dataset.list()
+    if include is not None:
+        datasets = [dataset for dataset in datasets if dataset.name in include]
+    data_filter = [dataset.name for dataset in datasets if not any(data_key in keywords for data_key in dataset.keywords)]
+    if remove:
+        [renku_dataset_remove(data_filt) for data_filt in data_filter]
+
+
 def update_datasets_by_keyword(
     keyword: str,
     o_url: str,
@@ -366,6 +392,8 @@ def update_datasets_by_keyword(
     query_url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
     data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
     gitlab_url: str = "https://renkulab.io/gitlab",
+    check_o_url: bool = True,
+    n_latest: int = 9,
 ):
     """Import and/or update all datasets that match a certain keyword
 
@@ -386,12 +414,17 @@ def update_datasets_by_keyword(
         query_url=query_url,
         data_url=data_url,
         gitlab_url=gitlab_url,
+        check_o_url = check_o_url,
+        n_latest = n_latest,
     )
     for id in imp_ids:
         renku_dataset_import(uri=id)
     for nam in up_names:
         print(f"Updated dataset {nam}.")
         renku_dataset_update(names=[nam])
+        renku_save()
+    find_datasets_with_non_matching_keywords(keywords=[keyword], include=up_names, remove=True)
+        
 
 
 def update_dataset_files(urls: List[str], dataset_name: str):
@@ -417,3 +450,34 @@ def update_dataset_files(urls: List[str], dataset_name: str):
         renku_add_to_dataset(urls=add_urls, dataset_name=dataset_name)
         print(f"Added the following files to {dataset_name}:\n {add_urls}")
     return
+
+
+def unlink_dataset_files(out_files: List[str], dataset_name: str, remove: bool = True):
+    """Unlink files from a given dataset
+
+    Args:
+        out_files (List[str]): List of files to unlink
+        dataset_name (str): Dataset name tounlink files from
+
+    Raises:
+        InputError: Dataset needs to refer to an existing dataset in the current project.
+    """
+    datasets = Dataset.list()
+    name_list = [dataset.name for dataset in datasets]
+    if dataset_name not in name_list:
+        raise InputError("Dataset {dataset_name} does not exist in this project.")
+    dataset = [data for data in datasets if data.name == dataset_name][0]
+    out_urls = [url for url in out_files if os.path.isfile(url)]
+    dataset_files = [fi.path for fi in dataset.files]
+    # What is with include as pattern? Can we replace all if renku doesn't complain for non-existing files?
+    [
+        renku_unlink_from_dataset(name=dataset_name, include=[out_url])
+        for out_url in out_urls
+        if out_url in dataset_files
+    ]
+    if remove:
+        for out_url in out_urls:
+            if os.path.exists(out_url):
+                os.remove(out_url)
+
+
