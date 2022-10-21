@@ -59,7 +59,9 @@ class OmniInput:
                 )
 
             check_name_matching(self.names, self.prefix.keys())
-            self.input_files = get_input_files_from_prefix(self.prefix, self.keyword, self.filter_names)
+            self.input_files = get_input_files_from_prefix(
+                self.prefix, self.keyword, self.filter_names
+            )
 
         if len(self.input_files) < 1:
             self.input_files = None
@@ -85,7 +87,13 @@ class OmniInput:
             self.default_files = self.input_files[self.default]
 
     def update_inputs(
-        self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str, check_o_url: bool = True, n_latest: int = 9,
+        self,
+        orchestrator: str,
+        query_url: str,
+        data_url: str,
+        gitlab_url: str,
+        check_o_url: bool = True,
+        n_latest: int = 9,
     ):
         """Update datasets and files that belong to this OmniInput object. This will also import new Datasets with the specified keyword..
 

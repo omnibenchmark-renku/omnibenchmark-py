@@ -14,12 +14,19 @@ from omnibenchmark.management.run_commands import (
 )
 from omnibenchmark.management.general_checks import find_orchestrator, is_renku_project
 from omnibenchmark.management.data_checks import find_outputs_with_missing_inputs
-from omnibenchmark.management.data_commands import update_dataset_files
+from omnibenchmark.management.data_commands import (
+    update_dataset_files,
+    get_data_url_by_keyword,
+)
 from omnibenchmark.utils.auto_output import get_default, convert_values_to_string
 from omnibenchmark.utils.user_input_checks import empty_object_to_none, flatten
-from omnibenchmark.utils.exceptions import InputError
+from omnibenchmark.management.wflow_checks import (
+    check_plan_exist,
+    filter_activity_exist,
+)
 from omnibenchmark.utils.default_global_vars import OmniRenkuInst
 from renku.domain_model.dataset import Dataset as RenkuDataSet
+from renku.command.view_model.plan import PlanViewModel
 from typing import List, Optional
 from os import PathLike
 
@@ -135,26 +142,30 @@ class OmniObject(OmniRenkuInst):
         )
         manage_renku_activities(outputs=self.outputs, omni_plan=self.omni_plan)
 
-    def update_result_dataset(self, clean:bool = True):
+    def update_result_dataset(self, clean: bool = True):
         """Add output files to the objects dataset and update the dataset"""
         if self.outputs is None:
             print(
-                f'No output files detected. Nothing to update for {self.dataset_name}.'
+                f"No output files detected. Nothing to update for {self.dataset_name}."
             )
             return
-        out_files = get_all_output_file_names(self.outputs)                    
-        update_dataset_files(urls=out_files, dataset_name=self.dataset_name)   # type:ignore
-        renku_dataset_update(names=[self.dataset_name])                        # type:ignore
+        out_files = get_all_output_file_names(self.outputs)
+        update_dataset_files(
+            urls=out_files, dataset_name=self.dataset_name  # type:ignore
+        )
+        renku_dataset_update(names=[self.dataset_name])  # type:ignore
         out_no_input = find_outputs_with_missing_inputs()
         if len(out_no_input) > 0:
-            revert_run(out_files=out_no_input, dataset_name=self.dataset_name, remove=clean)
+            revert_run(
+                out_files=out_no_input, dataset_name=self.dataset_name, remove=clean
+            )
 
     def update_object(self, check_o_url: bool = True, n_latest: int = 9):
         """Update the objects inputs, parameter and output definition. Does not run or update workflows/activities.
         Args:
-            check_o_url (bool): If linking to an orchestrator shall be checked. 
+            check_o_url (bool): If linking to an orchestrator shall be checked.
                                 WARNING: If False ALL existing datasets with that keyword will be imported!
-            n_latest (int): Number of latest pipelines to include into orchestrator checks 
+            n_latest (int): Number of latest pipelines to include into orchestrator checks
         """
         if not check_o_url:
             self.orchestrator = "placeholder/string"
@@ -204,6 +215,112 @@ class OmniObject(OmniRenkuInst):
             [list(fi["output_files"].values()) for fi in self.outputs.file_mapping]
         )
         revert_run(out_files=out_files, dataset_name=self.dataset_name)
+
+    def check_updates(self, n_latest: int = 9, check_o_url: bool = True):
+        """Shows what inputs are supposed to be updated- and imported upon omni_obj.update_object()
+
+        Args:
+            n_latest (int, optional): Number of latest pipelines to check for the orchestrator check. Defaults to 9.
+            check_o_url (bool, optional): If the potentially imported/updated datasets have to be part of the orchestrator. Defaults to True.
+        """
+
+        imp_list: List = []
+        up_list: List = []
+
+        if self.inputs is None:
+            print(
+                "No inputs defined and no input keyword provided.\n"
+                "Nothing will be updated.\n"
+                "Consider adding an instance of OmniInput as omni_obj.inputs.\n"
+                "Imports will be based on omni_obj.inputs.keywords."
+            )
+            return
+        if self.inputs.keyword is None:
+            print(
+                "No keyword specified. Nothing to update/import.\n"
+                "Please provide a keyword to enable imports in the form of: \n"
+                "omni_obj.inputs.keyword = [KEY1, KEY2]"
+            )
+            return
+        if not check_o_url:
+            self.orchestrator = "placeholder/string"
+        if self.orchestrator is None:
+            if self.benchmark_name is not None:
+                self.orchestrator = find_orchestrator(
+                    benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
+                )
+            if self.orchestrator is None:
+                print(
+                    f"WARNING: No orchestrator specified! \n"
+                    f"No new datasets will be imported. Consider specifying an orchestrator by running:\n"
+                    f"OmniObject.orchestrator = find_orchestrator(BENCHMARK_NAME) \n"
+                    f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs."
+                )
+                return
+        for key in self.inputs.keyword:
+            imp_ids, up_names = get_data_url_by_keyword(
+                keyword=key,
+                filter_names=self.inputs.filter_names,
+                o_url=self.orchestrator,
+                filter_ex=True,
+                query_url=self.DATA_QUERY_URL,
+                data_url=self.DATA_URL,
+                gitlab_url=self.GIT_URL,
+                check_o_url=check_o_url,
+                n_latest=n_latest,
+            )
+
+            imp_list.append(imp_ids)
+            up_list.append(up_names)
+
+        imp_list = flatten(imp_list)
+        up_list = flatten(up_list)
+        nl = "\n"
+        if len(imp_list) > 0:
+            print(
+                f"The following datasets will be imported upon omni_obj.update_object():\n"
+                f"{nl}{nl.join(imp_list)}"
+            )
+
+        if len(up_list) > 0:
+            print(
+                f"The following datasets will be updated upon omni_obj.update_object():\n"
+                f"{nl}{nl.join(up_list)}"
+            )
+        else:
+            print(
+                "No existing dataset matching the specified keyword found. Nothing to be updated"
+            )
+
+    def check_run(self):
+
+        self.command = check_omni_command(self.command, self.script, self.outputs)
+        out_files = get_all_output_file_names(self.outputs)
+        plan = check_plan_exist(out_files)
+        nl = "\n"
+        if plan is None:
+            print(
+                "No workflow associated to this object exist.\n"
+                "The following command will be run to generate one:\n"
+                f"{self.command.command_line}\n"
+                "Further outputs will be generated with that workflow:\n"
+                f"{nl}{nl.join(out_files)}"
+            )
+            return
+        plan_view = PlanViewModel.from_plan(plan)
+        activity_out = filter_activity_exist(out_files)
+        no_activity = [out for out in out_files if out not in activity_out]
+        print(
+            "The following workflow is associated to this object:\n"
+            f"Command:\n {plan_view.full_command}\n"
+            f"Inputs:\n {[input.__dict__ for input in plan_view.inputs]}\n"
+            f"Outputs:\n {[output.__dict__ for output in plan_view.outputs]}\n"
+            f"Parameter:\n {[param.__dict__ for param in plan_view.parameters]}\n"
+            "Activities for the following outputs exist and will be checked for updates:\n"
+            f"{nl}{nl.join(activity_out)}\n"
+            "New activities for the following outputs will  be generated:\n"
+            f"{nl}{nl.join(no_activity)}"
+        )
 
     def execute_plan_without_KG(
         self, inputs, parameter, outputs, time_out: Optional[int] = None

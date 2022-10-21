@@ -66,4 +66,3 @@ def find_outputs_with_missing_inputs() -> List[str]:
     act_list = find_activities_with_missing_inputs()
     out_list = flatten([act.generated_outputs for act in act_list])
     return list(set([out.path for out in out_list]))
-

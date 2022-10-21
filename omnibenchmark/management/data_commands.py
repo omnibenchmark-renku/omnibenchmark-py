@@ -272,7 +272,10 @@ def get_project_info_from_url(project_url: str) -> Mapping[Any, Any]:
 
 
 def check_orchestrator(
-    data_info: Mapping, o_url: str, gitlab_url: str = "https://renkulab.io/gitlab", n_latest: int = 9
+    data_info: Mapping,
+    o_url: str,
+    gitlab_url: str = "https://renkulab.io/gitlab",
+    n_latest: int = 9,
 ) -> Optional[str]:
     """Check if a dataset is associated to a project that is part of the specified orchestrators projects.
 
@@ -295,9 +298,11 @@ def check_orchestrator(
     o_info = get_project_info_from_url(o_url)
     renku_git = gitlab.Gitlab(gitlab_url)
     o_git = renku_git.projects.get(o_info["identifier"])
-    success = o_git.pipelines.list(status="success", all = False)
-    latest = o_git.pipelines.list(order_by="updated_at", all = False)[:n_latest]   #type:ignore
-    query_pipes = list(set(success + latest))                                      #type:ignore
+    success = o_git.pipelines.list(status="success", all=False)
+    latest = o_git.pipelines.list(order_by="updated_at", all=False)[
+        :n_latest
+    ]  # type:ignore
+    query_pipes = list(set(success + latest))  # type:ignore
     bridge_projects: List = []
     for pipe in query_pipes:
         bridge_projects.extend(
@@ -352,7 +357,9 @@ def get_data_url_by_keyword(
         return [], []
     if check_o_url:
         omni_ids = [
-            check_orchestrator(data_info=info, o_url=o_url, gitlab_url=gitlab_url, n_latest=n_latest)
+            check_orchestrator(
+                data_info=info, o_url=o_url, gitlab_url=gitlab_url, n_latest=n_latest
+            )
             for info in origin_infos
         ]
     else:
@@ -369,7 +376,9 @@ def get_data_url_by_keyword(
     return omni_ids, up_exist  # type:ignore
 
 
-def find_datasets_with_non_matching_keywords(keywords: List[str], include: Optional[List[str]] = None, remove: bool = True):
+def find_datasets_with_non_matching_keywords(
+    keywords: List[str], include: Optional[List[str]] = None, remove: bool = True
+):
     """Find datasets with non matching keywords
 
     Args:
@@ -379,7 +388,11 @@ def find_datasets_with_non_matching_keywords(keywords: List[str], include: Optio
     datasets = Dataset.list()
     if include is not None:
         datasets = [dataset for dataset in datasets if dataset.name in include]
-    data_filter = [dataset.name for dataset in datasets if not any(data_key in keywords for data_key in dataset.keywords)]
+    data_filter = [
+        dataset.name
+        for dataset in datasets
+        if not any(data_key in keywords for data_key in dataset.keywords)
+    ]
     if remove:
         [renku_dataset_remove(data_filt) for data_filt in data_filter]
 
@@ -414,8 +427,8 @@ def update_datasets_by_keyword(
         query_url=query_url,
         data_url=data_url,
         gitlab_url=gitlab_url,
-        check_o_url = check_o_url,
-        n_latest = n_latest,
+        check_o_url=check_o_url,
+        n_latest=n_latest,
     )
     for id in imp_ids:
         renku_dataset_import(uri=id)
@@ -423,8 +436,9 @@ def update_datasets_by_keyword(
         print(f"Updated dataset {nam}.")
         renku_dataset_update(names=[nam])
         renku_save()
-    find_datasets_with_non_matching_keywords(keywords=[keyword], include=up_names, remove=True)
-        
+    find_datasets_with_non_matching_keywords(
+        keywords=[keyword], include=up_names, remove=True
+    )
 
 
 def update_dataset_files(urls: List[str], dataset_name: str):
@@ -479,5 +493,3 @@ def unlink_dataset_files(out_files: List[str], dataset_name: str, remove: bool =
         for out_url in out_urls:
             if os.path.exists(out_url):
                 os.remove(out_url)
-
-

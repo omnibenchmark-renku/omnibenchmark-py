@@ -318,6 +318,10 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.29
+    * Add check_status and check_run to omni_obj class methods
+    * FIX:
+    * Export these most important functionalities 
 * 0.0.28
     * Commit after generating/updating each activity
     * Add argument to disable orchestrator check

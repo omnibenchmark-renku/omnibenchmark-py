@@ -63,8 +63,9 @@ def best_match_name_seq(map_dict: Mapping[str, str]) -> str:
     com_sub = find_stem(name_list)
     return com_sub.rstrip("_- .")
 
-def get_name_hash_from_input_dict(infile_dict: Mapping[str,str]) -> str:
-    """Get  the md5 hash of the joined values of a dictionary (e.g. of all input file names in an input file dict) 
+
+def get_name_hash_from_input_dict(infile_dict: Mapping[str, str]) -> str:
+    """Get  the md5 hash of the joined values of a dictionary (e.g. of all input file names in an input file dict)
 
     Args:
         infile_dict (Mapping[str,str]): A dictionary with file types as key and file names as values.
@@ -90,7 +91,7 @@ def match_files_by_name(
     """
     match_dict: Dict = {}
     fi_types = list(file_type_dict.keys())
-    fi_start = max(file_type_dict, key= lambda x: len(set(file_type_dict[x])))
+    fi_start = max(file_type_dict, key=lambda x: len(set(file_type_dict[x])))
     fil_types = [fi_type for fi_type in fi_types if not fi_type == fi_start]
     for fi_idx, fi in enumerate(file_type_dict[fi_start]):
         group_nam = "inst" + str(fi_idx)
@@ -111,10 +112,13 @@ def match_files_by_name(
                     fi_top = fi_path
             match_dict[group_nam][fi_type] = fi_top
     com_dict = {
-        get_name_hash_from_input_dict(match_dict[m_key])[0:5] + "_" + best_match_name_seq(match_dict[m_key]): match_dict[m_key]
+        get_name_hash_from_input_dict(match_dict[m_key])[0:5]
+        + "_"
+        + best_match_name_seq(match_dict[m_key]): match_dict[m_key]
         for m_key in match_dict.keys()
     }
     return com_dict
+
 
 def check_dataset_name(input_dict: Mapping[str, str], data_name: str) -> str:
     """Check if data_name includes the longest matching sequence of all input files
@@ -130,11 +134,20 @@ def check_dataset_name(input_dict: Mapping[str, str], data_name: str) -> str:
     if best_match == data_name:
         return data_name
     else:
-        new_name = data_name + "_" + get_name_hash_from_input_dict(input_dict)[0:5] + "_" + best_match
+        new_name = (
+            data_name
+            + "_"
+            + get_name_hash_from_input_dict(input_dict)[0:5]
+            + "_"
+            + best_match
+        )
         return new_name.rstrip("_- .")
 
+
 def get_input_files_from_prefix(
-    input_prefix: Mapping[str, List[str]], keyword: List[str], filter_names: Optional[List[str]] = None
+    input_prefix: Mapping[str, List[str]],
+    keyword: List[str],
+    filter_names: Optional[List[str]] = None,
 ) -> Mapping[str, Mapping]:
     """Find input files by prefix
 
@@ -190,7 +203,9 @@ def get_input_files_from_prefix(
                 f"Please check matches to ensure correct groups: 'omni_obj.inputs.input_files'"
             )
             del input_files[data.name]
-            group_data_dict = {data.name + "_" + k: group_dict[k] for k in group_dict.keys()}
+            group_data_dict = {
+                data.name + "_" + k: group_dict[k] for k in group_dict.keys()
+            }
             input_files.update(group_data_dict)
     file_types = input_prefix.keys()
     incomplete_data = [
@@ -199,7 +214,11 @@ def get_input_files_from_prefix(
         if not all(fi_type in input_files[data].keys() for fi_type in file_types)
     ]
     if filter_names is not None:
-        filter_list = [filter_nam for filter_nam in filter_names if filter_nam in input_files.keys()]
+        filter_list = [
+            filter_nam
+            for filter_nam in filter_names
+            if filter_nam in input_files.keys()
+        ]
         incomplete_data = incomplete_data + filter_list
     for data in incomplete_data:
         del input_files[data]
