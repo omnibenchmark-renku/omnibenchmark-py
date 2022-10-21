@@ -14,15 +14,16 @@ You can install **omnibenchmark** from [PyPI](https://pypi.org/project/omnibench
 pip install omnibenchmark
 ```
 
-The module is supported on Python >= 3.8 and requires [renku >= 1.5.0](https://pypi.org/project/renku/).
+The module requires Python >= 3.8 and [renku >= 1.5.0](https://pypi.org/project/renku/).
 
 ## How to use omnibenchmark
 
-For a detailed documentation and tutorials check the [omnibenchmark documentation](https://omnibenchmark.readthedocs.io).
+For detailed documentation and tutorials, check the [omnibenchmark documentation](https://omnibenchmark.readthedocs.io).
 
 ### Quick start
 
-Omnibenchmark uses the `renku` platform to run open and continuous benchmarks. To contribute an independent module to one of the existing benchmarks please start by creating a new [renku project](#Create-a-new-renku-project). Each module consists of a Docker image, that defines its environment, a dataset to store outputs and metadata, a workflow that describes how to generate outputs and input and parameter datasets with input files and parameter definitions, if they are used. Thus each module is an independent benchmark part and can be run, used and modified independently as such. Modules are connected by importing (result) datasets from other modules as input datasets and will automatically be updated according to them.   
+Omnibenchmark uses the `renku` platform to run open and continuous benchmarks. To contribute an independent module to one of the existing benchmarks please start by creating a new [renku project](#Create-a-new-renku-project). Each module (= renkulab project) consists of a Docker image, which defines its software environment, a dataset to store outputs and metadata, a workflow that describes how to generate outputs and input and parameter datasets with input files and parameter definitions, if they are used. Thus, each module is an independent benchmark component and can be run, used and modified independently as such. Modules are connected by importing (result) datasets from other modules as input datasets and will automatically be updated according to them.  
+
 All relevant information on how to run a specific module are stored as [`OmniObject`](#omnibenchmark-classes).
 The most convenient way to generate an instance of an `OmniObject` is to build it from a `config.yaml` file:
 
@@ -35,7 +36,7 @@ omni_obj = get_omni_object_from_yaml('src/config.yaml')
 
 ```
 
-The `config.yaml` defines all module specific information as inputs, outputs, script to run the module, benchmark that the module belongs to and much more. A simple `config.yaml` file could look like this. Please check section [The config.yaml file](#the-config.yaml-file) for more details.
+The `config.yaml` defines all module specific information as inputs, outputs, script to run the module, benchmark that the module belongs to and much more. A simple `config.yaml` file could look like this (see [The config.yaml file](#the-config.yaml-file) for more details):
 
 ```sh
 ---
@@ -56,7 +57,7 @@ outputs:
             end: "json"
 benchmark_name: "an-omnibenchmark"
 ```
-Once you have an instance of an `OmniObject` you can check, if it looks as you expected like this:
+Once you have an instance of an `OmniObject` you can check if it looks as you expected like this:
 
 ```python
 ## Check object
@@ -87,24 +88,24 @@ renku_save()
 Once these steps ran successfully and your outputs were generated the module is ready to be [submitted to become a part of omnibenchmark](#Submit-your-module).
 
 ### What is renku?
-[Renku](https://renkulab.io) is a platform and tools for reproducible and collaborative data analysis from the [Swiss Data Science Centre](https://datascience.ch/). Besides other functionalities renku provides a framework to create and run data analysis projects, which come with their own Docker container, datasets and workflows. By storing the metadata of projects and datasets on a knowledge graph renku facilitates provenance tracking and project interactions. To do so renku combines a set of microservices:
+[Renku](https://renkulab.io) is a platform and tools for reproducible and collaborative data analysis from the [Swiss Data Science Centre](https://datascience.ch/). Besides other functionalities, renku provides a framework to create and run data analysis projects, which come with their own Docker container, datasets and workflows. By storing the metadata of projects and datasets on a knowledge graph, renku facilitates provenance tracking and project interactions. To do so renku combines a set of microservices:
 - GitLab, for version control and project management
 - GitLFS, for file storage
-- Kubernetes/Docker, to manage containerized environment
+- Kubernetes/Docker, to manage containerized environments
 - Jupyter server, to provide interactive sessions
 - Apache Jena, to generate, store and manage triplets and the triplet store (knowledge graph) 
 
 Details on how to use renku can be found in their [Documentation](https://renku.readthedocs.io/en/latest/index.html). Omnibenchmark uses renku to build and run collaborative and continuous benchmarks. 
 
 #### Create a new renku project
-Omnibenchmark modules are build as separate renku projects. Contributions to one of the existing benchmarks start by creating a new project using the [renku platform](https://renkulab.io). This can be done by registering directly or using a Github account, an Orchid or a Switch-EDU ID.
+Omnibenchmark modules are built as separate renku projects. Contributions to one of the existing benchmarks start by creating a new project using the [renku platform](https://renkulab.io). This can be done by registering directly or using a Github account, an ORCID or a Switch-EDU ID.
 A new project can be created by a few clicks as described [here](https://renku.readthedocs.io/en/latest/tutorials/first_steps/01_create_project.html). Templates can be chosen depending on the projects code or the Basic Python template. Project can then be populated/changed in an interactive renku session (see session tab of the project) or within the GitLab instance or clone of the project (Overview tab --> View in GitLab). 
 
 ### Project requirements
-Project requirements can be defined by adapting the `Dockerfile` and specifying the all required R packages with their versions in the `install.R` file and all required python modules with their versions in the `requirements.txt` file. The later needs to contain at least `omnibenchmark`. If you work in an interactive session you need to save/commit your changes either by running `renku save` or `git add/commit/push` and close and restart the session once the new Docker image has been build. The built is triggered automatically when commiting changes, but can take a while depending on the requirments.
+Project requirements can be defined by adapting the `Dockerfile` and specifying the all required R packages (with their versions) in the `install.R` file and all required python modules (with their versions) in the `requirements.txt` file. The latter needs to contain at least `omnibenchmark`. If you work in an interactive session, you need to save/commit your changes either by running `renku save` or `git add/commit/push` and close and restart the session once the new Docker image has been built. The build of the docker image is triggered automatically after committing changes, but can take a while depending on the requirments (and the runner used).
 
 ### The config.yaml file
-Usually all specific information about a benchmark project can be specified in a `config.yaml` file. Below we show an example with all standard fields and explanations to them. Many fields are optional and do not apply to all modules. All unneccessary fields can be skipped. There are further optional fields for specfic edge cases, that are described in an extra `config.yaml` file. In general the `config.yaml` file consists of a data, an input, an output and a parameter section as well as a few extra fields to define the main benchmark script and benchmark type. Except for the data section the other sections are optional. Multiple values can be parsed as lists.
+All specific information about a benchmark component (= renkulab project) can be specified in a `config.yaml` file. Below we show an example with all standard fields and explanations to them. Many fields are optional and do not apply to all modules. All unneccessary fields can be skipped. There are further optional fields for specfic edge cases, that are described in an extra `config.yaml` file. In general, the `config.yaml` file consists of a data, an input, an output and a parameter section as well as a few extra fields to define the main benchmark script and benchmark type. Except for the data section, the other sections are optional. Multiple values can be parsed as lists.
 
 ```yaml
 # Data section to describe the object and the associated (result) dataset
@@ -159,8 +160,8 @@ parameter:
         "path/to/file/with/parameter/combinations/to/exclude.json"
 ```
 
-Specific fields, that are only relevant for edge cases. These fields have their counterparts in the generated [OmniObject](#omnibenchmark-classes).
-Changes of the attributes of the OmniObject instance have the same effects, but come with the flexibility of python code. 
+Below gives specific fields that are only relevant for edge cases. These fields have their counterparts in the generated [OmniObject](#omnibenchmark-classes).
+Changes of the attributes of the OmniObject instance have the same effects, but come with the flexibility of running from python. 
 
 ```yaml
 # Command to generate the workflow with (Optional, automatic detection)
@@ -205,7 +206,7 @@ parameter:
 ```
 
 ### Omnibenchmark classes
-Classes to manage omnibenchmark modules and their interactions. The main class is the [OmniObject](#omniobject), that consollidates all relevant information and functions of a module. This object has further subclasses that define inputs, outputs, commands and the workflow.
+Classes to manage omnibenchmark modules and their interactions. The main class is the [OmniObject](#omniobject), that consolidates all relevant information and functions of a module. This object has further subclasses that define inputs, outputs, commands and the workflow.
 
 ---
 
@@ -222,16 +223,16 @@ It takes the following arguments:
 * **`parameter (Optional[OmniParameter], optional)`**: Definitions of the workflow parameter.
 * **`outputs (Optional[OmniOutput], optional)`**: Definitions of the workflow outputs.
 * **`omni_plan (Optional[OmniPlan], optional)`**: The workflow description.
-* **`benchmark_name (Optional[str], optional)`**: Name of the benchmark the module is associated to.
-* **`orchestrator (Optional[str], optional)`**: Orchestrator url of the benchmark th emodule is associated to. Automatic detection.
+* **`benchmark_name (Optional[str], optional)`**: Name of the associated benchmark.
+* **`orchestrator (Optional[str], optional)`**: Orchestrator URL of the associated benchmark. Automatic detection.
 * **`wflow_name (Optional[str], optional)`**: Workflow name. Will be set to the module name if none.
 * **`dataset_name (Optional[str], optional)`**: Dataset name. Will be set to the module name if none.
 
-The following class methods can be run on an instance of an OmniObject:
-* **`create_dataset()`**: Method to create a renku dataset with the in the object specified attributes in the current renku project. 
-* **`update_object()`**: Method to check for new imports or updates in input and the parameter datasets. Will update object attributes accordingly.
-* **`run_renku()`**: Method to generate and update the workflow and all output files as specified in the object.
-* **`update_result_dataset()`**: Method to update and add all output datasets to the dataset specified in the object.
+The following methods can be run on an instance of an OmniObject:
+* **`create_dataset()`**: Creates a renku dataset with the specified attributes in the current renku project. 
+* **`update_object()`**: Checks for new imports or updates in the input and parameter datasets. Will update object attributes accordingly.
+* **`run_renku()`**: Generates and updates the workflow and all output files as specified in the object.
+* **`update_result_dataset()`**: Updates and adds all output datasets to the dataset specified in the object.
 
 ---
 
