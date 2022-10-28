@@ -1,6 +1,6 @@
 """ All kind of check or test functions to ensure correct variable inputs beyont type hinting"""
 
-from typing import List, Iterable, Mapping, Union, Optional, overload, Any
+from typing import List, Iterable, Mapping, Union, Optional, overload, Any, List
 from omnibenchmark.utils.exceptions import InputError
 
 
@@ -91,3 +91,6 @@ def check_default_parameter(
             f"Please check your defaults:\n {default_params}\n and the parameter space:\n {param_combinations}"
         )
         return param_combinations[0]  # type: ignore
+
+def rm_none_from_list( in_list: List) -> List:
+    return [element for element in in_list if element is not None]

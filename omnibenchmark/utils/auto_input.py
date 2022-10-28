@@ -73,7 +73,7 @@ def get_name_hash_from_input_dict(infile_dict: Mapping[str, str]) -> str:
     Returns:
         (str): The md5 hash of the concatenated file names
     """
-    in_string = "".join(list(infile_dict.values()))
+    in_string = "".join(sorted(list(infile_dict.values())))
     hash_object = hashlib.md5(in_string.encode())
     return hash_object.hexdigest()
 
@@ -208,19 +208,27 @@ def get_input_files_from_prefix(
             }
             input_files.update(group_data_dict)
     file_types = input_prefix.keys()
+
+    #Filter incomplete, non existing and explicitly filtered data
     incomplete_data = [
         data
         for data in input_files.keys()
         if not all(fi_type in input_files[data].keys() for fi_type in file_types)
     ]
+    non_exist_data = [
+        data
+        for data in input_files.keys()
+        if not all(os.path.exists(fi) for fi in input_files[data].values())
+    ]
+    rm_data = incomplete_data + non_exist_data
     if filter_names is not None:
         filter_list = [
             filter_nam
             for filter_nam in filter_names
             if filter_nam in input_files.keys()
         ]
-        incomplete_data = incomplete_data + filter_list
-    for data in incomplete_data:
+        rm_data = rm_data + filter_list
+    for data in rm_data:
         del input_files[data]
     dataset_names = [data.name for data in key_data]
 

@@ -11,13 +11,22 @@ from omnibenchmark.renku_commands.datasets import (
 from omnibenchmark.utils.exceptions import InputError
 import requests
 import os
+import urllib
 import gitlab
 from omnibenchmark.renku_commands.general import renku_save
 from iteration_utilities import unique_everseen  # type: ignore
 
+def query_renku_api(
+    url: str, page_num: int, page_item: int = 100
+) -> List[Mapping[Any, Any]]:
+
+    response = requests.get(url, params = {"per_page": page_item, "page": page_num})
+    return response.json()
+
 # Find datasets by string
 def query_datasets_by_string(
-    string: str, url: str = "https://renkulab.io/knowledge-graph/datasets?query="
+    string: str, url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
+    page_item: int = 100
 ) -> List[Mapping[Any, Any]]:
     """Query datasets in the knowledge base by a string.
 
@@ -29,8 +38,17 @@ def query_datasets_by_string(
         List[Mapping[Any, Any]]: List of all datasets associated to that string with their metadata
     """
     query_url = url + string
-    response = requests.get(query_url)
-    return response.json()
+    multi_page = True
+    page_num = 1
+    response: List = []
+    while multi_page:
+        res = query_renku_api(query_url, page_num=page_num, page_item=page_item)
+        page_num += 1
+        if len(res) < page_item:
+            multi_page = False
+        if isinstance(res, list):
+            response.extend(res)
+    return response
 
 
 # Find dataset by match of property
@@ -184,12 +202,15 @@ def find_dataset_linked_to_wflow(
             file_lineage = requests.get(
                 info["project"]["_links"][0]["href"]
                 + "/files/"
-                + data_file
+                + urllib.parse.quote(data_file, safe='')
                 + "/lineage"
             )
-            if "message" not in file_lineage.json().keys():
-                origin_info.append(info)
-                return origin_info
+            if "message" in file_lineage.json().keys():
+                continue
+            if "edges" in file_lineage.json().keys():
+                if any(data_file in fi["target"] for fi in file_lineage.json()["edges"]):
+                    if info not in origin_info:
+                        origin_info.append(info)
     return origin_info
 
 
@@ -218,8 +239,17 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
             all_ids = [dat["identifier"] for dat in all_datasets.json()]
             origin_info = [info for info in dup_info if info["identifier"] in all_ids]
         else:
-            origin_info = find_dataset_linked_to_wflow(dup_info)
-        if len(origin_info) == 0:
+            o_info = find_dataset_linked_to_wflow(dup_info)
+            o_project = set([info["project"]["_links"][0]["href"] for info in o_info])
+            if len(o_project) == 1:
+                all_datasets = requests.get(
+                list(o_project)[0] + "/datasets"
+                )  # type:ignore
+                all_ids = [dat["identifier"] for dat in all_datasets.json()]
+                origin_info = [info for info in o_info if info["identifier"] in all_ids]
+            else:
+                origin_info = []
+        if len(origin_info) != 1:
             print(
                 f"WARNING: Could not identify origin of {dup}.\n"
                 f"If you anyways want to use and import it, consider manual import:\n"

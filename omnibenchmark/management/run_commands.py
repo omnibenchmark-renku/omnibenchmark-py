@@ -12,7 +12,12 @@ from omnibenchmark.utils.exceptions import InputError, ParameterError
 from omnibenchmark.management import wflow_checks as wflow
 from omnibenchmark.management.data_commands import unlink_dataset_files
 import omnibenchmark.renku_commands.workflows as omni_wflow
-from omnibenchmark.utils.user_input_checks import parse_explicit_inputs, flatten
+from omnibenchmark.utils.auto_output import get_default, convert_values_to_string
+from omnibenchmark.utils.user_input_checks import (
+    parse_explicit_inputs,
+    empty_object_to_none,
+    flatten,
+)
 from omnibenchmark.core.output_classes import OmniCommand, OmniOutput, OmniPlan
 from omnibenchmark.renku_commands.general import renku_save
 from renku.command.view_model.plan import PlanViewModel
@@ -67,42 +72,57 @@ def create_activity(out_map: OutMapping, omni_plan: OmniPlan):
 
 
 def manage_renku_plan(
-    out_files: List[str],
     omni_plan: Optional[OmniPlan],
-    command: str,
+    command: OmniCommand,
+    output: Optional[OmniOutput],
     name: Optional[str] = None,
     description: Optional[str] = None,
     keyword: Optional[str] = None,
-    default_output: Optional[Mapping] = None,
-    default_input: Optional[Mapping] = None,
-    default_parameter: Optional[Mapping] = None,
 ) -> PlanDomainModel:
     """Check if a renku plan for a set of output files exist and generate one from default parameter if not.
 
     Args:
-        out_files (List[str]): All potential output files
-        command_line (str): Command line command to generate default plan.
+        output (Optional[OmniOutput]): An OmniOutput instance with all output files and their mappimg specified.
+        command (OmniCommand): OmniCommand object with command line and outputs specified.
         name (str, optional): Workflow name. Defaults to None.
         description (str, optional): Workflow description. Defaults to None.
         keyword (str, optional): Workflow keyword. Defaults to None.
-        default_output (Optional[Mapping[str, Optional[str]]], optional): Default outputs. Defaults to None.
-        default_input (Optional[Mapping[str, Optional[str]]], optional): Default inputs. Defaults to None.
-        default_parameter (Optional[Mapping[str, Optional[str]]], optional): Default parameter. Defaults to None.
 
     Returns:
         PlanDomainModel: A renku plan object.
     """
-
+    if output is None:
+        output = command.outputs
+    if output is None:
+        raise InputError(
+            "Please specify outputs to be generated.\n"
+            "You can either specify command.outputs or outputs directly"
+        )
+    out_files = get_all_output_file_names(output)
     plan = wflow.check_plan_exist(out_files)
     if plan is not None:
         plan_view = PlanViewModel.from_plan(plan)
-    def_input = parse_explicit_inputs(default_input)
-    def_output = parse_explicit_inputs(default_output)
-    def_parameter = parse_explicit_inputs(default_parameter)
 
     if plan is None:
+        if command.outputs is not output:
+            command.outputs = output
+            command.update_command()
+        if command.command_line is None:
+            raise InputError(
+                "Can not generate a workflow without command and outputs specified.\n"
+                "Please make sure to provide an object of class OmniCommand with outputs specified."
+            )
+        def_input = parse_explicit_inputs(
+            empty_object_to_none(convert_values_to_string(command.input_val))
+        )
+        def_parameter = parse_explicit_inputs(
+            empty_object_to_none(convert_values_to_string(command.parameter_val))
+        )
+        def_output = parse_explicit_inputs(
+            empty_object_to_none(get_default(command.outputs))
+        )
         result = omni_wflow.renku_workflow_run(
-            command_line=command,
+            command_line=command.command_line,
             name=name,
             description=description,
             keyword=keyword,
@@ -115,9 +135,17 @@ def manage_renku_plan(
 
     if omni_plan is None or not plan_view == omni_plan.plan:
         omni_plan = OmniPlan(plan=plan_view)
+        plan_outs = [plan_out.default_value for plan_out in plan_view.outputs]
+        file_mapping_plan = get_file_mapping_from_out_files(
+            out_files=plan_outs, file_mapping=output.file_mapping
+        )[0]
         file_list = [
             file_map
-            for file_map in [default_output, default_input, default_parameter]
+            for file_map in [
+                file_mapping_plan["output_files"],
+                file_mapping_plan["input_files"],
+                file_mapping_plan["parameter"],
+            ]
             if file_map is not None
         ]
         file_dict = get_file_name_dict(file_mapping=file_list)

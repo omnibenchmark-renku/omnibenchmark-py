@@ -18,8 +18,8 @@ from omnibenchmark.management.data_commands import (
     update_dataset_files,
     get_data_url_by_keyword,
 )
-from omnibenchmark.utils.auto_output import get_default, convert_values_to_string
-from omnibenchmark.utils.user_input_checks import empty_object_to_none, flatten
+
+from omnibenchmark.utils.user_input_checks import flatten, rm_none_from_list
 from omnibenchmark.management.wflow_checks import (
     check_plan_exist,
     filter_activity_exist,
@@ -123,22 +123,12 @@ class OmniObject(OmniRenkuInst):
         self.command = check_omni_command(self.command, self.script, self.outputs)
         out_files = get_all_output_file_names(self.outputs)
         check_output_directories(out_files)
-        input_default = empty_object_to_none(
-            convert_values_to_string(self.command.input_val)
-        )
-        param_default = empty_object_to_none(
-            convert_values_to_string(self.command.parameter_val)
-        )
-        out_default = empty_object_to_none(get_default(self.command.outputs))
         self.omni_plan = manage_renku_plan(
-            out_files=out_files,
             omni_plan=self.omni_plan,
-            command=self.command.command_line,
+            command=self.command,
+            output=self.outputs,
             name=self.wflow_name,
             description=self.description,
-            default_output=out_default,
-            default_input=input_default,
-            default_parameter=param_default,
         )
         manage_renku_activities(outputs=self.outputs, omni_plan=self.omni_plan)
 
@@ -309,6 +299,7 @@ class OmniObject(OmniRenkuInst):
             return
         plan_view = PlanViewModel.from_plan(plan)
         activity_out = filter_activity_exist(out_files)
+        activity_out = rm_none_from_list(activity_out)
         no_activity = [out for out in out_files if out not in activity_out]
         print(
             "The following workflow is associated to this object:\n"

@@ -319,6 +319,10 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.30
+    * FIX:
+    * Get a stable name hash used to automatically generate output names by fixing the order using sorted input file names
+    * Use files that generated the workflow to do the file mapping  
 * 0.0.29
     * Add check_status and check_run to omni_obj class methods
     * FIX:

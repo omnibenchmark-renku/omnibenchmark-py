@@ -218,6 +218,17 @@ def mock_output_view():
 
 
 @pytest.fixture
+def mock_omni_output_plan():
+    out_map = OutMapping(
+        {"output_files": {"output1": "this/is/another/default"}}
+    )  # type:ignore
+    omni_out = OmniOutput(
+        name="mock_plan_out", out_names=["output1"], file_mapping=[out_map]
+    )
+    return omni_out
+
+
+@pytest.fixture
 def mock_param_view():
 
     param = CommandParameterViewModel(

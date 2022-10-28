@@ -3,6 +3,7 @@ from omnibenchmark.utils.exceptions import ParameterError
 import renku.ui.api.models.dataset
 import pytest
 import re
+import os
 
 ### Test auto input functions
 
@@ -17,6 +18,11 @@ def test_get_input_files_from_prefix_works(mock_api_Dataset, mock_prefix, monkey
         renku.ui.api.models.dataset.Dataset,
         "list",
         lambda *args, **kwargs: get_mock_list(),
+    )
+    monkeypatch.setattr(
+        os.path,
+        "exists",
+        lambda *args, **kwargs: True,
     )
 
     test_join = omni.get_input_files_from_prefix(
@@ -64,7 +70,11 @@ def test_get_input_files_from_prefix_works_regexpr(
         "list",
         lambda *args, **kwargs: get_mock_list(),
     )
-
+    monkeypatch.setattr(
+        os.path,
+        "exists",
+        lambda *args, **kwargs: True,
+    )
     test_join = omni.get_input_files_from_prefix(
         input_prefix=mock_prefix, keyword=["mock", "some"]
     )

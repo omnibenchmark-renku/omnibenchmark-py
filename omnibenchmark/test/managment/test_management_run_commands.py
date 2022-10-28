@@ -1,4 +1,4 @@
-from omnibenchmark.core.output_classes import OmniCommand, OmniPlan
+from omnibenchmark.core.output_classes import OmniCommand, OmniOutput, OmniPlan
 from omnibenchmark.management import run_commands as omni
 import omnibenchmark.renku_commands.workflows as omni_wflow
 from omnibenchmark.management import wflow_checks as wflow
@@ -47,28 +47,36 @@ def test_create_activity(mock_out_mapping, mock_plan_dict, mock_plan):
 
 
 # Test manage_renku_plan
-def test_manage_renku_plan_with_correct_plan(mock_plan, mock_plan_view, monkeypatch):
+def test_manage_renku_plan_with_correct_plan(
+    mock_plan, mock_omni_output_plan, mock_plan_view, monkeypatch, mock_output_view
+):
     def return_mock_plan(*args, **kwargs):
-        return mock_plan
+        m_plan = mock_plan
+        m_plan.outputs = [mock_output_view]
+        return m_plan
 
+    mock_command = OmniCommand("path/to/script.py")
     monkeypatch.setattr(wflow, "check_plan_exist", return_mock_plan)
     mock_omni_plan = OmniPlan(plan=mock_plan_view)
     out_plan = omni.manage_renku_plan(
-        out_files=["any", "random"],
+        output=mock_omni_output_plan,
         omni_plan=mock_omni_plan,
-        command="not_to_run_command_str",
+        command=mock_command,
     )
     assert out_plan.plan.id == mock_omni_plan.plan.id
 
 
-def test_manage_renku_plan_without_any_input(mock_plan_view, monkeypatch):
+def test_manage_renku_plan_without_any_input(
+    mock_plan_view, mock_omni_output_plan, monkeypatch
+):
     def return_run_result(*args, **kwargs):
         return CommandResult(output=mock_plan_view, error=None, status=None)
 
     monkeypatch.setattr(omni_wflow, "renku_workflow_run", return_run_result)
-    mock_omni_plan = OmniPlan(plan=mock_plan_view, param_mapping={})
+    mock_omni_plan = OmniPlan(plan=mock_plan_view, param_mapping={"output1": "output1"})
+    mock_command = OmniCommand("path/to/script.py")
     out_plan = omni.manage_renku_plan(
-        out_files=["any", "random"], omni_plan=None, command="not_to_run_command_str"
+        output=mock_omni_output_plan, omni_plan=None, command=mock_command
     )
     assert out_plan.param_mapping == mock_omni_plan.param_mapping
     assert out_plan.plan == mock_omni_plan.plan

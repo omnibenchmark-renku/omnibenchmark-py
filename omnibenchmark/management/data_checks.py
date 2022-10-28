@@ -3,6 +3,7 @@
 from renku.api import Activity, Project, Dataset
 from omnibenchmark.utils.user_input_checks import flatten
 import requests
+import re
 from typing import Union, List
 import os
 
@@ -39,6 +40,18 @@ def dataset_name_exist(name: str, kg_url: str) -> bool:
 
     url = kg_url + "/datasets?query=" + name
     response = requests.get(url)
+    # Checks to ensure no complete name matching (To remove if file matching is moved to triplet store queries)
+    if any(name in item["name"] for item in response.json()) or any(
+        item["name"] in name for item in response.json()
+    ):
+        nl = "\n"
+        name_list = set([item["name"] for item in response.json()])
+        print(
+            f"A dataset with a complete match of {name} already exist.\n"
+            "Please specify a name without a complete match within:\n"
+            f"{nl}{nl.join(name_list)}"
+        )
+        return True
     return True if name in [item["name"] for item in response.json()] else False
 
 
