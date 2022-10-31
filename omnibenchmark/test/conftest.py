@@ -20,7 +20,7 @@ from renku.domain_model.workflow.parameter import (
 )
 from renku.domain_model.provenance.activity import Activity, Association
 from renku.infrastructure.gateway.activity_gateway import ActivityGateway
-from omnibenchmark.utils.context_manager import get_database_dispatcher
+from renku.ui.api.util import get_activity_gateway
 from omnibenchmark.core.input_classes import OutMapping
 import renku.ui.api
 import omnibenchmark.management.general_checks
@@ -194,11 +194,7 @@ def no_project_context(monkeypatch):
 
 @pytest.fixture
 def act_gateway():
-
-    database_dispatcher = get_database_dispatcher()
-    activity_gateway = ActivityGateway()
-    activity_gateway.database_dispatcher = database_dispatcher
-    return activity_gateway
+    return get_activity_gateway()
 
 
 @pytest.fixture

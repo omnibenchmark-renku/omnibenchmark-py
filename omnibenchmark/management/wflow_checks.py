@@ -2,10 +2,7 @@
 
 from os import PathLike
 from typing import List, Optional, Union
-from omnibenchmark.utils.context_manager import (
-    configure_plan_gateway,
-    configure_activity_gateway,
-)
+from renku.ui.api.util import get_activity_gateway, get_plan_gateway
 from renku.infrastructure.gateway.activity_gateway import ActivityGateway
 from renku.domain_model.workflow.plan import Plan
 from omnibenchmark.utils.exceptions import WorkflowError
@@ -52,7 +49,7 @@ def filter_activity_exist(outputs: List[str]) -> List[Union[PathLike, str, None]
         List[str]: A list of output paths with valid activities
     """
 
-    activity_gateway = configure_activity_gateway()
+    activity_gateway = get_activity_gateway()
     return [
         activity_plan_is_valid(out, activity_gateway=activity_gateway)
         for out in outputs
@@ -71,7 +68,7 @@ def get_all_plans() -> List[Plan]:
     if not general_checks.is_renku_project():
         return []
     else:
-        plan_gateway = configure_plan_gateway()
+        plan_gateway = get_plan_gateway()
         return plan_gateway.get_all_plans()
 
 
@@ -128,7 +125,7 @@ def find_plan_by_outputs(outputs: List[str]) -> Plan:
     """
     plans = get_all_plans()
     valid_plans = filter_valid_plans(plans)
-    activity_gateway = configure_activity_gateway()
+    activity_gateway = get_activity_gateway()
     out_plan_ids = [
         get_plan_id_from_output(out, activity_gateway=activity_gateway)
         for out in outputs

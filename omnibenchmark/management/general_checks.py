@@ -19,7 +19,7 @@ def is_renku_project(path: Union[os.PathLike, str] = os.getcwd()) -> bool:
     current_dir = os.getcwd()
     os.chdir(path)
     project = Project()
-    repo = project.client.repository
+    repo = project.repository
     os.chdir(current_dir)
     return True if repo.contains(".renku/metadata") else False
 

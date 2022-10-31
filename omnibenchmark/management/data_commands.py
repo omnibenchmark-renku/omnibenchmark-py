@@ -23,6 +23,23 @@ def query_renku_api(
     response = requests.get(url, params = {"per_page": page_item, "page": page_num})
     return response.json()
 
+
+def query_multipages(
+    url: str,
+    page_item: int = 100
+) -> List[Mapping[Any, Any]]:
+    multi_page = True
+    page_num = 1
+    response: List = []
+    while multi_page:
+        res = query_renku_api(url, page_num=page_num, page_item=page_item)
+        page_num += 1
+        if len(res) < page_item:
+            multi_page = False
+        if isinstance(res, list):
+            response.extend(res)
+    return response
+
 # Find datasets by string
 def query_datasets_by_string(
     string: str, url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
@@ -38,17 +55,7 @@ def query_datasets_by_string(
         List[Mapping[Any, Any]]: List of all datasets associated to that string with their metadata
     """
     query_url = url + string
-    multi_page = True
-    page_num = 1
-    response: List = []
-    while multi_page:
-        res = query_renku_api(query_url, page_num=page_num, page_item=page_item)
-        page_num += 1
-        if len(res) < page_item:
-            multi_page = False
-        if isinstance(res, list):
-            response.extend(res)
-    return response
+    return query_multipages(url = query_url, page_item=page_item)
 
 
 # Find dataset by match of property
@@ -233,19 +240,19 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
         dup_info = [info for info in info_list if info["name"] == dup]
         dup_project = set([info["project"]["_links"][0]["href"] for info in dup_info])
         if len(dup_project) == 1:
-            all_datasets = requests.get(
-                list(dup_project)[0] + "/datasets"
-            )  # type:ignore
-            all_ids = [dat["identifier"] for dat in all_datasets.json()]
+            all_datasets = query_multipages(
+                url = list(dup_project)[0] + "/datasets"
+            )
+            all_ids = [dat["identifier"] for dat in all_datasets]
             origin_info = [info for info in dup_info if info["identifier"] in all_ids]
         else:
             o_info = find_dataset_linked_to_wflow(dup_info)
             o_project = set([info["project"]["_links"][0]["href"] for info in o_info])
             if len(o_project) == 1:
-                all_datasets = requests.get(
-                list(o_project)[0] + "/datasets"
-                )  # type:ignore
-                all_ids = [dat["identifier"] for dat in all_datasets.json()]
+                all_datasets = query_multipages(
+                url = list(o_project)[0] + "/datasets"
+                ) 
+                all_ids = [dat["identifier"] for dat in all_datasets]
                 origin_info = [info for info in o_info if info["identifier"] in all_ids]
             else:
                 origin_info = []

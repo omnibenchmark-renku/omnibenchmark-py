@@ -319,6 +319,13 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.31
+    * Adapt to renku-python 1.8.1:
+    * Replace context manager by renku api to get plan and activity gateways
+    * Adjust project attributes 
+    * FIX:
+    * Use url path in renku api lineage call 
+    * Enable multipage results in renku api queries 
 * 0.0.30
     * FIX:
     * Get a stable name hash used to automatically generate output names by fixing the order using sorted input file names
