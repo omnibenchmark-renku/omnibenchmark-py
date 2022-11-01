@@ -241,7 +241,7 @@ def build_omni_output_from_config(
             file_mapping=file_mapping,              #type:ignore
             inputs=omni_input,
             parameter=omni_parameter,
-            default=default_out,
+            default=default_out,                    #type:ignore
             filter_json=filter_json,                #type:ignore
             template_fun=template_fun,
             template_vars=template_vars,            #type:ignore
