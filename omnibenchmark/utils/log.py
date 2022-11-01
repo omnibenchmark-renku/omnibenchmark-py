@@ -1,5 +1,7 @@
 import logging
-import sys, os, functools
+import sys
+import os
+import functools
 
 
 def get_logger(log_file_name, log_level=logging.INFO, log_sub_dir=""):
@@ -73,7 +75,7 @@ def log_decorator(_func=None):
                 """log return value from the function"""
                 value = func(self, *args, **kwargs)
                 logger_obj.info(f"Returned: - End function {value!r}")
-            except:
+            except Exception:
                 """log exception if occurs in function"""
                 logger_obj.error(f"Exception: {str(sys.exc_info()[1])}")
                 raise
@@ -85,9 +87,6 @@ def log_decorator(_func=None):
         return log_decorator_info
     else:
         return log_decorator_info(_func)
-
-
-import logging
 
 
 def create_logger(log_level):

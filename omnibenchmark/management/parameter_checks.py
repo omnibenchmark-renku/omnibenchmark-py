@@ -31,7 +31,7 @@ def apply_filter(value_list: List, filter_vals) -> List:
                 value_list = [
                     x for x in value_list if float(x) <= float(filter_vals["upper"])
                 ]
-            except:
+            except Exception:
                 raise ParameterError(
                     f'Could not apply filtering of {filter_vals["upper"]}.\n'
                     f"Please check if all values can be converted into a numeric: {value_list}.\n"
@@ -43,7 +43,7 @@ def apply_filter(value_list: List, filter_vals) -> List:
                 value_list = [
                     x for x in value_list if float(x) >= float(filter_vals["lower"])
                 ]
-            except:
+            except Exception:
                 raise ParameterError(
                     f'Could not apply filtering of {filter_vals["lower"]}.\n'
                     f"Please check if all values can be converted into a numeric: {value_list}.\n"

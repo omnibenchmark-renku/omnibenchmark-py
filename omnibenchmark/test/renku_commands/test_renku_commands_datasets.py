@@ -141,17 +141,3 @@ def test_renku_add_to_dataset_no_project_context(no_project_context):
         datasets.renku_add_to_dataset(
             urls=["some_dataset", "another_datatset"], dataset_name="some_dataset"
         )
-
-
-@pytest.mark.renku_call
-def test_renku_add_to_dataset_works():
-    test_file = "data/utils_test/test_file.txt"
-    text_file = open(test_file, "w")
-    text_file.write("This is a test for renku dataset add")
-    text_file.close()
-
-    res = datasets.renku_add_to_dataset(urls=[test_file], dataset_name="utils_test")
-    datasets = Dataset.list()
-    data_files = [dataset.files for dataset in datasets if dataset.name == "utils_test"]
-    assert test_file in data_files
-    file_unlink_command().build().execute(name="utils_test", include=test_file)

@@ -1,6 +1,6 @@
 """Commands related to execute a script with renku workflow/run commands"""
 
-from typing import List, Mapping, Optional, Union
+from typing import List, Optional, Union
 from omnibenchmark.core.input_classes import OutMapping
 from omnibenchmark.utils.auto_run import (
     get_file_mapping_from_out_files,
@@ -177,7 +177,7 @@ def check_omni_command(
     if command is None:
         if script is None:
             raise InputError(
-                f"Can not run a command without a specified script. Please specify what script to run."
+                "Can not run a command without a specified script. Please specify what script to run."
             )
         command = OmniCommand(script=script, outputs=outputs)
     return command
@@ -252,10 +252,10 @@ def revert_run(
     """Remove a plan and revert all associated activities. Basically revert all actions of a specific omni_obj.run_renku().
 
     Args:
-        out_files (Optional[List[str]], optional): Output files that are associate dto the activities to revert. Defaults to None.
-        in_files (Optional[List[str]], optional): Input files that are associate dto the activities to revert. Defaults to None.
+        out_files (Optional[List[str]], optional): Output files associated to the activities to revert. Defaults to None.
+        in_files (Optional[List[str]], optional): Input files associated to the activities to revert. Defaults to None.
         plan_id (Optional[str], optional): Plan to revert including all associated activities. Defaults to None.
-        dataset_name (Optional[str], optional): Dataset names if outputs resulting from the activities shall be unlinked before. Defaults to None.
+        dataset_name (Optional[str], optional): Dataset names if outputs shall be unlinked before. Defaults to None.
         remove (bool, optional): Shall output files automatically be deleted. Defaults to True.
 
     Raises:

@@ -1,7 +1,7 @@
 """Renku workflow commands"""
 
 from __future__ import annotations
-from typing import List, Optional, Mapping, Union
+from typing import List, Optional
 from omnibenchmark.core.input_classes import PathLike
 from renku.command.run import run_command
 from renku.command.workflow import execute_workflow_command, revert_activity_command
@@ -45,7 +45,7 @@ def renku_workflow_run(
     """
     if not is_renku_project():
         logger.error(
-            f"Project is not a renku project. No workflow generated, consider to running your command without renku."
+            "Project is not a renku project. No workflow generated, consider to running your command without renku."
         )
         return
 

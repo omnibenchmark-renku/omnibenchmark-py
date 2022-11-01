@@ -1,7 +1,5 @@
-"""Utils functions to facilitate automatization from/for inputs"""
-
 from omnibenchmark.utils.exceptions import InterpreterError
-from typing import Mapping, Union, List, Any, Optional
+from typing import Mapping, Union, List, Optional
 import os.path
 from os import PathLike
 
@@ -55,9 +53,8 @@ def get_command_start_from_interpreter(interpreter: str) -> str:
 
     if command_start is None:
         raise InterpreterError(
-            "Command start could not be identified from interpreter {}. Please specify interpreter and command explicitly.".format(
-                interpreter
-            )
+            f"Command start could not be identified from interpreter {interpreter}."
+            "Please specify interpreter and command explicitly."
         )
     else:
         return command_start
@@ -95,7 +92,8 @@ def automatic_command_generation(
         outputs (Mapping, optional): Default outputs generated. Defaults to None.
 
     Returns:
-        str: A command line command to run the script with and parse all inputs/parameter/output names as commandline options (format --name value)
+        str: A command line command to run the script with and parse all inputs/parameter/output names
+             as commandline options (format --name value)
     """
     if interpreter is None:
         ext = os.path.splitext(script)[1]
@@ -107,7 +105,7 @@ def automatic_command_generation(
     arg_list.extend(
         parse_command_line_args(arg_map)  # type: ignore
         for arg_map in [inputs, outputs, parameters]
-        if not arg_map is None
+        if arg_map is not None
     )
     flat_list = [item for sublist in arg_list for item in sublist]
     command_list = [command_start, script]

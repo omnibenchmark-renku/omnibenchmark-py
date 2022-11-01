@@ -18,6 +18,7 @@ from omnibenchmark.management.data_commands import (
     update_dataset_files,
     get_data_url_by_keyword,
 )
+from omnibenchmark.utils.exceptions import InputError
 
 from omnibenchmark.utils.user_input_checks import flatten, rm_none_from_list
 from omnibenchmark.management.wflow_checks import (
@@ -63,13 +64,14 @@ class OmniObject(OmniRenkuInst):
             title (Optional[str], optional): Title of the modules output dataset. Defaults to None.
             description (Optional[str], optional): Description of the modules output dataset. Defaults to None.
             script (Optional[PathLike], optional): Script to generate the modules workflow for. Defaults to None.
-            command (Optional[OmniCommand], optional): Workflow command - will be automatically generated if missing. Defaults to None.
+            command (Optional[OmniCommand], optional): Workflow command, automatically generated if missing. Defaults to None.
             inputs (Optional[OmniInput], optional): Definitions of the workflow inputs. Defaults to None.
             parameter (Optional[OmniParameter], optional): Definitions of the workflow parameter. Defaults to None.
             outputs (Optional[OmniOutput], optional): Definitions of the workflow outputs. Defaults to None.
             omni_plan (Optional[OmniPlan], optional): The workflow description. Defaults to None.
             benchmark_name (Optional[str], optional): Name of the benchmark the module is associated to. Defaults to None.
-            orchestrator (Optional[str], optional): Orchestrator url of the benchmark th emodule is associated to. Automatic detection. Defaults to None.
+            orchestrator (Optional[str], optional): Orchestrator url of the benchmark th emodule is associated to.
+                                                    Automatic detection. Defaults to None.
             wflow_name (Optional[str], optional): Workflow name. Will be set to the module name if none. Defaults to None.
             dataset_name (Optional[str], optional): Dataset name. Will be set to the module name if none. Defaults to None.
         """
@@ -110,6 +112,7 @@ class OmniObject(OmniRenkuInst):
         Returns:
             RenkuDataSet: An object of class Dataset from renku.core.models.dataset containing the class instances attributes.
         """
+        
         renku_dataset = renku_dataset_create(
             self.dataset_name,  # type:ignore
             self.kg_url,
@@ -211,7 +214,7 @@ class OmniObject(OmniRenkuInst):
 
         Args:
             n_latest (int, optional): Number of latest pipelines to check for the orchestrator check. Defaults to 9.
-            check_o_url (bool, optional): If the potentially imported/updated datasets have to be part of the orchestrator. Defaults to True.
+            check_o_url (bool, optional): If the imported datasets have to be part of an orchestrator. Defaults to True.
         """
 
         imp_list: List = []

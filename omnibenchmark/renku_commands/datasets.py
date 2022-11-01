@@ -35,7 +35,8 @@ def renku_dataset_create(
         name ([str]): Dataset name
         title (str, optional): Dataset title. Defaults to None.
         description (str, optional): Description of the dataset. Defaults to None.
-        creators (str, optional): Dataset creator. Defaults to None, which will be the github account activated for that renku project.
+        creators (str, optional): Dataset creator. Defaults to None,
+                                  which will be the github account activated for that renku project.
         metadata (PathLike, optional): Path to json or yaml file containing meta data information. Defaults to None.
         keyword (list[str], optional): List of keywords to be associated with the dataset. Defaults to None.
 

@@ -2,7 +2,7 @@
 
 from typing import Mapping, List, Optional, Union, Callable
 from omnibenchmark.utils.user_input_checks import check_name_matching, flatten
-from omnibenchmark.utils.exceptions import InputError, OutputError
+from omnibenchmark.utils.exceptions import OutputError
 from omnibenchmark.utils.auto_output import (
     get_all_output_combinations,
     get_default_outputs,
@@ -43,13 +43,14 @@ class OmniOutput:
             name (str): Name that is specific for all outputs. Typically the omnibenchmark module name/OmniObject name
             out_names (List[str]): Names of the output file types
             output_end (Optional[Mapping[str, str]], optional): Endings of the output filetypes. Defaults to None.
-            out_template (str, optional): Template to generate output file names. Defaults to "data/${name}/${name}_${unique_values}_${out_name}.${out_end}".
-            file_mapping (Optional[List[OutMapping]], optional): Mapping of input files, parameter values and output files. Defaults to None.
+            out_template (str, optional): Template to generate output file names.
+            file_mapping (Optional[List[OutMapping]], optional): Mapping of input files, parameter values and output files.
+                                                                 Defaults to None.
             inputs (Optional[OmniInput], optional): Object specifying all valid inputs. Defaults to None.
             parameter (Optional[OmniParameter], optional): Object speccifying the parameter space. Defaults to None.
             default (Optional[Mapping], optional): Default output files. Defaults to None.
             filter_json(Optional[str], optional): Path to json file with filter combinations. Defaults to None.
-            template_fun (Optional[Callable[..., Mapping]], optional): Function to use to automatically generate output filenames. Defaults to None.
+            template_fun (Optional[Callable[..., Mapping]], optional): Function to automatically generate output filenames.
             template_vars (Optional[Mapping], optional): Variables that are used by template_fun. Defaults to None.
         """
         self.name = name
@@ -68,7 +69,8 @@ class OmniOutput:
 
             if self.output_end is None:
                 raise OutputError(
-                    f"Undefined outputs. Please specify an output file mapping or output prefix and output ending to automatically generate one."
+                    "Undefined outputs. Please specify an output file mapping \n"
+                    "or output prefix and output ending to automatically generate one."
                 )
 
             check_name_matching(self.out_names, self.output_end.keys())
@@ -187,9 +189,9 @@ class OmniCommand:
         if self.command_line is None:
             if self.outputs is None or self.outputs.file_mapping is None:
                 print(
-                    f"WARNING: No outputs/output file mapping in the current project detected.\n"
-                    f"Run OmniObject.update_object() to update outputs, inputs and parameter.\n"
-                    f"Currently this object can not be used to generate a workflow."
+                    "WARNING: No outputs/output file mapping in the current project detected.\n"
+                    "Run OmniObject.update_object() to update outputs, inputs and parameter.\n"
+                    "Currently this object can not be used to generate a workflow."
                 )
             else:
                 output_val = self.outputs.default
@@ -220,7 +222,7 @@ class OmniCommand:
                     outputs=output_val,
                     parameters=self.parameter_val,
                 )
-        ## Add command checks!
+        # Add command checks!
 
     def update_command(self):
         """Update command according to the specifed inputs/parameter/output
@@ -230,9 +232,9 @@ class OmniCommand:
         """
         if self.outputs is None or self.outputs.file_mapping is None:
             print(
-                f"WARNING: No outputs/output file mapping in the current project detected.\n"
-                f"Run OmniObject.update_object() to update outputs, inputs and parameter.\n"
-                f"Currently this object can not be used to generate a workflow."
+                "WARNING: No outputs/output file mapping in the current project detected.\n"
+                "Run OmniObject.update_object() to update outputs, inputs and parameter.\n"
+                "Currently this object can not be used to generate a workflow."
             )
         else:
             output_val = self.outputs.default
@@ -274,7 +276,8 @@ class OmniPlan:
 
         Args:
             plan (PlanViewModel): A plan view model as defined in renku
-            param_mapping (Optional[Mapping[str, str]], optional): A mapping between the component names of the plan and the OmniObject. Defaults to None.
+            param_mapping (Optional[Mapping[str, str]], optional): A mapping between the component names of the plan
+                                                                   and the OmniObject. Defaults to None.
         """
         self.plan = plan
         self.param_mapping = param_mapping

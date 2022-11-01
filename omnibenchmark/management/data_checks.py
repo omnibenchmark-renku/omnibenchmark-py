@@ -3,9 +3,29 @@
 from renku.api import Activity, Project, Dataset
 from omnibenchmark.utils.user_input_checks import flatten
 import requests
-import re
-from typing import Union, List
+from typing import Union, List, Mapping, Any
 import os
+
+
+def query_renku_api(
+    url: str, page_num: int, page_item: int = 100
+) -> List[Mapping[Any, Any]]:
+    response = requests.get(url, params={"per_page": page_item, "page": page_num})
+    return response.json()
+
+
+def query_multipages(url: str, page_item: int = 100) -> List[Mapping[Any, Any]]:
+    multi_page = True
+    page_num = 1
+    response: List = []
+    while multi_page:
+        res = query_renku_api(url, page_num=page_num, page_item=page_item)
+        page_num += 1
+        if len(res) < page_item:
+            multi_page = False
+        if isinstance(res, list):
+            response.extend(res)
+    return response
 
 
 def renku_dataset_exist(name: str, path: Union[os.PathLike, str] = os.getcwd()) -> bool:
@@ -39,20 +59,20 @@ def dataset_name_exist(name: str, kg_url: str) -> bool:
     """
 
     url = kg_url + "/datasets?query=" + name
-    response = requests.get(url)
-    # Checks to ensure no complete name matching (To remove if file matching is moved to triplet store queries)
-    if any(name in item["name"] for item in response.json()) or any(
-        item["name"] in name for item in response.json()
+    response = query_multipages(url)
+    # Checks to ensure no complete name matching (Remove if file matching is moved to triplet store queries)
+    if any(name in item["name"] for item in response) or any(
+        item["name"] in name for item in response
     ):
         nl = "\n"
-        name_list = set([item["name"] for item in response.json()])
+        name_list = set([item["name"] for item in response])
         print(
             f"A dataset with a complete match of {name} already exist.\n"
             "Please specify a name without a complete match within:\n"
             f"{nl}{nl.join(name_list)}"
         )
         return True
-    return True if name in [item["name"] for item in response.json()] else False
+    return True if name in [item["name"] for item in response] else False
 
 
 def find_activities_with_missing_inputs() -> List[Activity]:

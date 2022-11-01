@@ -37,9 +37,11 @@ class OmniInput:
 
         Args:
             names (List[str]): Names of the input filetypes
-            prefix (Optional[Mapping[str, List[str]]], optional): Prefixes (or substrings) of the input filetypes. Defaults to None.
-            input_files (Optional[Mapping[str, Mapping[str, str]]], optional): Input files ordered by file types. Defaults to None.
-            keyword (Optional[List[str]], optional): Keyword to define which datasets are imported as input datasets. Defaults to None.
+            prefix (Optional[Mapping[str, List[str]]], optional): Substrings of the input filetypes. Defaults to None.
+            input_files (Optional[Mapping[str, Mapping[str, str]]], optional): Input files ordered by file types.
+                                                                               Defaults to None.
+            keyword (Optional[List[str]], optional): Keyword to define which datasets are imported as input datasets.
+                                                     Defaults to None.
             default (Optional[str], optional): Default input name (e.g., dataset). Defaults to None.
             filter_names (Optional[List[str]], optional): Input dataset names to be ignored. Defaults to None.
         """
@@ -54,8 +56,9 @@ class OmniInput:
 
             if self.prefix is None or self.keyword is None:
                 raise InputError(
-                    f"Missing input file definition. \n"
-                    f"Please specify explicit input files or define prefixes AND dataset keyword(s) to automatically identify them."
+                    "Missing input file definition. \n"
+                    "Please specify explicit input files or \n"
+                    "define prefixes AND dataset keyword(s)to automatically identify them."
                 )
 
             check_name_matching(self.names, self.prefix.keys())
@@ -95,7 +98,8 @@ class OmniInput:
         check_o_url: bool = True,
         n_latest: int = 9,
     ):
-        """Update datasets and files that belong to this OmniInput object. This will also import new Datasets with the specified keyword..
+        """Update datasets and files that belong to this OmniInput object.
+           This will also import new Datasets with the specified keyword..
 
         Args:
             orchestrator (str):  Orchestrator url that links all valid projects.
@@ -145,7 +149,8 @@ class OmniParameter:
 
         Args:
             names (List[str]): Name of all valid parameter
-            values (Optional[Mapping[str, List]], optional): Parameter values - is usually automatically detected from teh parameter dataset. Defaults to None.
+            values (Optional[Mapping[str, List]], optional): Parameter values, automatically detected from parameter dataset.
+                                                             Defaults to None.
             default (Optional[Mapping[str, str]], optional): Default parameter values. Defaults to None.
             keyword (Optional[List[str]], optional): Keyword to import the parameter dataset with. Defaults to None.
             filter (Optional[Mapping[str, str]], optional): Filter to use for the parameter space. Defaults to None.
@@ -183,7 +188,8 @@ class OmniParameter:
     def update_parameter(
         self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str
     ):
-        """Update datasets and files that belong to this OmniParameter object. This will also import new Datasets with the specified keyword.
+        """Update datasets and files that belong to this OmniParameter object.
+           This will also import new Datasets with the specified keyword.
         Args:
             orchestrator (str): Orchestrator url that links all valid projects.
             query_url (str): URL to the knowledgebase dataset query API.

@@ -1,6 +1,6 @@
 """ All kind of check or test functions to ensure correct variable inputs beyont type hinting"""
 
-from typing import List, Iterable, Mapping, Union, Optional, overload, Any, List
+from typing import List, Iterable, Mapping, Union, Optional, overload
 from omnibenchmark.utils.exceptions import InputError
 
 
@@ -74,9 +74,9 @@ def check_default_parameter(
         param_combinations is None or len(param_combinations) < 1
     ):
         raise InputError(
-            f"No parameter input detected, but default specified.\n"
-            f"Did you intend to run different parameter? If yes please check the parameter input.\n"
-            f"Otherwise please do not specify default parameter outside your script."
+            "No parameter input detected, but default specified.\n"
+            "Did you intend to run different parameter? If yes please check the parameter input.\n"
+            "Otherwise please do not specify default parameter outside your script."
         )
     if (
         default_params is None
@@ -92,5 +92,6 @@ def check_default_parameter(
         )
         return param_combinations[0]  # type: ignore
 
-def rm_none_from_list( in_list: List) -> List:
+
+def rm_none_from_list(in_list: List) -> List:
     return [element for element in in_list if element is not None]

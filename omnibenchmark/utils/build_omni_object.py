@@ -17,9 +17,11 @@ from typeguard import check_type
 
 logger = logging.getLogger("omnibenchmark.build_object")
 
-## Config definitions:
+
+# Config definitions:
+
+
 class ConfigData(TypedDict, total=False):
-    # name: Required[str]
     name: str
     title: Optional[str]
     description: Optional[str]
@@ -68,7 +70,7 @@ class ConfigDict(TypedDict, total=False):
     parameter: Optional[ConfigParam]
 
 
-## Functions to build OmniObjects from yaml/config_dict
+# Functions to build OmniObjects from yaml/config_dict
 
 
 @option_dict_none
@@ -130,7 +132,7 @@ def build_omni_input_from_config_inputs(
         )
     else:
         logger.warning(
-            f"Warning: Skipped inputs because of missing information. Please specify at least names."
+            "Warning: Skipped inputs because of missing information. Please specify at least names."
         )
         return None
 
@@ -182,7 +184,7 @@ def build_omni_parameter_from_config_params(
         )
     else:
         logger.warning(
-            f"Warning: Skipped parameter because of missing information. Please specify at least names."
+            "Warning: Skipped parameter because of missing information. Please specify at least names."
         )
         return None
 
@@ -214,7 +216,7 @@ def build_omni_output_from_config(
         template = "data/${name}/${name}_${unique_values}_${out_name}.${out_end}"
     try:
         name = config_in["data"]["name"]
-    except:
+    except Exception:
         raise (
             InputError(
                 f"Invalid config file: {config}\n"
@@ -236,17 +238,17 @@ def build_omni_output_from_config(
             out_names=out_names,
             output_end=out_ends,
             out_template=template,
-            file_mapping=file_mapping,
+            file_mapping=file_mapping,              #type:ignore
             inputs=omni_input,
             parameter=omni_parameter,
             default=default_out,
-            filter_json=filter_json,
+            filter_json=filter_json,                #type:ignore
             template_fun=template_fun,
-            template_vars=template_vars,
+            template_vars=template_vars,            #type:ignore
         )
     else:
         logger.warning(
-            f"Warning: Skipped outputs because of missing information. Please specify at least output names."
+            "Warning: Skipped outputs because of missing information. Please specify at least output names."
         )
         return None
 
@@ -278,7 +280,7 @@ def build_omni_command_from_config(
         )
     else:
         logger.warning(
-            f"Warning: Skipped command because of missing information. Please specify at least script: script path."
+            "Warning: Skipped command because of missing information. Please specify at least script: script path."
         )
         return None
 
@@ -311,10 +313,10 @@ def build_omni_object_from_config(config: ConfigDict) -> OmniObject:
     obj_orchestrator = empty_object_to_none(config_in["orchestrator"])
 
     omni_object = OmniObject(
-        name=obj_name,
+        name=obj_name,                          #type:ignore
         keyword=obj_key,
-        title=obj_title,
-        description=obj_description,
+        title=obj_title,                        #type:ignore
+        description=obj_description,            #type:ignore
         script=obj_script,
         benchmark_name=obj_bench_name,
         orchestrator=obj_orchestrator,

@@ -11,7 +11,7 @@ import logging
 
 logger = logging.getLogger("omnibenchmark.management.wflow_checks")
 
-## Activities
+# Activities
 
 
 def activity_plan_is_valid(
@@ -21,7 +21,7 @@ def activity_plan_is_valid(
 
     Args:
         output (Path): Path to an output file
-        activity_gateway(ActivityGateway): Activity gateway with a configured database_dispatcher (See get_database_dispatcher).
+        activity_gateway(ActivityGateway): Activity gateway
 
     Returns:
         output, if a valid acitivity exists, else None
@@ -56,7 +56,7 @@ def filter_activity_exist(outputs: List[str]) -> List[Union[PathLike, str, None]
     ]
 
 
-## Plans
+# Plans
 
 
 def get_all_plans() -> List[Plan]:
@@ -148,7 +148,8 @@ def check_plan_exist(out_files: List[str]) -> Optional[Plan]:
 
     if len(plan) > 1:
         raise WorkflowError(
-            "Ambiguity: To many plans found associated to output files. Make sure that all old plans have been invalidated or specify the correct plan as input."
+            "Ambiguity: To many plans found associated to output files\n."
+            "Make sure that all old plans have been invalidated or specify the correct plan as input."
         )
 
     if len(plan) == 1:

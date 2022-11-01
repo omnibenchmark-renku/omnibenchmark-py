@@ -146,7 +146,7 @@ def get_file_mapping_from_out_files(
                 for out_file in list(mapping["output_files"].values())  # type:ignore
             )
         ]
-    except:
+    except Exception:
         map_list = []
     finally:
         return map_list
@@ -171,7 +171,7 @@ def get_file_list_from_out_mapping(
                 for file_dict in mapping.values()
                 for file_path in file_dict.values()  # type:ignore
             ]
-        except:
+        except Exception:
             file_list: Iterable = []  # type:ignore
         finally:
             all_files.append(file_list)

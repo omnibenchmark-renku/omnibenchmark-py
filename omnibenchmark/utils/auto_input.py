@@ -23,10 +23,10 @@ def find_stem(arr):
     # Take first word from array
     # as reference
     s = arr[0]
-    l = len(s)
+    len_s = len(s)
     res = ""
-    for i in range(l):
-        for j in range(i + 1, l + 1):
+    for i in range(len_s):
+        for j in range(i + 1, len_s + 1):
 
             # generating all possible substrings
             # of our reference string arr[0] i.e s
@@ -128,7 +128,8 @@ def check_dataset_name(input_dict: Mapping[str, str], data_name: str) -> str:
         data_name (str): Dataset name to check
 
     Returns:
-        str: Either the dataset name, if it is equal the longest matching sequence or a name of the dataset name, longest match seq and an input file name hash.
+        str: Either the dataset name, if it is equal the longest matching sequence
+             or a name of the dataset name, longest match seq and an input file name hash.
     """
     best_match = best_match_name_seq(input_dict)
     if best_match == data_name:
@@ -209,7 +210,7 @@ def get_input_files_from_prefix(
             input_files.update(group_data_dict)
     file_types = input_prefix.keys()
 
-    #Filter incomplete, non existing and explicitly filtered data
+    # Filter incomplete, non existing and explicitly filtered data
     incomplete_data = [
         data
         for data in input_files.keys()

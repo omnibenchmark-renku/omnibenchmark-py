@@ -54,7 +54,7 @@ def option_dict_list(function):
 
 def option_dict_none(function):
     """
-    Return an None, if none of the provided arguments is a dictionary
+    Return None, if none of the provided arguments is a dictionary
     """
 
     @functools.wraps(function)

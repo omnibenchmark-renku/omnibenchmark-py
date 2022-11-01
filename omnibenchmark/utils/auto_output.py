@@ -5,7 +5,6 @@ import json
 
 from omnibenchmark.core.input_classes import OmniInput, OmniParameter, OutMapping
 from omnibenchmark.utils.decorators import option_list, option_str
-from omnibenchmark.utils.exceptions import InputError
 from omnibenchmark.utils.user_input_checks import empty_object_to_none
 from omnibenchmark.management.parameter_checks import dict_values_to_str
 
@@ -50,7 +49,7 @@ def join_inputs_parameter(
             joined = "".join([input, param_str])  # type: ignore
         else:
             joined = "__".join([input, param_str])  # type: ignore
-    except:
+    except Exception:
         joined = param_str
     finally:
         return joined
@@ -68,13 +67,16 @@ def get_out_names_from_input_params(
 
     Args:
         input (str): Specific input for this output. Should be potentially uniquely identifyable shortcuts, e.g, dataset names.
-        output_end (Mapping[str, str]): Mapping of all output file types and their corresponding endings, e.g. {'norm_counts': 'mtx.gz'}.
+        output_end (Mapping[str, str]): Mapping of all output file types and their corresponding endings,
+                                        e.g. {'norm_counts': 'mtx.gz'}.
         name (str): Name of the method, dataset, etc. the output belongs to.
-        parameters (Optional[Mapping[str, str]], optional): Mapping of the parameter an their values used to generate these outputs. Defaults to None.
-        out_template (str, optional): Template to generate names from. Defaults to 'data/${name}/${name}__${unique_values}${out_name}.${out_end}'.
+        parameters (Optional[Mapping[str, str]], optional): Mapping of parameter and the values used to generate these outputs.
+                                                            Defaults to None.
+        out_template (str, optional): Template to generate names from.
 
     Returns:
-        Mapping[str, str]: A mapping of output filetypes and generated names, e.g. '{norm_counts: "data/meth1/meth1__data1__norm_counts.mtx.gz"}'.
+        Mapping[str, str]: A mapping of output filetypes and generated names,
+                           e.g. '{norm_counts: "data/meth1/meth1__data1__norm_counts.mtx.gz"}'.
     """
 
     # check template
@@ -86,7 +88,8 @@ def get_out_names_from_input_params(
     ]
     if any(temp not in valid_keys for temp in temp_keys):
         raise NameError(
-            f"Invalid output filename template: {out_template}. Please use valid keys as in {valid_keys} or consider specifying output filenames explicitly."
+            f"Invalid output filename template: {out_template}."
+            f"Please use valid keys as in {valid_keys} or consider specifying outputs explicitly."
         )
     unique_values = join_inputs_parameter(input, parameter)
     sub_dict = kwargs
@@ -205,7 +208,8 @@ def get_all_output_combinations(
         inputs (Optional[OmniInput], optional): An OmniInput object. Defaults to None.
         parameter (Optional[OmniParameter], optional): An OmniParameter object. Defaults to None.
         out_template (str, optional): A template to automatically generate output file names. Defaults to "data//__.".
-        template_fun (Optional[Callable[..., Mapping]], optional): Function to apply for automatic output file generation. Defaults to None.
+        template_fun (Optional[Callable[..., Mapping]], optional): Function to apply for automatic output file generation.
+                                                                   Defaults to None.
 
     Returns:
         List[OutMapping]: A List of all possible OutMappings
@@ -223,7 +227,7 @@ def get_all_output_combinations(
         try:
             input_str = next(iter(comb["input_files"].keys()))
             comb["input_files"] = comb["input_files"][input_str]
-        except:
+        except Exception:
             input_str = None
         finally:
             out_names = get_out_names_from_input_params(
