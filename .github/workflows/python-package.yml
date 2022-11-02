@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install mypy pytest renku iteration_utilities requests re os shutil yaml typeguard copy
+        python -m pip install mypy pytest renku iteration_utilities requests os shutil yaml typeguard
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with mypy
       run: |
