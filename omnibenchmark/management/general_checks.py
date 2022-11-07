@@ -2,7 +2,7 @@
 
 from renku.ui.api.models.project import Project
 from omnibenchmark.utils.exceptions import InputError
-from typing import Union, Optional
+from typing import Union, Optional, List
 import os
 import lxml.html as lh
 import requests
@@ -26,7 +26,7 @@ def is_renku_project(path: Union[os.PathLike, str] = os.getcwd()) -> bool:
 
 def find_orchestrator(
     benchmark_name: str,
-    bench_url: str = "https://omnibenchmark.pages.uzh.ch/omni_dash/benchmarks.html",
+    bench_url: str = "https://omnibenchmark.pages.uzh.ch/omb-site/p/benchmarks",
     key_header: str = "Benchmark_name",
     o_header: str = "Orchestrator",
 ) -> Optional[str]:
@@ -78,3 +78,44 @@ def find_orchestrator(
         return None
     o_url = o_obj[0].text_content()
     return o_url
+
+
+def get_benchmark_groups(
+    field_name: str,
+    bench_url: str = "https://omnibenchmark.pages.uzh.ch/omb-site/p/benchmarks",
+    ) -> List[str]:
+    """Get all available benchmark groups as listed on bench_url
+
+    Args:
+        field_name (str): Table header name, with the entries to display
+        bench_url (_type_, optional): Defaults to "https://omnibenchmark.pages.uzh.ch/omb-site/p/benchmarks".
+
+    Raises:
+        InputError: Raised if field name can not be found at bench_url
+
+    Returns:
+        List[str]: List with all entries for field_name at bench_url
+    """
+    bench_html = requests.get(bench_url)
+    doc = lh.fromstring(bench_html.content)
+    tr_elements = doc.xpath("//tr")
+    header = tr_elements[0]
+    col_num = 0
+    for field in header:
+        if field.text_content() == field_name:
+            field_col = col_num
+        col_num += 1
+
+    try:
+        field_col
+    except Exception:
+        raise InputError(
+            f"Could not find columns with names {field_name}.\n"
+            f"Please check {bench_url} for the correct column names."
+        )
+
+    entries = [
+        tr_ele[field_col].text_content()
+        for tr_ele in tr_elements[1:]
+    ]
+    return entries
