@@ -112,7 +112,7 @@ class OmniObject(OmniRenkuInst):
         Returns:
             RenkuDataSet: An object of class Dataset from renku.core.models.dataset containing the class instances attributes.
         """
-        
+
         renku_dataset = renku_dataset_create(
             self.dataset_name,  # type:ignore
             self.kg_url,

@@ -83,7 +83,7 @@ def find_orchestrator(
 def get_benchmark_groups(
     field_name: str,
     bench_url: str = "https://omnibenchmark.pages.uzh.ch/omb-site/p/benchmarks",
-    ) -> List[str]:
+) -> List[str]:
     """Get all available benchmark groups as listed on bench_url
 
     Args:
@@ -114,8 +114,5 @@ def get_benchmark_groups(
             f"Please check {bench_url} for the correct column names."
         )
 
-    entries = [
-        tr_ele[field_col].text_content()
-        for tr_ele in tr_elements[1:]
-    ]
+    entries = [tr_ele[field_col].text_content() for tr_ele in tr_elements[1:]]
     return entries

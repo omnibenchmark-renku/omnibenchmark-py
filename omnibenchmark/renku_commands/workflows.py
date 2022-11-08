@@ -8,6 +8,7 @@ from renku.command.workflow import execute_workflow_command, revert_activity_com
 from renku.command.update import update_command
 from renku.command.command_builder.command import CommandResult
 from renku.core import errors
+from renku.core.util.metadata import construct_creators
 from renku.command.format.activity import tabulate_activities
 from omnibenchmark.management.general_checks import is_renku_project
 import logging
@@ -27,6 +28,7 @@ def renku_workflow_run(
     no_output: bool = False,
     no_input_detection: bool = False,
     no_output_detection: bool = False,
+    creators: Optional[List[str]] = None,
 ) -> CommandResult:
     """Run a renku workflow
 
@@ -49,6 +51,9 @@ def renku_workflow_run(
         )
         return
 
+    if creators:
+        creators, _ = construct_creators(creators)
+
     workflow = (
         run_command()
         .build()
@@ -64,6 +69,7 @@ def renku_workflow_run(
             no_output_detection=no_output_detection,
             success_codes=success_codes,
             command_line=command_line,
+            creators = creators
         )
     )
 

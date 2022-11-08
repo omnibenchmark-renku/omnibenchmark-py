@@ -208,7 +208,7 @@ def mock_input_view():
 def mock_output_view():
 
     output = CommandOutputViewModel(
-        name="output1", default_value="this/is/another/default"
+        name="output1", default_value="this/is/another/default", create_folder=False,
     )
     return output
 
@@ -238,8 +238,11 @@ def mock_plan_view(mock_param_view, mock_input_view, mock_output_view):
 
     plan = PlanViewModel(
         id="XXX",
+        command = "test command",
         full_command="test command",
         name="test",
+        created="2022-01-01",
+        keywords= [],
         inputs=[mock_input_view],
         outputs=[mock_output_view],
         parameters=[mock_param_view],

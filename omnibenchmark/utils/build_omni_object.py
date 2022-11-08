@@ -238,13 +238,13 @@ def build_omni_output_from_config(
             out_names=out_names,
             output_end=out_ends,
             out_template=template,
-            file_mapping=file_mapping,              #type:ignore
+            file_mapping=file_mapping,  # type:ignore
             inputs=omni_input,
             parameter=omni_parameter,
-            default=default_out,                    #type:ignore
-            filter_json=filter_json,                #type:ignore
+            default=default_out,  # type:ignore
+            filter_json=filter_json,  # type:ignore
             template_fun=template_fun,
-            template_vars=template_vars,            #type:ignore
+            template_vars=template_vars,  # type:ignore
         )
     else:
         logger.warning(
@@ -313,10 +313,10 @@ def build_omni_object_from_config(config: ConfigDict) -> OmniObject:
     obj_orchestrator = empty_object_to_none(config_in["orchestrator"])
 
     omni_object = OmniObject(
-        name=obj_name,                          #type:ignore
+        name=obj_name,  # type:ignore
         keyword=obj_key,
-        title=obj_title,                        #type:ignore
-        description=obj_description,            #type:ignore
+        title=obj_title,  # type:ignore
+        description=obj_description,  # type:ignore
         script=obj_script,
         benchmark_name=obj_bench_name,
         orchestrator=obj_orchestrator,
