@@ -77,7 +77,7 @@ def renku_dataset_create(
 
 
 def renku_dataset_import(
-    uri: str, name: str = None, extract: bool = False, yes: bool = True
+    uri: str, name: Optional[str] = None, extract: bool = False, yes: bool = True
 ):
     """Import renku dataset by url
 

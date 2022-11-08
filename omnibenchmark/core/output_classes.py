@@ -163,9 +163,9 @@ class OmniCommand:
     def __init__(
         self,
         script: Union[PathLike, str],
-        interpreter: str = None,
-        command_line: str = None,
-        outputs: OmniOutput = None,
+        interpreter: Optional[str] = None,
+        command_line: Optional[str] = None,
+        outputs: Optional[OmniOutput] = None,
         input_val: Optional[Mapping] = None,
         parameter_val: Optional[Mapping] = None,
     ):

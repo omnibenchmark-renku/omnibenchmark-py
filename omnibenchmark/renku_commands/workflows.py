@@ -18,10 +18,10 @@ logger = logging.getLogger("omnibenchmark.renku_commands")
 
 def renku_workflow_run(
     command_line: str,
-    name: str = None,
-    description: str = None,
-    keyword: str = None,
-    success_codes: List[int] = None,
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    keyword: Optional[str] = None,
+    success_codes: Optional[List[int]] = None,
     explicit_inputs: List = [],
     explicit_outputs: List = [],
     explicit_parameters: List = [],

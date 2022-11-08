@@ -77,7 +77,7 @@ def parse_command_line_args(arg_map: Mapping[str, str]) -> List[str]:
 
 def automatic_command_generation(
     script: Union[PathLike, str],
-    interpreter: str = None,
+    interpreter: Optional[str] = None,
     inputs: Optional[Mapping[str, str]] = None,
     parameters: Optional[Mapping[str, str]] = None,
     outputs: Optional[Mapping[str, str]] = None,
