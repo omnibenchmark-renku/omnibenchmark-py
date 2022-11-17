@@ -122,10 +122,11 @@ class OmniObject(OmniRenkuInst):
         )
         return renku_dataset
 
-    def run_renku(self):
+    def run_renku(self, save: bool = False):
         self.command = check_omni_command(self.command, self.script, self.outputs)
-        out_files = get_all_output_file_names(self.outputs)
-        check_output_directories(out_files)
+        if self.outputs is not None:
+            out_files = get_all_output_file_names(self.outputs)
+            check_output_directories(out_files)
         self.omni_plan = manage_renku_plan(
             omni_plan=self.omni_plan,
             command=self.command,
@@ -133,7 +134,8 @@ class OmniObject(OmniRenkuInst):
             name=self.wflow_name,
             description=self.description,
         )
-        manage_renku_activities(outputs=self.outputs, omni_plan=self.omni_plan)
+        if self.outputs is not None:
+            manage_renku_activities(outputs=self.outputs, omni_plan=self.omni_plan, save=save)
 
     def update_result_dataset(self, clean: bool = True):
         """Add output files to the objects dataset and update the dataset"""

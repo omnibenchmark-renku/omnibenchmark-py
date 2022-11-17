@@ -78,7 +78,7 @@ def manage_renku_plan(
     name: Optional[str] = None,
     description: Optional[str] = None,
     keyword: Optional[str] = None,
-) -> PlanDomainModel:
+) -> OmniPlan:
     """Check if a renku plan for a set of output files exist and generate one from default parameter if not.
 
     Args:
@@ -89,7 +89,7 @@ def manage_renku_plan(
         keyword (str, optional): Workflow keyword. Defaults to None.
 
     Returns:
-        PlanDomainModel: A renku plan object.
+        OmniPlan: A renku planview model with param_mapping
     """
     if output is None:
         output = command.outputs
@@ -204,7 +204,7 @@ def get_all_output_file_names(output: OmniOutput) -> List[str]:
         return []
 
 
-def manage_renku_activities(outputs: OmniOutput, omni_plan: OmniPlan):
+def manage_renku_activities(outputs: OmniOutput, omni_plan: OmniPlan, save: bool = False):
     """Manage renku activities by updating existing ones and generating new activities for output files without.
 
     Args:
@@ -223,11 +223,13 @@ def manage_renku_activities(outputs: OmniOutput, omni_plan: OmniPlan):
 
     for out_map in no_activities:
         create_activity(out_map, omni_plan)
-        renku_save(message="new activity, no image rebuild")
+        if save:
+            renku_save(message="new activity, no image rebuild")
 
     for activity in activity_map:
         update_activity(activity)
-        renku_save(message="update activity, no image rebuild")
+        if save:
+            renku_save(message="update activity, no image rebuild")
 
 
 def check_output_directories(out_files: List[str]):

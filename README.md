@@ -319,6 +319,9 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.33
+    * FIX:
+    * Add flag to actively push/save successfully finished activities after generation.
 * 0.0.32
     * Add meaningful commit message to renku_save() after updating/generating activities
     * Adjust to renku 1.9.1
