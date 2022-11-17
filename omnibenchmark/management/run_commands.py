@@ -223,11 +223,11 @@ def manage_renku_activities(outputs: OmniOutput, omni_plan: OmniPlan):
 
     for out_map in no_activities:
         create_activity(out_map, omni_plan)
-        renku_save()
+        renku_save(message="new activity, no image rebuild")
 
     for activity in activity_map:
         update_activity(activity)
-        renku_save()
+        renku_save(message="update activity, no image rebuild")
 
 
 def check_output_directories(out_files: List[str]):
