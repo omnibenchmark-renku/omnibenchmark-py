@@ -319,6 +319,9 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.34
+    * FIX:
+    * Enable project queries to ignore missing projects, instead of breaking 
 * 0.0.33
     * FIX:
     * Add flag to actively push/save successfully finished activities after generation.
