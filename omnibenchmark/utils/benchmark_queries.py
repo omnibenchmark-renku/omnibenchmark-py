@@ -45,7 +45,7 @@ def get_orchestrator_projects_from_cicd_yaml(
     return [proc["trigger"]["project"] for proc in process.values()]
 
 
-def get_project_infos(p_url: str, gitlab_url: str = "https://renkulab.io/gitlab") -> Project:
+def get_project_infos(p_url: str, gitlab_url: str = "https://renkulab.io/gitlab") -> Optional[Project]:
     """Get project info from url
 
     Args:
@@ -56,6 +56,11 @@ def get_project_infos(p_url: str, gitlab_url: str = "https://renkulab.io/gitlab"
         Project: An instance of gitlab API project class
     """
     p_info = get_project_info_from_url(p_url)
+    if "message" in p_info.keys():
+        print(
+            f"Warning: Could not find project {p_url}"
+        )
+        return None
     renku_git = gitlab.Gitlab(gitlab_url)
     return renku_git.projects.get(p_info["identifier"])
 
