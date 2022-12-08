@@ -33,6 +33,56 @@ def test_get_input_files_from_prefix_works(mock_api_Dataset, mock_prefix, monkey
     }
 
 
+def test_get_input_files_from_prefix_works_dedup(mock_api_Dataset_2files, mock_prefix, monkeypatch):
+    del mock_prefix["count_file"]
+
+    def get_mock_list():
+        return [mock_api_Dataset_2files]
+
+    monkeypatch.setattr(
+        renku.ui.api.models.dataset.Dataset,
+        "list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
+    monkeypatch.setattr(
+        os.path,
+        "exists",
+        lambda *args, **kwargs: True,
+    )
+
+    test_join = omni.get_input_files_from_prefix(
+        input_prefix=mock_prefix, keyword=["mock", "some"]
+    )
+    assert test_join == {
+        "mock_dataset_4875b_": {"dim_red_file": "some/path/to/genes_file.txt"}
+    }
+
+def test_get_input_files_from_prefix_works_dedup_off(mock_api_Dataset_2files, mock_prefix, monkeypatch):
+    del mock_prefix["count_file"]
+
+    def get_mock_list():
+        return [mock_api_Dataset_2files]
+
+    monkeypatch.setattr(
+        renku.ui.api.models.dataset.Dataset,
+        "list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
+    monkeypatch.setattr(
+        os.path,
+        "exists",
+        lambda *args, **kwargs: True,
+    )
+
+    test_join = omni.get_input_files_from_prefix(
+        input_prefix=mock_prefix, keyword=["mock", "some"], filter_duplicated=False
+    )
+    assert test_join == {
+        "mock_dataset_4875b_": {"dim_red_file": "some/path/to/genes_file.txt"},
+        'mock_dataset_36078_': {'dim_red_file': 'some/path/to/features_file.txt'}
+    }
+
+
 def test_get_input_files_from_prefix_works_incomplete(
     mock_api_Dataset, mock_prefix, monkeypatch, capsys
 ):
@@ -179,3 +229,6 @@ def test_get_parameter_from_dataset_not_matching_names(
         names=["param4", "param3"], keyword=["mock_param"]
     )
     assert test_join == {}
+
+
+

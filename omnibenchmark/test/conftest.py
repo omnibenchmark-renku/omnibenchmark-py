@@ -156,6 +156,16 @@ def mock_renkuDataset(mock_renkuDatasetFile):
     mock_data.dataset_files = [mock_renkuDatasetFile]
     return mock_data
 
+@pytest.fixture
+def mock_renkuDataset_2files(mock_renkuDatasetFile):
+
+    mock_data = RenkuDataset(name="mock_dataset")
+    mock_data.keywords = ["mock"]
+    mock_data.title = "This is a mock dataset and does not exist on the KG"
+    ent = Entity(path="some/path/to/features_file.txt", checksum="XDFGHJKP")
+    mock_data_fi = RenkuDatasetFile(entity=ent)
+    mock_data.dataset_files = [mock_renkuDatasetFile, mock_data_fi]
+    return mock_data
 
 @pytest.fixture
 def mock_api_Dataset(mock_renkuDataset):
@@ -164,6 +174,12 @@ def mock_api_Dataset(mock_renkuDataset):
     api_data = api_data._from_dataset(mock_renkuDataset)
     return api_data
 
+@pytest.fixture
+def mock_api_Dataset_2files(mock_renkuDataset_2files):
+
+    api_data = ApiDataset()
+    api_data = api_data._from_dataset(mock_renkuDataset_2files)
+    return api_data
 
 @pytest.fixture
 def get_renkuDataset_List(monkeypatch, mock_renkuDataset):
