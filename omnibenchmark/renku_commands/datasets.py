@@ -124,6 +124,7 @@ def renku_dataset_update(
     check_data_directory: bool = False,
     update_all: bool = False,
     dry_run: bool = False,
+    plain: bool = False,
 ):
     """Update an imported renku dataset from source
 
@@ -181,6 +182,7 @@ def renku_dataset_update(
             no_local=no_local,
             no_remote=no_remote,
             check_data_directory=check_data_directory,
+            plain=plain
         )
     )
 
