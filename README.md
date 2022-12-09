@@ -319,6 +319,10 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.35
+    * Automatic input files matching prefixes for the same file type
+    * Add all parameter to renku_run only for ne activity and plan
+    * Adapt to renku 1.10.0
 * 0.0.34
     * FIX:
     * Enable project queries to ignore missing projects, instead of breaking 
