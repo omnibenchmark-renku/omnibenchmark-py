@@ -429,6 +429,7 @@ def update_datasets_by_keyword(
     gitlab_url: str = "https://renkulab.io/gitlab",
     check_o_url: bool = True,
     n_latest: int = 9,
+    all: bool = True
 ):
     """Import and/or update all datasets that match a certain keyword
 
@@ -440,6 +441,7 @@ def update_datasets_by_keyword(
         query_url (_type_, optional): URL to the knowledgebase dataset query API.
         data_url (_type_, optional): URL to the knowledgebase dataset API.
         gitlab_url (_type_, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
+        all (bool, optional): If all datasets with matching keyword should be imported.
     """
     imp_ids, up_names = get_data_url_by_keyword(
         keyword=keyword,
@@ -452,12 +454,16 @@ def update_datasets_by_keyword(
         check_o_url=check_o_url,
         n_latest=n_latest,
     )
-    for id in imp_ids:
-        renku_dataset_import(uri=id)
+    if all:
+        for id in imp_ids:
+            renku_dataset_import(uri=id)
+    else:
+        if len(imp_ids) > 0:
+            renku_dataset_import(uri=imp_ids[0])
     for nam in up_names:
-        print(f"Updated dataset {nam}.")
-        renku_dataset_update(names=[nam])
-        renku_save()
+            print(f"Updated dataset {nam}.")
+            renku_dataset_update(names=[nam])
+            renku_save()
     find_datasets_with_non_matching_keywords(
         keywords=[keyword], include=up_names, remove=True
     )
