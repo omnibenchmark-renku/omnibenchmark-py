@@ -34,7 +34,7 @@ class ConfigInput(TypedDict, total=False):
     prefix: Optional[dict]
     input_files: Optional[dict]
     default: Optional[str]
-    filter_names: Optional[List]
+    filter_names: Optional[Union[str, List[str]]]
 
 
 class ConfigOutput(TypedDict, total=False):
