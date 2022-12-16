@@ -132,7 +132,7 @@ class OmniInput:
                     self.names,
                     flatten([pre.keys() for pre in self.input_files.values()]),
                 )
-            if self.input_files is not None:
+            if self.input_files is not None and len(self.input_files) > 0:
                 if self.default is None or self.default not in self.input_files.keys():
                     self.default = next(iter(self.input_files.items()))[0]
 
