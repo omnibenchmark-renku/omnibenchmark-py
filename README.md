@@ -323,6 +323,7 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
     * Enable import of only one dataset by adding an all flag
     * FIX:
     * Match files by longest sequence instead of ratio
+    * Workaround for bug in renku.api.Dataset.list()
 * 0.0.35
     * Automatic input files matching prefixes for the same file type
     * Add all parameter to renku_run only for ne activity and plan
