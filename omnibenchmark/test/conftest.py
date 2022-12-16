@@ -192,7 +192,7 @@ def get_renkuDataset_List(monkeypatch, mock_renkuDataset):
     #    "list",
     #    lambda *args, **kwargs: get_mock_list(),
     #)
-    
+
     monkeypatch.setattr(
         omnibenchmark.renku_commands.renku_api,
         "renku_dataset_list",

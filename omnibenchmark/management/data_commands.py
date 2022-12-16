@@ -1,7 +1,7 @@
 """Commands related to import and update relevant datasets"""
 from typing import List, Mapping, Any, Optional, Tuple
 from renku.api import Dataset
-from omnibenchmark.renku_commands.renku_api import renku_dataset_list
+from omnibenchmark.renku_commands import renku_api
 from omnibenchmark.renku_commands.datasets import (
     renku_dataset_import,
     renku_dataset_update,
@@ -88,7 +88,7 @@ def filter_existing(data_json: List) -> Tuple[List, List]:
     update_list: List = []
     import_list: List = []
     #datasets = Dataset.list()
-    datasets = renku_dataset_list()
+    datasets = renku_api.renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     for data in data_json:
         if data["name"] in name_list:
@@ -410,7 +410,7 @@ def find_datasets_with_non_matching_keywords(
         remove (bool, optional): Remove datasets and clean up. Defaults to True.
     """
     #datasets = Dataset.list()
-    datasets = renku_dataset_list()
+    datasets = renku_api.renku_dataset_list()
     if include is not None:
         datasets = [dataset for dataset in datasets if dataset.name in include]
     data_filter = [
@@ -480,7 +480,7 @@ def update_dataset_files(urls: List[str], dataset_name: str):
         dataset_name (str): Dataset name to add files to/update files in
     """
     #datasets = Dataset.list()
-    datasets = renku_dataset_list()
+    datasets = renku_api.renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     if dataset_name not in name_list:
         print(
@@ -509,7 +509,7 @@ def unlink_dataset_files(out_files: List[str], dataset_name: str, remove: bool =
         InputError: Dataset needs to refer to an existing dataset in the current project.
     """
     #datasets = Dataset.list()
-    datasets = renku_dataset_list()
+    datasets = renku_api.renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     if dataset_name not in name_list:
         raise InputError("Dataset {dataset_name} does not exist in this project.")

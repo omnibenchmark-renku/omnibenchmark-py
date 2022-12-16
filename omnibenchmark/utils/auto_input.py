@@ -4,7 +4,7 @@ from typing import Dict, Mapping, List, Optional
 from omnibenchmark.utils.exceptions import ParameterError
 from collections import defaultdict
 from renku.ui.api.models.dataset import Dataset
-from omnibenchmark.renku_commands.renku_api import renku_dataset_list
+from omnibenchmark.renku_commands import renku_api
 from difflib import SequenceMatcher
 import hashlib
 import re
@@ -188,7 +188,7 @@ def get_input_files_from_prefix(
     """
     input_files: Dict = {}
     #datasets = Dataset.list()
-    datasets = renku_dataset_list()
+    datasets = renku_api.renku_dataset_list()
     key_data = [
         dataset
         for dataset in datasets
@@ -289,7 +289,7 @@ def get_parameter_from_dataset(
         Mapping[str, List]: Mapping with parameters and all possible values
     """
     values: Dict = {}
-    datasets = renku_dataset_list()
+    datasets = renku_api.renku_dataset_list()
     #datasets = Dataset.list()
     key_data = [
         dataset

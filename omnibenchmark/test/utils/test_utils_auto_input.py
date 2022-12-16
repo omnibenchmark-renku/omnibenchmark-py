@@ -1,4 +1,5 @@
 import omnibenchmark.utils.auto_input as omni
+import omnibenchmark.renku_commands.renku_api
 from omnibenchmark.utils.exceptions import ParameterError
 import renku.ui.api.models.dataset
 import pytest
@@ -19,6 +20,13 @@ def test_get_input_files_from_prefix_works(mock_api_Dataset, mock_prefix, monkey
         "list",
         lambda *args, **kwargs: get_mock_list(),
     )
+
+    monkeypatch.setattr(
+        omnibenchmark.renku_commands.renku_api,
+        "renku_dataset_list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
+
     monkeypatch.setattr(
         os.path,
         "exists",
@@ -49,7 +57,11 @@ def test_get_input_files_from_prefix_works_dedup(mock_api_Dataset_2files, mock_p
         "exists",
         lambda *args, **kwargs: True,
     )
-
+    monkeypatch.setattr(
+        omnibenchmark.renku_commands.renku_api,
+        "renku_dataset_list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
     test_join = omni.get_input_files_from_prefix(
         input_prefix=mock_prefix, keyword=["mock", "some"]
     )
@@ -68,6 +80,12 @@ def test_get_input_files_from_prefix_works_dedup_off(mock_api_Dataset_2files, mo
         "list",
         lambda *args, **kwargs: get_mock_list(),
     )
+    monkeypatch.setattr(
+        omnibenchmark.renku_commands.renku_api,
+        "renku_dataset_list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
+
     monkeypatch.setattr(
         os.path,
         "exists",
@@ -94,7 +112,11 @@ def test_get_input_files_from_prefix_works_incomplete(
         "list",
         lambda *args, **kwargs: get_mock_list(),
     )
-
+    monkeypatch.setattr(
+        omnibenchmark.renku_commands.renku_api,
+        "renku_dataset_list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
     test_join = omni.get_input_files_from_prefix(
         input_prefix=mock_prefix, keyword=["mock", "some"]
     )
@@ -118,6 +140,11 @@ def test_get_input_files_from_prefix_works_regexpr(
     monkeypatch.setattr(
         renku.ui.api.models.dataset.Dataset,
         "list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
+    monkeypatch.setattr(
+        omnibenchmark.renku_commands.renku_api,
+        "renku_dataset_list",
         lambda *args, **kwargs: get_mock_list(),
     )
     monkeypatch.setattr(
@@ -145,7 +172,11 @@ def test_get_parameter_from_dataset_works(mock_paramapi_Dataset, monkeypatch):
         "list",
         lambda *args, **kwargs: get_mock_list(),
     )
-
+    monkeypatch.setattr(
+        omnibenchmark.renku_commands.renku_api,
+        "renku_dataset_list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
     test_join = omni.get_parameter_from_dataset(
         names=["param2"], keyword=["mock_param", "some"]
     )
@@ -159,6 +190,11 @@ def test_get_parameter_from_dataset_to_man_files(mock_paramapi_Dataset, monkeypa
     monkeypatch.setattr(
         renku.ui.api.models.dataset.Dataset,
         "list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
+    monkeypatch.setattr(
+        omnibenchmark.renku_commands.renku_api,
+        "renku_dataset_list",
         lambda *args, **kwargs: get_mock_list(),
     )
     with pytest.raises(
@@ -182,7 +218,11 @@ def test_get_parameter_from_dataset_not_ex_parameter(
         "list",
         lambda *args, **kwargs: get_mock_list(),
     )
-
+    monkeypatch.setattr(
+        omnibenchmark.renku_commands.renku_api,
+        "renku_dataset_list",
+        lambda *args, **kwargs: get_mock_list(),
+    )
     test_join = omni.get_parameter_from_dataset(
         names=["param2", "param3"], keyword=["mock_param"]
     )
