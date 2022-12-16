@@ -295,3 +295,4 @@ def renku_dataset_remove(data_name: str):
         )
 
     remove_dataset_command().build().execute(data_name)
+

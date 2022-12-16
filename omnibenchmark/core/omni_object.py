@@ -155,7 +155,7 @@ class OmniObject(OmniRenkuInst):
                 out_files=out_no_input, dataset_name=self.dataset_name, remove=clean
             )
 
-    def update_object(self, check_o_url: bool = True, n_latest: int = 9):
+    def update_object(self, check_o_url: bool = True, n_latest: int = 9, all: bool = True):
         """Update the objects inputs, parameter and output definition. Does not run or update workflows/activities.
         Args:
             check_o_url (bool): If linking to an orchestrator shall be checked.
@@ -184,6 +184,7 @@ class OmniObject(OmniRenkuInst):
                 gitlab_url=self.GIT_URL,
                 check_o_url=check_o_url,
                 n_latest=n_latest,
+                all=all,
             )
         if self.parameter is not None and self.orchestrator is not None:
             self.parameter.update_parameter(

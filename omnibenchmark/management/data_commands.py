@@ -1,6 +1,7 @@
 """Commands related to import and update relevant datasets"""
 from typing import List, Mapping, Any, Optional, Tuple
 from renku.api import Dataset
+from omnibenchmark.renku_commands.renku_api import renku_dataset_list
 from omnibenchmark.renku_commands.datasets import (
     renku_dataset_import,
     renku_dataset_update,
@@ -86,7 +87,8 @@ def filter_existing(data_json: List) -> Tuple[List, List]:
     """
     update_list: List = []
     import_list: List = []
-    datasets = Dataset.list()
+    #datasets = Dataset.list()
+    datasets = renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     for data in data_json:
         if data["name"] in name_list:
@@ -407,7 +409,8 @@ def find_datasets_with_non_matching_keywords(
         keywords (List[str]): Keywords to keep datasets with
         remove (bool, optional): Remove datasets and clean up. Defaults to True.
     """
-    datasets = Dataset.list()
+    #datasets = Dataset.list()
+    datasets = renku_dataset_list()
     if include is not None:
         datasets = [dataset for dataset in datasets if dataset.name in include]
     data_filter = [
@@ -429,6 +432,7 @@ def update_datasets_by_keyword(
     gitlab_url: str = "https://renkulab.io/gitlab",
     check_o_url: bool = True,
     n_latest: int = 9,
+    all: bool = True
 ):
     """Import and/or update all datasets that match a certain keyword
 
@@ -440,6 +444,7 @@ def update_datasets_by_keyword(
         query_url (_type_, optional): URL to the knowledgebase dataset query API.
         data_url (_type_, optional): URL to the knowledgebase dataset API.
         gitlab_url (_type_, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
+        all (bool, optional): If all datasets with matching keyword should be imported.
     """
     imp_ids, up_names = get_data_url_by_keyword(
         keyword=keyword,
@@ -452,12 +457,16 @@ def update_datasets_by_keyword(
         check_o_url=check_o_url,
         n_latest=n_latest,
     )
-    for id in imp_ids:
-        renku_dataset_import(uri=id)
+    if all:
+        for id in imp_ids:
+            renku_dataset_import(uri=id)
+    else:
+        if len(imp_ids) > 0:
+            renku_dataset_import(uri=imp_ids[0])
     for nam in up_names:
-        print(f"Updated dataset {nam}.")
-        renku_dataset_update(names=[nam])
-        renku_save()
+            print(f"Updated dataset {nam}.")
+            renku_dataset_update(names=[nam])
+            renku_save()
     find_datasets_with_non_matching_keywords(
         keywords=[keyword], include=up_names, remove=True
     )
@@ -470,7 +479,8 @@ def update_dataset_files(urls: List[str], dataset_name: str):
         urls (List[str]): File paths to add/update
         dataset_name (str): Dataset name to add files to/update files in
     """
-    datasets = Dataset.list()
+    #datasets = Dataset.list()
+    datasets = renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     if dataset_name not in name_list:
         print(
@@ -498,7 +508,8 @@ def unlink_dataset_files(out_files: List[str], dataset_name: str, remove: bool =
     Raises:
         InputError: Dataset needs to refer to an existing dataset in the current project.
     """
-    datasets = Dataset.list()
+    #datasets = Dataset.list()
+    datasets = renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     if dataset_name not in name_list:
         raise InputError("Dataset {dataset_name} does not exist in this project.")
