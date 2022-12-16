@@ -319,7 +319,7 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
-* 0.0.36
+* 0.0.37
     * Enable import of only one dataset by adding an all flag
     * FIX:
     * Match files by longest sequence instead of ratio

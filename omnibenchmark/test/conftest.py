@@ -24,6 +24,7 @@ from renku.ui.api.util import get_activity_gateway
 from omnibenchmark.core.input_classes import OutMapping
 import renku.ui.api
 import omnibenchmark.management.general_checks
+import omnibenchmark.renku_commands.renku_api
 
 
 ### API related fixtures
@@ -186,9 +187,15 @@ def get_renkuDataset_List(monkeypatch, mock_renkuDataset):
     def get_mock_list():
         return [mock_renkuDataset]
 
+    #monkeypatch.setattr(
+    #    renku.ui.api.models.dataset.Dataset,
+    #    "list",
+    #    lambda *args, **kwargs: get_mock_list(),
+    #)
+    
     monkeypatch.setattr(
-        renku.ui.api.models.dataset.Dataset,
-        "list",
+        omnibenchmark.renku_commands.renku_api,
+        "renku_dataset_list",
         lambda *args, **kwargs: get_mock_list(),
     )
 
