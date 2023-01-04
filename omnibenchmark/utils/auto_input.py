@@ -109,10 +109,10 @@ def match_files_by_name(
             for fi_path in fi_path_list:  # type:ignore
                 fi_name = os.path.basename(fi_path)
                 seq_match = (
-                    SequenceMatcher(None, os.path.basename(fi), fi_name) # type:ignore
+                    SequenceMatcher(None, os.path.basename(fi), fi_name)  # type:ignore
                     .find_longest_match()
                     .size
-                )  
+                )
                 if seq_match > seq_top:
                     seq_top = seq_match
                     fi_top = fi_path

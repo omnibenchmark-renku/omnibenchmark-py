@@ -6,6 +6,7 @@ from omnibenchmark.utils.user_input_checks import (
     flatten,
     mixed_flatten,
     check_default_parameter,
+    elements_to_string,
 )
 from omnibenchmark.utils.auto_input import (
     get_input_files_from_prefix,
@@ -180,6 +181,7 @@ class OmniParameter:
 
         if self.values is not None:
             check_name_matching(self.names, self.values.keys())
+            self.values = elements_to_string(self.values)
             self.values = filter_parameter(self.values, self.filter)
 
             if self.combinations is None:
@@ -233,6 +235,7 @@ class OmniParameter:
                 x: mixed_flatten(drop_none_elements([val.get(x), self.values.get(x)]))
                 for x in set(self.values).union(val)
             }
+            self.values = elements_to_string(self.values)
             check_name_matching(self.names, self.values.keys())
             self.values = filter_parameter(self.values, self.filter)
             self.combinations = get_all_parameter_combinations(self.values)

@@ -1,6 +1,7 @@
 """ All kind of check or test functions to ensure correct variable inputs beyont type hinting"""
 
 from typing import List, Iterable, Mapping, Union, Optional, overload
+from collections.abc import Iterable
 from omnibenchmark.utils.exceptions import InputError
 
 
@@ -15,6 +16,7 @@ def flatten(nested_list: List[Iterable]) -> List:
     """
     return [item for sublist in nested_list for item in sublist]
 
+
 def mixed_flatten(mixed_list: List[Iterable]) -> List:
     """Flatten a list of list elements and none list elements
 
@@ -24,9 +26,12 @@ def mixed_flatten(mixed_list: List[Iterable]) -> List:
     Returns:
         List: A flat list
     """
-    nested = [item for sublist in mixed_list if type(sublist) is list for item in sublist]
+    nested = [
+        item for sublist in mixed_list if type(sublist) is list for item in sublist
+    ]
     unnested = [item for item in mixed_list if type(item) is not list]
     return nested + unnested
+
 
 def check_name_matching(entry1: Iterable[str], entry2: Iterable[str]):
     """Check if all entries of a list (entry2) are part of a second list (entry1) of entries
@@ -107,3 +112,20 @@ def check_default_parameter(
 
 def rm_none_from_list(in_list: List) -> List:
     return [element for element in in_list if element is not None]
+
+
+def elements_to_string(d: Mapping) -> Mapping:
+    """Convert all non iterable elements in a dict to strings
+
+    Args:
+        d (dict): Dictionary to convert
+
+    Returns:
+        Mapping: Converted dictionary
+    """
+    for k, v in d.items():
+        if not isinstance(v, Iterable):
+            d[k] = str(v)                                                 #type:ignore
+        if type(v) is list:
+            d[k] = [e if isinstance(e, Iterable) else str(e) for e in v]  #type:ignore
+    return d
