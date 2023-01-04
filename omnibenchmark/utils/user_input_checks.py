@@ -1,7 +1,6 @@
 """ All kind of check or test functions to ensure correct variable inputs beyont type hinting"""
 
 from typing import List, Iterable, Mapping, Union, Optional, overload
-from collections.abc import Iterable
 from omnibenchmark.utils.exceptions import InputError
 
 
