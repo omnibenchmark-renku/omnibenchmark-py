@@ -157,6 +157,7 @@ def mock_renkuDataset(mock_renkuDatasetFile):
     mock_data.dataset_files = [mock_renkuDatasetFile]
     return mock_data
 
+
 @pytest.fixture
 def mock_renkuDataset_2files(mock_renkuDatasetFile):
 
@@ -168,12 +169,14 @@ def mock_renkuDataset_2files(mock_renkuDatasetFile):
     mock_data.dataset_files = [mock_renkuDatasetFile, mock_data_fi]
     return mock_data
 
+
 @pytest.fixture
 def mock_api_Dataset(mock_renkuDataset):
 
     api_data = ApiDataset()
     api_data = api_data._from_dataset(mock_renkuDataset)
     return api_data
+
 
 @pytest.fixture
 def mock_api_Dataset_2files(mock_renkuDataset_2files):
@@ -182,16 +185,17 @@ def mock_api_Dataset_2files(mock_renkuDataset_2files):
     api_data = api_data._from_dataset(mock_renkuDataset_2files)
     return api_data
 
+
 @pytest.fixture
 def get_renkuDataset_List(monkeypatch, mock_renkuDataset):
     def get_mock_list():
         return [mock_renkuDataset]
 
-    #monkeypatch.setattr(
+    # monkeypatch.setattr(
     #    renku.ui.api.models.dataset.Dataset,
     #    "list",
     #    lambda *args, **kwargs: get_mock_list(),
-    #)
+    # )
 
     monkeypatch.setattr(
         omnibenchmark.renku_commands.renku_api,
@@ -231,7 +235,9 @@ def mock_input_view():
 def mock_output_view():
 
     output = CommandOutputViewModel(
-        name="output1", default_value="this/is/another/default", create_folder=False,
+        name="output1",
+        default_value="this/is/another/default",
+        create_folder=False,
     )
     return output
 
@@ -261,11 +267,11 @@ def mock_plan_view(mock_param_view, mock_input_view, mock_output_view):
 
     plan = PlanViewModel(
         id="XXX",
-        command = "test command",
+        command="test command",
         full_command="test command",
         name="test",
         created="2022-01-01",
-        keywords= [],
+        keywords=[],
         inputs=[mock_input_view],
         outputs=[mock_output_view],
         parameters=[mock_param_view],

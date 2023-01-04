@@ -69,7 +69,7 @@ def renku_workflow_run(
             no_output_detection=no_output_detection,
             success_codes=success_codes,
             command_line=command_line,
-            creators = creators
+            creators=creators,
         )
     )
 

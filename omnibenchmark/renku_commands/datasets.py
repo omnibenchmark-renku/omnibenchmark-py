@@ -182,7 +182,7 @@ def renku_dataset_update(
             no_local=no_local,
             no_remote=no_remote,
             check_data_directory=check_data_directory,
-            plain=plain
+            plain=plain,
         )
     )
 
@@ -295,4 +295,3 @@ def renku_dataset_remove(data_name: str):
         )
 
     remove_dataset_command().build().execute(data_name)
-

@@ -118,6 +118,8 @@ def manage_renku_plan(
         def_parameter = parse_explicit_inputs(
             empty_object_to_none(convert_values_to_string(command.parameter_val))
         )
+        if len(set(def_parameter)) < len(def_parameter):
+            def_parameter = []
         def_output = parse_explicit_inputs(
             empty_object_to_none(get_default(command.outputs))
         )
@@ -204,7 +206,9 @@ def get_all_output_file_names(output: OmniOutput) -> List[str]:
         return []
 
 
-def manage_renku_activities(outputs: OmniOutput, omni_plan: OmniPlan, save: bool = False):
+def manage_renku_activities(
+    outputs: OmniOutput, omni_plan: OmniPlan, save: bool = False
+):
     """Manage renku activities by updating existing ones and generating new activities for output files without.
 
     Args:

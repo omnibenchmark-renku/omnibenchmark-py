@@ -135,7 +135,9 @@ class OmniObject(OmniRenkuInst):
             description=self.description,
         )
         if self.outputs is not None and all:
-            manage_renku_activities(outputs=self.outputs, omni_plan=self.omni_plan, save=save)
+            manage_renku_activities(
+                outputs=self.outputs, omni_plan=self.omni_plan, save=save
+            )
 
     def update_result_dataset(self, clean: bool = True):
         """Add output files to the objects dataset and update the dataset"""
@@ -155,7 +157,9 @@ class OmniObject(OmniRenkuInst):
                 out_files=out_no_input, dataset_name=self.dataset_name, remove=clean
             )
 
-    def update_object(self, check_o_url: bool = True, n_latest: int = 9, all: bool = True):
+    def update_object(
+        self, check_o_url: bool = True, n_latest: int = 9, all: bool = True
+    ):
         """Update the objects inputs, parameter and output definition. Does not run or update workflows/activities.
         Args:
             check_o_url (bool): If linking to an orchestrator shall be checked.
@@ -192,6 +196,8 @@ class OmniObject(OmniRenkuInst):
                 query_url=self.DATA_QUERY_URL,
                 data_url=self.DATA_URL,
                 gitlab_url=self.GIT_URL,
+                check_o_url=check_o_url,
+                n_latest=n_latest,
             )
         if self.outputs is not None:
             self.outputs.inputs = self.inputs
@@ -253,7 +259,17 @@ class OmniObject(OmniRenkuInst):
                     f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs."
                 )
                 return
-        for key in self.inputs.keyword:
+        if self.parameter is None:
+            keys = self.inputs.keyword
+        else:
+            keys = flatten(
+                [
+                    k
+                    for k in [self.inputs.keyword, self.parameter.keyword]
+                    if k is not None
+                ]
+            )
+        for key in keys:
             imp_ids, up_names = get_data_url_by_keyword(
                 keyword=key,
                 filter_names=self.inputs.filter_names,

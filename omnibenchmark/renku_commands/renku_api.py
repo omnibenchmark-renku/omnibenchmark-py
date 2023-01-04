@@ -2,6 +2,7 @@ from renku.command.dataset import list_datasets_command
 from renku.api import Dataset
 import omnibenchmark.management.general_checks
 
+
 def renku_dataset_list():
     if not omnibenchmark.management.general_checks.is_renku_project():
         return []

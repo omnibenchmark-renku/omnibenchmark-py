@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install mypy pytest renku iteration_utilities requests typeguard
+        python -m pip install mypy pytest renku==1.10.0 iteration_utilities requests typeguard
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with mypy
       run: |
