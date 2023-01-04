@@ -15,6 +15,18 @@ def flatten(nested_list: List[Iterable]) -> List:
     """
     return [item for sublist in nested_list for item in sublist]
 
+def mixed_flatten(mixed_list: List[Iterable]) -> List:
+    """Flatten a list of list elements and none list elements
+
+    Args:
+        mixed_list (List[Iterable]): A list with mixed and none mixed elements
+
+    Returns:
+        List: A flat list
+    """
+    nested = [item for sublist in mixed_list if type(sublist) is list for item in sublist]
+    unnested = [item for item in mixed_list if type(item) is not list]
+    return nested + unnested
 
 def check_name_matching(entry1: Iterable[str], entry2: Iterable[str]):
     """Check if all entries of a list (entry2) are part of a second list (entry1) of entries

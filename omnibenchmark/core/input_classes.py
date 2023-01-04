@@ -4,6 +4,7 @@ from pathlib import Path
 from omnibenchmark.utils.user_input_checks import (
     check_name_matching,
     flatten,
+    mixed_flatten,
     check_default_parameter,
 )
 from omnibenchmark.utils.auto_input import (
@@ -229,7 +230,7 @@ class OmniParameter:
                 self.values = {}
             val = get_parameter_from_dataset(self.names, self.keyword)
             self.values = {
-                x: flatten(drop_none_elements([val.get(x), self.values.get(x)]))
+                x: mixed_flatten(drop_none_elements([val.get(x), self.values.get(x)]))
                 for x in set(self.values).union(val)
             }
             check_name_matching(self.names, self.values.keys())
