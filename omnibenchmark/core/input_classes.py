@@ -190,7 +190,7 @@ class OmniParameter:
         self.default = check_default_parameter(self.default, self.combinations)
 
     def update_parameter(
-        self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str
+        self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str, check_o_url: bool = True, n_latest: int = 9,
     ):
         """Update datasets and files that belong to this OmniParameter object.
            This will also import new Datasets with the specified keyword.
@@ -199,6 +199,7 @@ class OmniParameter:
             query_url (str): URL to the knowledgebase dataset query API.
             data_url (str): URL to the knowledgebase dataset API.
             gitlab_url (str): General Gitlab url.
+            check_o_url (bool): If inclusion to an orchestrator should be checked.  
         """
         if self.keyword is not None:
             for key in self.keyword:
@@ -208,6 +209,8 @@ class OmniParameter:
                     query_url=query_url,
                     data_url=data_url,
                     gitlab_url=gitlab_url,
+                    check_o_url=check_o_url,
+                    n_latest=n_latest
                 )
 
             self.values = get_parameter_from_dataset(self.names, self.keyword)

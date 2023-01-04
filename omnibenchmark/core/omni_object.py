@@ -192,6 +192,8 @@ class OmniObject(OmniRenkuInst):
                 query_url=self.DATA_QUERY_URL,
                 data_url=self.DATA_URL,
                 gitlab_url=self.GIT_URL,
+                check_o_url=check_o_url,
+                n_latest=n_latest,
             )
         if self.outputs is not None:
             self.outputs.inputs = self.inputs
@@ -253,7 +255,11 @@ class OmniObject(OmniRenkuInst):
                     f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs."
                 )
                 return
-        for key in self.inputs.keyword:
+        if self.parameter is None:
+            keys = self.inputs.keyword
+        else:
+            keys = flatten([k for k in [self.inputs.keyword, self.parameter.keyword] if k is not None])
+        for key in keys:
             imp_ids, up_names = get_data_url_by_keyword(
                 keyword=key,
                 filter_names=self.inputs.filter_names,
