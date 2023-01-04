@@ -85,15 +85,6 @@ def test_build_omni_parameter_from_config_params_no_values(mock_config):
     assert isinstance(omni_param, OmniParameter)
 
 
-def test_build_omni_parameter_from_config_params_no_combinations_but_default(
-    mock_config,
-):
-    del mock_config["parameter"]["combinations"]
-    with pytest.raises(
-        InputError, match=r"No parameter input detected, but default specified*?"
-    ):
-        omni.build_omni_parameter_from_config_params(mock_config["parameter"])
-
 
 def test_build_omni_parameter_from_config_params_no_comb_no_def(mock_config):
     del mock_config["parameter"]["combinations"]

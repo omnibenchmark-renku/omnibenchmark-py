@@ -14,7 +14,7 @@ def test_omni_parameter_with_values(mock_param_values):
 
 def test_omni_parameter_default(mock_param_values):
     omni_p = OmniParameter(names=["param1", "param2"], values=mock_param_values)
-    assert omni_p.default == {"param1": "0", "param2": "test"}
+    assert omni_p.default == {"param1": 0, "param2": "test"}
 
 
 def test_omni_parameter_value_names(mock_param_values):

@@ -128,3 +128,17 @@ def elements_to_string(d: Mapping) -> Mapping:
         if type(v) is list:
             d[k] = [e if isinstance(e, Iterable) else str(e) for e in v]  #type:ignore
     return d
+
+def elements_to_list(d: Mapping) -> Mapping:
+    """Convert all non list elements in a dict to lists
+
+    Args:
+        d (dict): Dictionary to convert
+
+    Returns:
+        Mapping: Converted dictionary
+    """
+    for k, v in d.items():
+        if not isinstance(v, list):
+            d[k] = [v]                                                 #type:ignore
+    return d
