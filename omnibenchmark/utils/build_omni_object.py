@@ -150,7 +150,7 @@ def build_omni_parameter_from_config_params(
         Optional[OmniParameter]: An OmniParameter object
     """
     params: defaultdict = defaultdict(list, config_params)
-    param_names = empty_object_to_none(params["names"])
+    param_names = empty_object_to_none(into_list(params["names"]))
     param_values = empty_object_to_none(params["values"])
     param_combs = empty_object_to_none(
         [vals for vals in get_values(params["combinations"])]
@@ -173,7 +173,7 @@ def build_omni_parameter_from_config_params(
     )
     keywords = into_list(params["keywords"])
     param_filter = empty_object_to_none(params["filter"])
-    if not isinstance(param_names, type(None)):
+    if param_names is not None:
         return OmniParameter(
             names=param_names,
             filter=param_filter,

@@ -87,7 +87,7 @@ def filter_existing(data_json: List) -> Tuple[List, List]:
     """
     update_list: List = []
     import_list: List = []
-    #datasets = Dataset.list()
+    # datasets = Dataset.list()
     datasets = renku_api.renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     for data in data_json:
@@ -409,7 +409,7 @@ def find_datasets_with_non_matching_keywords(
         keywords (List[str]): Keywords to keep datasets with
         remove (bool, optional): Remove datasets and clean up. Defaults to True.
     """
-    #datasets = Dataset.list()
+    # datasets = Dataset.list()
     datasets = renku_api.renku_dataset_list()
     if include is not None:
         datasets = [dataset for dataset in datasets if dataset.name in include]
@@ -432,7 +432,7 @@ def update_datasets_by_keyword(
     gitlab_url: str = "https://renkulab.io/gitlab",
     check_o_url: bool = True,
     n_latest: int = 9,
-    all: bool = True
+    all: bool = True,
 ):
     """Import and/or update all datasets that match a certain keyword
 
@@ -464,9 +464,9 @@ def update_datasets_by_keyword(
         if len(imp_ids) > 0:
             renku_dataset_import(uri=imp_ids[0])
     for nam in up_names:
-            print(f"Updated dataset {nam}.")
-            renku_dataset_update(names=[nam])
-            renku_save()
+        print(f"Updated dataset {nam}.")
+        renku_dataset_update(names=[nam])
+        renku_save()
     find_datasets_with_non_matching_keywords(
         keywords=[keyword], include=up_names, remove=True
     )
@@ -479,7 +479,7 @@ def update_dataset_files(urls: List[str], dataset_name: str):
         urls (List[str]): File paths to add/update
         dataset_name (str): Dataset name to add files to/update files in
     """
-    #datasets = Dataset.list()
+    # datasets = Dataset.list()
     datasets = renku_api.renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     if dataset_name not in name_list:
@@ -508,7 +508,7 @@ def unlink_dataset_files(out_files: List[str], dataset_name: str, remove: bool =
     Raises:
         InputError: Dataset needs to refer to an existing dataset in the current project.
     """
-    #datasets = Dataset.list()
+    # datasets = Dataset.list()
     datasets = renku_api.renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     if dataset_name not in name_list:

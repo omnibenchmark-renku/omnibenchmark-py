@@ -9,6 +9,7 @@ from omnibenchmark.utils.user_input_checks import (
 from omnibenchmark.utils.auto_input import (
     get_input_files_from_prefix,
     get_parameter_from_dataset,
+    drop_none_elements,
 )
 from omnibenchmark.utils.exceptions import InputError
 from omnibenchmark.management.data_commands import update_datasets_by_keyword
@@ -65,7 +66,10 @@ class OmniInput:
 
             check_name_matching(self.names, self.prefix.keys())
             self.input_files = get_input_files_from_prefix(
-                self.prefix, self.keyword, self.filter_names, filter_duplicated = self.filter_duplicated
+                self.prefix,
+                self.keyword,
+                self.filter_names,
+                filter_duplicated=self.filter_duplicated,
             )
 
         if len(self.input_files) < 1:
@@ -121,12 +125,15 @@ class OmniInput:
                     gitlab_url=gitlab_url,
                     check_o_url=check_o_url,
                     n_latest=n_latest,
-                    all = all,
+                    all=all,
                 )
             if self.prefix is not None:
                 check_name_matching(self.names, self.prefix.keys())
                 self.input_files = get_input_files_from_prefix(
-                    self.prefix, self.keyword, self.filter_names, filter_duplicated = self.filter_duplicated
+                    self.prefix,
+                    self.keyword,
+                    self.filter_names,
+                    filter_duplicated=self.filter_duplicated,
                 )
                 check_name_matching(
                     self.names,
@@ -190,7 +197,13 @@ class OmniParameter:
         self.default = check_default_parameter(self.default, self.combinations)
 
     def update_parameter(
-        self, orchestrator: str, query_url: str, data_url: str, gitlab_url: str, check_o_url: bool = True, n_latest: int = 9,
+        self,
+        orchestrator: str,
+        query_url: str,
+        data_url: str,
+        gitlab_url: str,
+        check_o_url: bool = True,
+        n_latest: int = 9,
     ):
         """Update datasets and files that belong to this OmniParameter object.
            This will also import new Datasets with the specified keyword.
@@ -199,7 +212,7 @@ class OmniParameter:
             query_url (str): URL to the knowledgebase dataset query API.
             data_url (str): URL to the knowledgebase dataset API.
             gitlab_url (str): General Gitlab url.
-            check_o_url (bool): If inclusion to an orchestrator should be checked.  
+            check_o_url (bool): If inclusion to an orchestrator should be checked.
         """
         if self.keyword is not None:
             for key in self.keyword:
@@ -210,10 +223,15 @@ class OmniParameter:
                     data_url=data_url,
                     gitlab_url=gitlab_url,
                     check_o_url=check_o_url,
-                    n_latest=n_latest
+                    n_latest=n_latest,
                 )
-
-            self.values = get_parameter_from_dataset(self.names, self.keyword)
+            if self.values is None:
+                self.values = {}
+            val = get_parameter_from_dataset(self.names, self.keyword)
+            self.values = {
+                x: flatten(drop_none_elements([val.get(x), self.values.get(x)]))
+                for x in set(self.values).union(val)
+            }
             check_name_matching(self.names, self.values.keys())
             self.values = filter_parameter(self.values, self.filter)
             self.combinations = get_all_parameter_combinations(self.values)

@@ -18,11 +18,15 @@ def test_renku_dataset_create_for_existing_dataset(get_renkuDataset_List, monkey
         "is_renku_project",
         lambda *args, **kwargs: get_mock_status(),
     )
-    return_value = ren_datasets.renku_dataset_create(name="mock_dataset", kg_url="some.url")
+    return_value = ren_datasets.renku_dataset_create(
+        name="mock_dataset", kg_url="some.url"
+    )
     assert isinstance(return_value, type(None))
 
 
-def test_renku_dataset_create_for_dataset_name_exist(mock_dataset_query, monkeypatch, get_renkuDataset_List):
+def test_renku_dataset_create_for_dataset_name_exist(
+    mock_dataset_query, monkeypatch, get_renkuDataset_List
+):
     def get_mock_status():
         return True
 
@@ -32,7 +36,9 @@ def test_renku_dataset_create_for_dataset_name_exist(mock_dataset_query, monkeyp
         lambda *args, **kwargs: get_mock_status(),
     )
 
-    return_value = ren_datasets.renku_dataset_create(name="mock_dataset", kg_url="some.url")
+    return_value = ren_datasets.renku_dataset_create(
+        name="mock_dataset", kg_url="some.url"
+    )
     assert isinstance(return_value, type(None))
 
 

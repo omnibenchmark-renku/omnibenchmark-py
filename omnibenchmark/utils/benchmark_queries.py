@@ -22,7 +22,7 @@ def get_orchestrator_projects_from_cicd_yaml(
         exclude_stages (List[str], optional): Stages to ignore. Defaults to ["build"].
 
     Returns:
-        List[str]: Project urls associated to the 
+        List[str]: Project urls associated to the
     """
     o_info = get_project_info_from_url(o_url)
     renku_git = gitlab.Gitlab(gitlab_url)
@@ -45,7 +45,9 @@ def get_orchestrator_projects_from_cicd_yaml(
     return [proc["trigger"]["project"] for proc in process.values()]
 
 
-def get_project_infos(p_url: str, gitlab_url: str = "https://renkulab.io/gitlab") -> Optional[Project]:
+def get_project_infos(
+    p_url: str, gitlab_url: str = "https://renkulab.io/gitlab"
+) -> Optional[Project]:
     """Get project info from url
 
     Args:
@@ -57,15 +59,15 @@ def get_project_infos(p_url: str, gitlab_url: str = "https://renkulab.io/gitlab"
     """
     p_info = get_project_info_from_url(p_url)
     if "message" in p_info.keys():
-        print(
-            f"Warning: Could not find project {p_url}"
-        )
+        print(f"Warning: Could not find project {p_url}")
         return None
     renku_git = gitlab.Gitlab(gitlab_url)
     return renku_git.projects.get(p_info["identifier"])
 
 
-def get_last_pipe(project: Project, exclude_push: bool = True) -> Optional[ProjectPipeline]:
+def get_last_pipe(
+    project: Project, exclude_push: bool = True
+) -> Optional[ProjectPipeline]:
     """Get the last pipeline from an project instance
 
     Args:
@@ -79,11 +81,7 @@ def get_last_pipe(project: Project, exclude_push: bool = True) -> Optional[Proje
     if exclude_push:
         pipes = [p for p in pipes if p.source != "push"]
     if len(pipes) > 0:
-        return pipes[0]                       #type:ignore
+        return pipes[0]  # type:ignore
     else:
-        print(
-            f"Warning: Did not find any valid pipeline for project {project.web_url}"
-        )
+        print(f"Warning: Did not find any valid pipeline for project {project.web_url}")
         return None
-
-
