@@ -233,6 +233,9 @@ The following methods can be run on an instance of an OmniObject:
 * **`update_object()`**: Checks for new imports or updates in the input and parameter datasets. Will update object attributes accordingly.
 * **`run_renku()`**: Generates and updates the workflow and all output files as specified in the object.
 * **`update_result_dataset()`**: Updates and adds all output datasets to the dataset specified in the object.
+* **`clean_revert_run()`**: Clean/Remove all outputs, workflows and activities associated with the object (including KG connections).
+* **`check_updates()`**: Dry run option for update_object().
+* **`check_run()`**: Dry run option for run_renku().
 
 ---
 
