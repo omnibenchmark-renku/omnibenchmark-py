@@ -22,6 +22,7 @@ from omnibenchmark.core.output_classes import OmniCommand, OmniOutput, OmniPlan
 from omnibenchmark.renku_commands.general import renku_save
 from renku.command.view_model.plan import PlanViewModel
 from renku.api import Activity, Plan
+from renku.domain_model.project_context import project_context
 import os
 from os import PathLike
 import logging
@@ -215,6 +216,7 @@ def manage_renku_activities(
         outputs (OmniOutput): An OmniOutput object
         omni_plan (OmniPlan): A plan/workflow description with mappings to the output
     """
+    project_context.clear()
     out_files = get_all_output_file_names(outputs)
     activity_out = wflow.filter_activity_exist(out_files)
     activity_map = get_file_mapping_from_out_files(
