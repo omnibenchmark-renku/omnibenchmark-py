@@ -278,6 +278,7 @@ def revert_run(
 
     activities = []
     out_fis = []
+    project_context.clear()
     if in_files is not None:
         activities = flatten([Activity.filter(input=in_fi) for in_fi in in_files])
 
