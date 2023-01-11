@@ -115,7 +115,17 @@ def match_files_by_name(
                 )
                 if seq_match > seq_top:
                     seq_top = seq_match
+                    top_blocks = SequenceMatcher(None, os.path.basename(fi), fi_name).get_matching_blocks()
                     fi_top = fi_path
+                elif seq_match == seq_top:
+                    seq_blocks = SequenceMatcher(None, os.path.basename(fi), fi_name).get_matching_blocks()
+                    for seq, top in zip(seq_blocks, top_blocks):
+                        if seq.size > top.size:
+                            fi_top = fi_path
+                            top_blocks = seq_blocks
+                            break
+                        if top.size > seq.size:
+                            break
             match_dict[group_nam][fi_type] = fi_top
     com_dict = {
         get_name_hash_from_input_dict(match_dict[m_key])[0:5]
