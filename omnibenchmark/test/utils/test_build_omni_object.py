@@ -85,7 +85,6 @@ def test_build_omni_parameter_from_config_params_no_values(mock_config):
     assert isinstance(omni_param, OmniParameter)
 
 
-
 def test_build_omni_parameter_from_config_params_no_comb_no_def(mock_config):
     del mock_config["parameter"]["combinations"]
     del mock_config["parameter"]["default"]

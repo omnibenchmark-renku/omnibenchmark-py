@@ -124,10 +124,11 @@ def elements_to_string(d: Mapping) -> Mapping:
     """
     for k, v in d.items():
         if not isinstance(v, Iterable):
-            d[k] = str(v)                                                 #type:ignore
+            d[k] = str(v)  # type:ignore
         if type(v) is list:
-            d[k] = [e if isinstance(e, Iterable) else str(e) for e in v]  #type:ignore
+            d[k] = [e if isinstance(e, Iterable) else str(e) for e in v]  # type:ignore
     return d
+
 
 def elements_to_list(d: Mapping) -> Mapping:
     """Convert all non list elements in a dict to lists
@@ -140,5 +141,5 @@ def elements_to_list(d: Mapping) -> Mapping:
     """
     for k, v in d.items():
         if not isinstance(v, list):
-            d[k] = [v]                                                 #type:ignore
+            d[k] = [v]  # type:ignore
     return d

@@ -7,7 +7,7 @@ import copy
 
 # join_parameter
 def test_join_parameter_with_parameter(mock_param):
-    test_join = omni.join_parameter(mock_param)
+    test_join = omni.join_parameter(mock_param, sort_keys=False)
     assert test_join == "param_str_value_str__param_num_10"
 
 
@@ -19,11 +19,11 @@ def test_join_parameter_without_parameter():
 # join_inputs_parameter
 def test_join_inputs_parameter_with_both(mock_param):
     test_join = omni.join_inputs_parameter("test_in", mock_param)
-    assert test_join == "test_in__param_str_value_str__param_num_10"
+    assert test_join == "test_in__param_num_10__param_str_value_str"
 
 
 def test_join_inputs_parameter_with_parameter(mock_param):
-    test_join = omni.join_inputs_parameter(parameter=mock_param)
+    test_join = omni.join_inputs_parameter(parameter=mock_param, sort_keys=False)
     assert test_join == "param_str_value_str__param_num_10"
 
 
@@ -63,7 +63,7 @@ def test_get_out_names_from_input_params_name_out_end_parameter(
     mock_out_end, mock_param
 ):
     test_out_name = omni.get_out_names_from_input_params(
-        name="test_in", output_end=mock_out_end, parameter=mock_param
+        name="test_in", output_end=mock_out_end, parameter=mock_param, sort_keys=False
     )
     assert test_out_name == {
         "red_dim": "data/test_in/test_in_param_str_value_str__param_num_10_red_dim.mtx.gz",

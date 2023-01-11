@@ -32,6 +32,7 @@ outputs:
     meta:
         end: ".json"
   filter_json: "path/to/json/with/in/param/comb/to/filter"
+  sort_keys: "True"
   file_mapping:
     mapping1: 
       output_files:

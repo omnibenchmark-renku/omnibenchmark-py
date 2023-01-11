@@ -34,6 +34,7 @@ class OmniOutput:
         parameter: Optional[OmniParameter] = None,
         default: Optional[Mapping] = None,
         filter_json: Optional[str] = None,
+        sort_keys: bool = True,
         template_fun: Optional[Callable[..., Mapping]] = None,
         template_vars: Optional[Mapping] = None,
     ):
@@ -50,6 +51,7 @@ class OmniOutput:
             parameter (Optional[OmniParameter], optional): Object speccifying the parameter space. Defaults to None.
             default (Optional[Mapping], optional): Default output files. Defaults to None.
             filter_json(Optional[str], optional): Path to json file with filter combinations. Defaults to None.
+            sort_keys(bool): If parameter keys should be sorted alphabetically to generate output names. Defaults to True.
             template_fun (Optional[Callable[..., Mapping]], optional): Function to automatically generate output filenames.
             template_vars (Optional[Mapping], optional): Variables that are used by template_fun. Defaults to None.
         """
@@ -62,6 +64,7 @@ class OmniOutput:
         self.parameter = parameter
         self.default = default
         self.filter_json = filter_json
+        self.sort_keys = sort_keys
         self.template_fun = template_fun
         self.template_vars = template_vars if template_vars is not None else {}
 
@@ -80,6 +83,7 @@ class OmniOutput:
                 out_template=self.out_template,
                 inputs=self.inputs,
                 parameter=self.parameter,
+                sort_keys=self.sort_keys,
                 template_fun=self.template_fun,
                 **self.template_vars,
             )
@@ -124,6 +128,7 @@ class OmniOutput:
                 out_template=self.out_template,
                 inputs=self.inputs,
                 parameter=self.parameter,
+                sort_keys=self.sort_keys,
                 template_fun=self.template_fun,
                 **self.template_vars,
             )

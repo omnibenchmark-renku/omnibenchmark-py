@@ -9,8 +9,9 @@ from omnibenchmark.utils.user_input_checks import empty_object_to_none
 from omnibenchmark.management.parameter_checks import dict_values_to_str
 
 
-@option_str
-def join_parameter(parameter: Optional[Mapping[str, str]] = None) -> str:
+def join_parameter(
+    parameter: Optional[Mapping[str, str]] = None, sort_keys: bool = True
+) -> str:
     """Get a joined string with all parameter names and their value
 
     Args:
@@ -19,12 +20,17 @@ def join_parameter(parameter: Optional[Mapping[str, str]] = None) -> str:
     Returns:
         str: Joined string
     """
+    if parameter is None:
+        return ""
+    param_k = (
+        sorted(parameter.keys(), key=lambda x: x.lower())  
+        if sort_keys
+        else parameter.keys()                              
+    )  
     all_params = "__".join(
         [
-            "{}_{}".format(str(param_nam), param_val)
-            for param_nam, param_val in zip(
-                parameter.keys(), parameter.values()  # type: ignore
-            )
+            "{}_{}".format(str(par_k), parameter[par_k])  
+            for par_k in param_k
         ]
     )
     return all_params
@@ -32,7 +38,9 @@ def join_parameter(parameter: Optional[Mapping[str, str]] = None) -> str:
 
 @option_str
 def join_inputs_parameter(
-    input: Optional[str] = None, parameter: Optional[Mapping[str, str]] = None
+    input: Optional[str] = None,
+    parameter: Optional[Mapping[str, str]] = None,
+    sort_keys: bool = True,
 ) -> str:
     """Get a joined string of parameter and inputs with their respective values
 
@@ -43,7 +51,7 @@ def join_inputs_parameter(
     Returns:
         str: A joined string
     """
-    param_str = join_parameter(parameter)
+    param_str = join_parameter(parameter, sort_keys=sort_keys)
     try:
         if param_str == "":
             joined = "".join([input, param_str])  # type: ignore
@@ -60,6 +68,7 @@ def get_out_names_from_input_params(
     name: str,
     input: Optional[str] = None,
     parameter: Optional[Mapping[str, str]] = None,
+    sort_keys: bool = True,
     out_template: str = "data/${name}/${name}_${unique_values}_${out_name}.${out_end}",
     **kwargs,
 ) -> Mapping[str, str]:
@@ -91,7 +100,7 @@ def get_out_names_from_input_params(
             f"Invalid output filename template: {out_template}."
             f"Please use valid keys as in {valid_keys} or consider specifying outputs explicitly."
         )
-    unique_values = join_inputs_parameter(input, parameter)
+    unique_values = join_inputs_parameter(input, parameter, sort_keys=sort_keys)
     sub_dict = kwargs
     sub_dict["unique_values"] = unique_values
     sub_dict["name"] = name
@@ -196,6 +205,7 @@ def get_all_output_combinations(
     output_end: Mapping[str, str],
     inputs: Optional[OmniInput] = None,
     parameter: Optional[OmniParameter] = None,
+    sort_keys: bool = True,
     out_template: str = "data/${name}/${name}_${unique_values}_${out_name}.${out_end}",
     template_fun: Optional[Callable[..., Mapping]] = None,
     **kwargs,
@@ -235,6 +245,7 @@ def get_all_output_combinations(
                 output_end=output_end,
                 input=input_str,
                 parameter=comb["parameter"],
+                sort_keys=sort_keys,
                 out_template=out_template,
                 **temp_vars,
             )
@@ -243,7 +254,10 @@ def get_all_output_combinations(
 
     if len(out_list) == 0:
         out_names = get_out_names_from_input_params(
-            name=name, output_end=output_end, out_template=out_template
+            name=name,
+            output_end=output_end,
+            sort_keys=sort_keys,
+            out_template=out_template,
         )
         out_map: OutMapping = {
             "output_files": out_names,
