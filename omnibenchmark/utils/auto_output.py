@@ -513,4 +513,5 @@ def filter_file_mapping_list(
     res_comb = filter_file_mapping_list_input_param_combinations_json(
         file_mapping=res, filter_json=filter_json
     )
-    return empty_object_to_none(res_comb)
+    res_uni = [i for n, i in enumerate(res_comb) if i not in res_comb[n + 1:]]
+    return empty_object_to_none(res_uni)

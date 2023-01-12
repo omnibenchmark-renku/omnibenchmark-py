@@ -322,6 +322,12 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.39
+    * add sort_keys argument to omni_output (defaults to true -> alphabetically sorted parameter keys in out names)
+    * FIX:
+    * remove duplicated outputs independent of parameter order
+    * clear project context in revert_run
+    * use the next best match for equal matches in file name matching
 * 0.0.37
     * Enable import of only one dataset by adding an all flag
     * FIX:
