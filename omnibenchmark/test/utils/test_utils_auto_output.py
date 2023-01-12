@@ -468,12 +468,14 @@ def test_filter_file_mapping_list_all_valid(
     mock_out_mapping, mock_omni_input, mock_omni_parameter
 ):
     mock_out_mapping["input_files"] = {"dim_red_file": "any", "count_file": "some"}
-    mock_list = [mock_out_mapping, mock_out_mapping]
+    mock_out_copy = copy.deepcopy(mock_out_mapping)
+    mock_out_mapping["input_files"] = {"dim_red_file": "another", "count_file": "file"}
+    mock_list = [mock_out_mapping, mock_out_copy]
 
     fi_list = omni.filter_file_mapping_list(
         mock_list, inputs=mock_omni_input, parameter=mock_omni_parameter
     )
-    assert fi_list == [mock_out_mapping, mock_out_mapping]
+    assert fi_list == [mock_out_mapping, mock_out_copy]
 
 
 def test_filter_file_mapping_list_one_valid(
@@ -504,4 +506,4 @@ def test_filter_file_mapping_list_no_in_params(
     mock_list = [mock_out_mapping, mock_out_mapping]
 
     fi_list = omni.filter_file_mapping_list(mock_list, inputs=None, parameter=None)
-    assert fi_list == [mock_out_mapping, mock_out_mapping]
+    assert fi_list == [mock_out_mapping]
