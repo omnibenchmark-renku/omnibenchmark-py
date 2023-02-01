@@ -23,15 +23,12 @@ def join_parameter(
     if parameter is None:
         return ""
     param_k = (
-        sorted(parameter.keys(), key=lambda x: x.lower())  
+        sorted(parameter.keys(), key=lambda x: x.lower())
         if sort_keys
-        else parameter.keys()                              
-    )  
+        else parameter.keys()
+    )
     all_params = "__".join(
-        [
-            "{}_{}".format(str(par_k), parameter[par_k])  
-            for par_k in param_k
-        ]
+        ["{}_{}".format(str(par_k), parameter[par_k]) for par_k in param_k]
     )
     return all_params
 
@@ -513,5 +510,5 @@ def filter_file_mapping_list(
     res_comb = filter_file_mapping_list_input_param_combinations_json(
         file_mapping=res, filter_json=filter_json
     )
-    res_uni = [i for n, i in enumerate(res_comb) if i not in res_comb[n + 1:]]
+    res_uni = [i for n, i in enumerate(res_comb) if i not in res_comb[n + 1 :]]
     return empty_object_to_none(res_uni)

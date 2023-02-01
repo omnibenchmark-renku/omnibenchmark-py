@@ -80,9 +80,7 @@ def get_name_hash_from_input_dict(infile_dict: Mapping[str, str]) -> str:
     return hash_object.hexdigest()
 
 
-def match_files_by_name(
-    file_type_dict: Mapping[str, List[str]]
-) -> Mapping[str, Mapping]:
+def match_files_by_name(file_type_dict: Dict) -> Mapping[str, Mapping]:
     """Find corresponding files by best matching names
 
     Args:
@@ -94,6 +92,11 @@ def match_files_by_name(
     match_dict: Dict = {}
     fi_types = list(file_type_dict.keys())
     fi_start = max(file_type_dict, key=lambda x: len(set(file_type_dict[x])))
+    file_type_dict[fi_start] = (
+        file_type_dict[fi_start]
+        if isinstance(file_type_dict[fi_start], list)
+        else [file_type_dict[fi_start]]
+    )
     fil_types = [fi_type for fi_type in fi_types if not fi_type == fi_start]
     for fi_idx, fi in enumerate(file_type_dict[fi_start]):
         group_nam = "inst" + str(fi_idx)
