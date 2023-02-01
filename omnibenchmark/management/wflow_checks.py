@@ -7,6 +7,7 @@ from renku.infrastructure.gateway.activity_gateway import ActivityGateway
 from renku.domain_model.workflow.plan import Plan
 from omnibenchmark.utils.exceptions import WorkflowError
 from omnibenchmark.management import general_checks
+from renku.domain_model.project_context import project_context
 import logging
 
 logger = logging.getLogger("omnibenchmark.management.wflow_checks")
@@ -48,7 +49,7 @@ def filter_activity_exist(outputs: List[str]) -> List[Union[PathLike, str, None]
     Returns:
         List[str]: A list of output paths with valid activities
     """
-
+    project_context.clear()
     activity_gateway = get_activity_gateway()
     return [
         activity_plan_is_valid(out, activity_gateway=activity_gateway)
@@ -123,6 +124,7 @@ def find_plan_by_outputs(outputs: List[str]) -> Plan:
     Returns:
         Optional[Plan]: Plan to generate one or several of those output files
     """
+    project_context.clear()
     plans = get_all_plans()
     valid_plans = filter_valid_plans(plans)
     activity_gateway = get_activity_gateway()

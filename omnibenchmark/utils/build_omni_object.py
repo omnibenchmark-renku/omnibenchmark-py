@@ -228,7 +228,11 @@ def build_omni_output_from_config(
     file_mapping = empty_object_to_none([vals for vals in get_values(file_map)])
     default_out = empty_object_to_none(config_outputs["default"])
     filter_json = empty_object_to_none(config_outputs["filter_json"])
-    sort_keys = True if (len(config_outputs["sort_keys"]) == 0) else eval(config_outputs["sort_keys"])
+    sort_keys = (
+        True
+        if (len(config_outputs["sort_keys"]) == 0)
+        else eval(config_outputs["sort_keys"])
+    )
     template_fun = config_outputs["template_fun"]
     template_fun = None if isinstance(template_fun, List) else template_fun
     template_vars = empty_object_to_none(config_outputs["template_vars"])
