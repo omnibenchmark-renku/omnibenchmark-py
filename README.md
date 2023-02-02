@@ -322,6 +322,9 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.40
+    * FIX:
+    * file name matching for strings as file_type_dict values.
 * 0.0.39
     * add sort_keys argument to omni_output (defaults to true -> alphabetically sorted parameter keys in out names)
     * FIX:
