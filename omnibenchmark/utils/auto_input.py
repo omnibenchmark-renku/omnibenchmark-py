@@ -1,6 +1,6 @@
 """Functions to facilitate automatic input generation from file/object, usually config.yaml"""
 
-from typing import Dict, Mapping, List, Optional
+from typing import Dict, Mapping, List, Optional, Union
 from omnibenchmark.utils.exceptions import ParameterError
 from collections import defaultdict
 from renku.ui.api.models.dataset import Dataset
@@ -80,7 +80,13 @@ def get_name_hash_from_input_dict(infile_dict: Mapping[str, str]) -> str:
     return hash_object.hexdigest()
 
 
-def match_files_by_name(file_type_dict: Dict) -> Mapping[str, Mapping]:
+def into_list(obj: Union[str, list]) -> list:
+    if not isinstance(obj, list):
+        obj = [obj]
+    return obj
+
+
+def match_files_by_name(file_type_dict_all: Mapping) -> Mapping[str, Mapping]:
     """Find corresponding files by best matching names
 
     Args:
@@ -90,13 +96,11 @@ def match_files_by_name(file_type_dict: Dict) -> Mapping[str, Mapping]:
         Mapping[str, Mapping]: Mapping of best matches for all files between file types.
     """
     match_dict: Dict = {}
+    file_type_dict = {
+        fi_it: into_list(fi_val) for fi_it, fi_val in file_type_dict_all.items()
+    }
     fi_types = list(file_type_dict.keys())
     fi_start = max(file_type_dict, key=lambda x: len(set(file_type_dict[x])))
-    file_type_dict[fi_start] = (
-        file_type_dict[fi_start]
-        if isinstance(file_type_dict[fi_start], list)
-        else [file_type_dict[fi_start]]
-    )
     fil_types = [fi_type for fi_type in fi_types if not fi_type == fi_start]
     for fi_idx, fi in enumerate(file_type_dict[fi_start]):
         group_nam = "inst" + str(fi_idx)
