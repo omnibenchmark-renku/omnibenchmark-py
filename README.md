@@ -248,6 +248,7 @@ This class has the following attributes:
 * **`keyword (Optional[List[str]], optional)`**: Keyword to define which datasets are imported as input datasets.
 * **`default (Optional[str], optional)`**: Default input name (e.g., dataset).
 * **`filter_names (Optional[List[str]], optional)`**: Input dataset names to be ignored.
+* **`multi_data_matching (Optional[bool])`**: If file matching across renku datasets should be allowed (defaults to False).
 
 The following class methods can be run on an instance of an OmniInput:
 * **`update_inputs()`**: Method to import new and update existing input datasets and update the object accordingly
@@ -322,6 +323,8 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.41
+    * New input argument "multi_data_matching" to explicitly allow matching files from multiple datasets
 * 0.0.40
     * FIX:
     * file name matching for strings as file_type_dict values.

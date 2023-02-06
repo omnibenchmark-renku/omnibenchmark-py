@@ -193,11 +193,71 @@ def remove_duplicated_inputs(pat_list: List, in_files: List[str]) -> List[str]:
     return [in_files[ind] for ind in ind_keep]
 
 
+def match_input_pattern(
+    input_files: Dict,
+    input_prefix: Mapping,
+    name: str,
+    files: List,
+    filter_duplicated: bool = True,
+) -> Dict:
+    """Match files specified in files by input_prefix into best matching groups. Append results to the input_files dictionary.
+
+    Args:
+        input_files (Dict): Dictionary with all already assigned inputs.
+        input_prefix (Mapping): Prefix name - prefix value mapping.
+        name (str): input name to be used as key in input_files.
+        files (List): List of all files to be grouped.
+        filter_duplicated (bool, optional): If duplicated inputs groups should be rautomnatically removed. Defaults to True.
+
+    Returns:
+        Dict: Dictionary specified in input_files with the new best matching groups added.
+    """
+    tmp_dict: Dict = {}
+    input_files[name] = {}
+    for file_type, prefixes in input_prefix.items():
+        prefix_list = (
+            [prefixes] if not isinstance(prefixes, list) else prefixes  # type: ignore
+        )
+        pat_list = [re.compile(pattern) for pattern in prefix_list]
+        in_file = [
+            fi.path
+            for fi in files
+            if any(pattern.search(os.path.basename(fi.path)) for pattern in pat_list)
+        ]
+        if len(in_file) > 1:
+            if len(pat_list) > 1 and filter_duplicated:
+                in_file = remove_duplicated_inputs(pat_list=pat_list, in_files=in_file)
+            tmp_dict[file_type] = in_file
+        elif len(in_file) < 1:
+            print(
+                f"WARNING:Could not find any input file matching the following pattern {prefixes}.\n"
+                f"Please make sure you specified a correct prefix! \n"
+                f"Input dataset {name} will be ignored!"
+            )
+            break
+        else:
+            input_files[name][file_type] = in_file[0]
+    if len(tmp_dict) > 0:
+        tmp_dict.update(input_files[name])
+        group_dict = match_files_by_name(tmp_dict)
+        n = len(in_file) if len(in_file) <= 5 else 5
+        print(
+            f"WARNING: Ambigous input files. Found {in_file[0:n]}, ...\n"
+            f"Automatic group detection for files in {name}.\n"
+            f"Please check matches to ensure correct groups: 'omni_obj.inputs.input_files'"
+        )
+        del input_files[name]
+        group_data_dict = {name + "_" + k: group_dict[k] for k in group_dict.keys()}
+        input_files.update(group_data_dict)
+    return input_files
+
+
 def get_input_files_from_prefix(
     input_prefix: Mapping[str, List[str]],
     keyword: List[str],
     filter_names: Optional[List[str]] = None,
     filter_duplicated: bool = True,
+    multi_data_matching: bool = False,
 ) -> Mapping[str, Mapping]:
     """Find input files by prefix
 
@@ -207,6 +267,7 @@ def get_input_files_from_prefix(
         filter_names (Optional[List[str]]): Dataset names to be ignored when querying input files
         filter_duplicated (bool): If duplicated inputs from the same dataset and prefix pattern
                                   associated to the same input file types shall automatically be removed.
+        multi_data_matching (bool): If true files from different renku datasets will be matched (defaults to False).
 
     Returns:
         Mapping[str, Mapping]: Input file types with their corresponding files.
@@ -219,52 +280,25 @@ def get_input_files_from_prefix(
         for dataset in datasets
         if any(key in keyword for key in dataset.keywords)
     ]
-    for data in key_data:
-        tmp_dict: Dict = {}
-        input_files[data.name] = {}
-        for file_type, prefixes in input_prefix.items():
-            prefix_list = (
-                [prefixes]  # type: ignore
-                if not isinstance(prefixes, list)
-                else prefixes
+    if multi_data_matching:
+        all_fi = [data.files for data in key_data]
+        all_files = [item for sublist in all_fi for item in sublist]
+        input_files = match_input_pattern(
+            input_files=input_files,
+            input_prefix=input_prefix,
+            name="all",
+            files=all_files,
+            filter_duplicated=filter_duplicated,
+        )
+    else:
+        for data in key_data:
+            input_files = match_input_pattern(
+                input_files=input_files,
+                input_prefix=input_prefix,
+                name=data.name,
+                files=data.files,
+                filter_duplicated=filter_duplicated,
             )
-            pat_list = [re.compile(pattern) for pattern in prefix_list]
-            in_file = [
-                fi.path
-                for fi in data.files
-                if any(
-                    pattern.search(os.path.basename(fi.path)) for pattern in pat_list
-                )
-            ]
-            if len(in_file) > 1:
-                if len(pat_list) > 1 and filter_duplicated:
-                    in_file = remove_duplicated_inputs(
-                        pat_list=pat_list, in_files=in_file
-                    )
-                tmp_dict[file_type] = in_file
-            elif len(in_file) < 1:
-                print(
-                    f"WARNING:Could not find any input file matching the following pattern {prefixes}.\n"
-                    f"Please make sure you specified a correct prefix! \n"
-                    f"Input dataset {data.name} will be ignored!"
-                )
-                break
-            else:
-                input_files[data.name][file_type] = in_file[0]
-        if len(tmp_dict) > 0:
-            tmp_dict.update(input_files[data.name])
-            group_dict = match_files_by_name(tmp_dict)
-            n = len(in_file) if len(in_file) <= 5 else 5
-            print(
-                f"WARNING: Ambigous input files. Found {in_file[0:n]}, ...\n"
-                f"Automatic group detection for files in {data.name}.\n"
-                f"Please check matches to ensure correct groups: 'omni_obj.inputs.input_files'"
-            )
-            del input_files[data.name]
-            group_data_dict = {
-                data.name + "_" + k: group_dict[k] for k in group_dict.keys()
-            }
-            input_files.update(group_data_dict)
     file_types = input_prefix.keys()
 
     # Filter incomplete, non existing and explicitly filtered data
