@@ -35,6 +35,7 @@ class ConfigInput(TypedDict, total=False):
     input_files: Optional[dict]
     default: Optional[str]
     filter_names: Optional[Union[str, List[str]]]
+    multi_data_matching: Optional[bool]
 
 
 class ConfigOutput(TypedDict, total=False):
@@ -121,7 +122,8 @@ def build_omni_input_from_config_inputs(
     default_in = empty_object_to_none(inputs["default"])
     filter_names = empty_object_to_none(into_list(inputs["filter_names"]))
     in_names = in_names or get_keys(prefix) or in_file_types
-
+    multi = inputs["multi_data_matching"]
+    multi_match = multi if not isinstance(multi, List) else False
     if in_names is not None:
         return OmniInput(
             names=in_names,
@@ -130,6 +132,7 @@ def build_omni_input_from_config_inputs(
             input_files=in_files,
             default=default_in,
             filter_names=filter_names,
+            multi_data_matching=multi_match,
         )
     else:
         logger.warning(

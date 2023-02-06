@@ -36,6 +36,7 @@ class OmniInput:
         default: Optional[str] = None,
         filter_names: Optional[List[str]] = None,
         filter_duplicated: bool = True,
+        multi_data_matching: bool = False,
     ):
         """Class to manage inputs of an omnibenchmark
 
@@ -56,6 +57,7 @@ class OmniInput:
         self.default = default
         self.filter_names = filter_names
         self.filter_duplicated = filter_duplicated
+        self.multi_data_matching = multi_data_matching
 
         if self.input_files is None:
 
@@ -72,6 +74,7 @@ class OmniInput:
                 self.keyword,
                 self.filter_names,
                 filter_duplicated=self.filter_duplicated,
+                multi_data_matching=multi_data_matching,
             )
 
         if len(self.input_files) < 1:
@@ -136,6 +139,7 @@ class OmniInput:
                     self.keyword,
                     self.filter_names,
                     filter_duplicated=self.filter_duplicated,
+                    multi_data_matching=self.multi_data_matching,
                 )
                 check_name_matching(
                     self.names,
