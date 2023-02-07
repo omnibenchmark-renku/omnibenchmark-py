@@ -6,6 +6,7 @@ from renku.domain_model.dataset import Dataset as RenkuDataset
 from renku.domain_model.dataset import DatasetFile as RenkuDatasetFile
 from renku.domain_model.entity import Entity
 from renku.ui.api.models.dataset import Dataset as ApiDataset
+from renku.ui.api.models.dataset import DatasetFile as ApiDatasetFile
 from renku.command.view_model.plan import (
     PlanViewModel,
     CommandInputViewModel,
@@ -149,6 +150,12 @@ def mock_renkuDatasetFile():
 
 
 @pytest.fixture
+def mock_renkuApiDatasetFile(mock_renkuDatasetFile):
+    mock_data_fi = ApiDatasetFile._from_dataset_file(mock_renkuDatasetFile)
+    return mock_data_fi
+
+
+@pytest.fixture
 def mock_renkuDataset(mock_renkuDatasetFile):
 
     mock_data = RenkuDataset(name="mock_dataset")
@@ -187,9 +194,9 @@ def mock_api_Dataset_2files(mock_renkuDataset_2files):
 
 
 @pytest.fixture
-def get_renkuDataset_List(monkeypatch, mock_renkuDataset):
+def get_renkuDataset_List(monkeypatch, mock_api_Dataset):
     def get_mock_list():
-        return [mock_renkuDataset]
+        return [mock_api_Dataset]
 
     # monkeypatch.setattr(
     #    renku.ui.api.models.dataset.Dataset,

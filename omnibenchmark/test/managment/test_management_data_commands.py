@@ -1,5 +1,6 @@
 from omnibenchmark.management import data_commands
 import requests
+import re
 
 import pytest
 
@@ -336,8 +337,6 @@ def test_check_orchestrator_existing(monkeypatch, mock_dataset_info):
 
 
 # get_data_url_by_keyword
-
-
 def test_get_data_url_by_keyword_no_datasets(mock_dataset_json, monkeypatch):
     class MockResponse:
         @staticmethod
@@ -350,3 +349,37 @@ def test_get_data_url_by_keyword_no_datasets(mock_dataset_json, monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
 
     assert data_commands.get_data_url_by_keyword("mock", "some/path") == ([], [])
+
+
+# link_files_by_prefix
+def test_link_files_by_prefix_existing_file(get_renkuDataset_List, capsys):
+    data_commands.link_files_by_prefix(
+        keyword="mock", prefix=["genes"], data_name="some", dry_run=True
+    )
+    captured = capsys.readouterr()
+    assert re.match(
+        r"Run link_files_by_prefix with dry_run = False to link the following files to some:\n\nsome/path/to/genes_file.txt*",
+        captured.out,
+    )
+
+
+def test_link_files_by_prefix_non_keyword(get_renkuDataset_List, capsys):
+    data_commands.link_files_by_prefix(
+        keyword="quatsch", prefix=["genes"], data_name="some", dry_run=True
+    )
+    captured = capsys.readouterr()
+    assert re.match(
+        r"Run link_files_by_prefix with dry_run = False to link the following files to some:\n\n\n",
+        captured.out,
+    )
+
+
+def test_link_files_by_prefix_prefix_string(get_renkuDataset_List, capsys):
+    data_commands.link_files_by_prefix(
+        keyword="mock", prefix="genes", data_name="some", dry_run=True
+    )
+    captured = capsys.readouterr()
+    assert re.match(
+        r"Run link_files_by_prefix with dry_run = False to link the following files to some:\n\nsome/path/to/genes_file.txt*",
+        captured.out,
+    )

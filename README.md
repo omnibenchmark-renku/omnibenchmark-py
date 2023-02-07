@@ -324,7 +324,10 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 ## Release History
 * 0.0.41
-    * New input argument "multi_data_matching" to explicitly allow matching files from multiple datasets
+    * New input argument "multi_data_matching" to explicitly allow matching files from multiple datasets.
+    * New function to link files to a dataset by prefix and keyword.
+    * FIX:
+    * Name checking returns conflicting dataset names.
 * 0.0.40
     * FIX:
     * file name matching for strings as file_type_dict values.

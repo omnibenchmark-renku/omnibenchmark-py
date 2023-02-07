@@ -66,12 +66,18 @@ def dataset_name_exist(name: str, kg_url: str) -> bool:
     if any(name in item["name"] for item in response) or any(
         item["name"] in name for item in response
     ):
+        conflicting = [
+            item["name"]
+            for item in response
+            if name in item["name"] or item["name"] in name
+        ]
         nl = "\n"
         name_list = set([item["name"] for item in response])
         print(
             f"A dataset with a complete match of {name} already exist.\n"
-            "Please specify a name without a complete match within:\n"
-            f"{nl}{nl.join(name_list)}"
+            f"Conflicting dataset name(s): {nl}{nl.join(conflicting)}.\n"
+            # "Please specify a name without a complete match within:\n"
+            # f"{nl}{nl.join(name_list)}"
         )
         return True
     return True if name in [item["name"] for item in response] else False

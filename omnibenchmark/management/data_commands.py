@@ -12,6 +12,7 @@ from omnibenchmark.renku_commands.datasets import (
 from omnibenchmark.utils.exceptions import InputError
 from omnibenchmark.management.data_checks import query_multipages
 import requests
+import re
 import os
 import urllib
 import gitlab
@@ -526,3 +527,40 @@ def unlink_dataset_files(out_files: List[str], dataset_name: str, remove: bool =
         for out_url in out_urls:
             if os.path.exists(out_url):
                 os.remove(out_url)
+
+
+def link_files_by_prefix(
+    keyword: str, prefix: List[str], data_name: str, dry_run: bool = False
+):
+    """Link files to a specific renku dataset, by specifying a keyword and the file prefixes.
+
+    Args:
+        keyword (str): Dataset keyword to select files from.
+        prefix (List[str]): Prefix to select files by.
+        data_name (str): Name of the dataset to link files to.
+        dry_run (bool, optional): Check which files would be added without linking them. Defaults to False.
+    """
+    link_list: List = []
+    prefix = [prefix] if not isinstance(prefix, List) else prefix  # type:ignore
+    datasets = renku_api.renku_dataset_list()
+    key_data = [
+        dataset
+        for dataset in datasets
+        if any(key in keyword for key in dataset.keywords)
+    ]
+    for data in key_data:
+        pat_list = [re.compile(pattern) for pattern in prefix]
+        pat_files = [
+            fi.path
+            for fi in data.files
+            if any(pattern.search(os.path.basename(fi.path)) for pattern in pat_list)
+        ]
+        link_list = link_list + pat_files
+    if dry_run:
+        nl = "\n"
+        print(
+            f"Run link_files_by_prefix with dry_run = False to link the following files to {data_name}:\n"
+            f"{nl}{nl.join(link_list)}"
+        )
+    else:
+        update_dataset_files(urls=link_list, dataset_name=data_name)
