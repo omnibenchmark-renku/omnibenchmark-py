@@ -10,6 +10,7 @@ from omnibenchmark.renku_commands.datasets import (
     renku_dataset_remove,
 )
 from omnibenchmark.utils.exceptions import InputError
+from omnibenchmark.utils.general import into_list
 from omnibenchmark.management.data_checks import query_multipages
 import requests
 import re
@@ -490,7 +491,7 @@ def update_dataset_files(urls: List[str], dataset_name: str):
         )
         return
     dataset = [data for data in datasets if data.name == dataset_name][0]
-    valid_urls = [url for url in urls if os.path.isfile(url)]
+    valid_urls = [url for url in into_list(urls) if os.path.isfile(url)]
     dataset_files = [fi.path for fi in dataset.files]
     add_urls = [url for url in valid_urls if url not in dataset_files]
     if len(add_urls) > 0:
