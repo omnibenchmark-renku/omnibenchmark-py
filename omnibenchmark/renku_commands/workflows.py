@@ -3,7 +3,7 @@
 from __future__ import annotations
 from typing import List, Optional
 from omnibenchmark.core.input_classes import PathLike
-from renku.command.run import run_command
+from renku.command.run import run_command_line_command
 from renku.command.workflow import execute_workflow_command, revert_activity_command
 from renku.command.update import update_command
 from renku.command.command_builder.command import CommandResult
@@ -55,7 +55,7 @@ def renku_workflow_run(
         creators, _ = construct_creators(creators)
 
     workflow = (
-        run_command()
+        run_command_line_command()
         .build()
         .execute(
             name=name,

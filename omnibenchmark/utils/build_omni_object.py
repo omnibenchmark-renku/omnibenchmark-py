@@ -348,5 +348,5 @@ def get_omni_object_from_yaml(yaml_file: PathLike) -> OmniObject:
     """
     with open(yaml_file) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-    check_type("config", config, ConfigDict)
+    check_type(config, ConfigDict)
     return build_omni_object_from_config(config)

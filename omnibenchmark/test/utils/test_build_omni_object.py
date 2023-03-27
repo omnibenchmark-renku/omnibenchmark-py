@@ -3,7 +3,7 @@ from omnibenchmark.core.output_classes import OmniCommand, OmniOutput
 from omnibenchmark.core.omni_object import OmniObject
 import omnibenchmark.utils.build_omni_object as omni
 from omnibenchmark.utils.exceptions import InputError
-from typeguard import check_type
+from typeguard import check_type, TypeCheckError
 import pytest
 import yaml
 
@@ -278,7 +278,7 @@ def test_build_omni_object_from_config_yaml_template_fun():
     with open(yaml_file) as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
     config["outputs"]["template_fun"] = dummy_fun
-    check_type("config", config, omni.ConfigDict)
+    check_type(config, omni.ConfigDict)
     omni_obj = omni.build_omni_object_from_config(config)
     assert isinstance(omni_obj, OmniObject)
 
@@ -308,7 +308,7 @@ def test_get_omni_object_from_yaml_random_key(monkeypatch, mock_config):
         return m_conf
 
     monkeypatch.setattr(yaml, "load", return_mock_config)
-    with pytest.raises(TypeError, match=r"extra key(s)*?"):
+    with pytest.raises(TypeCheckError, match=r"extra key(s)*?"):
         omni_obj = omni.get_omni_object_from_yaml(
             "omnibenchmark/test/utils/ex_config.yaml"
         )
@@ -321,7 +321,7 @@ def test_get_omni_object_from_yaml_type_mismatch(monkeypatch, mock_config):
         return m_conf
 
     monkeypatch.setattr(yaml, "load", return_mock_config)
-    with pytest.raises(TypeError, match=r"type of dict item*?"):
+    with pytest.raises(TypeCheckError, match=r"value of key 'name' of value of key 'data' of dict is not an instance of str"):
         omni_obj = omni.get_omni_object_from_yaml(
             "omnibenchmark/test/utils/ex_config.yaml"
         )

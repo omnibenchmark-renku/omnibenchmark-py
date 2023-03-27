@@ -35,7 +35,7 @@ def activity_plan_is_valid(
     valid_activities = [
         act
         for act in all_activities
-        if isinstance(act.association.plan.invalidated_at, type(None))
+        if act.association.plan.date_removed is None
     ]
     return output if len(valid_activities) >= 1 else None
 
@@ -82,7 +82,7 @@ def filter_valid_plans(plans: List[Plan]) -> List[Plan]:
     Returns:
         List[Plan]: A list of valid renku plans
     """
-    return [plan for plan in plans if isinstance(plan.invalidated_at, type(None))]
+    return [plan for plan in plans if plan.date_removed is None]
 
 
 def get_plan_output_values(plan: Plan) -> List[str]:
