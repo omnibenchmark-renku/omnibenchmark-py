@@ -16,7 +16,7 @@ def test_activity_plan_is_valid_invalid_activity(
     mock_activity, monkeypatch, act_gateway
 ):
 
-    mock_activity.association.plan.invalidated_at = "today"
+    mock_activity.association.plan.date_removed = "today"
 
     def get_mock_activity():
         return [mock_activity]
@@ -94,7 +94,7 @@ def test_filter_valid_plans_valid(mock_plan):
 
 
 def test_filter_valid_plans_valid_invalid(mock_plan):
-    mock_plan.invalidated_at = "today"
+    mock_plan.date_removed= "today"
     assert wflow_checks.filter_valid_plans([mock_plan]) == []
 
 
