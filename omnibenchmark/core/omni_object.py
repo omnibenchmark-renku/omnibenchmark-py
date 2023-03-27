@@ -106,7 +106,7 @@ class OmniObject(OmniRenkuInst):
         if self.dataset_name is None:
             self.dataset_name = self.name
 
-    def create_dataset(self) -> RenkuDataSet:
+    def create_dataset(self, token: Optional[str] = None) -> RenkuDataSet:
         """create renku-dataset defined by the attributes of the class instance
 
         Returns:
@@ -119,6 +119,7 @@ class OmniObject(OmniRenkuInst):
             title=self.title,
             description=self.description,
             keyword=self.keyword,
+            token=token
         )
         return renku_dataset
 
@@ -158,13 +159,15 @@ class OmniObject(OmniRenkuInst):
             )
 
     def update_object(
-        self, check_o_url: bool = True, n_latest: int = 9, all: bool = True
+        self, check_o_url: bool = True, n_latest: int = 9, all: bool = True, token: Optional[str] = None,
     ):
         """Update the objects inputs, parameter and output definition. Does not run or update workflows/activities.
         Args:
             check_o_url (bool): If linking to an orchestrator shall be checked.
                                 WARNING: If False ALL existing datasets with that keyword will be imported!
             n_latest (int): Number of latest pipelines to include into orchestrator checks
+            all (bool): If all dataset should be updated or only one (False)
+            token (string, optional): Token to access private repositories and dataset in those.
         """
         if not check_o_url:
             self.orchestrator = "placeholder/string"
@@ -189,6 +192,7 @@ class OmniObject(OmniRenkuInst):
                 check_o_url=check_o_url,
                 n_latest=n_latest,
                 all=all,
+                token=token
             )
         if self.parameter is not None and self.orchestrator is not None:
             self.parameter.update_parameter(
@@ -218,12 +222,13 @@ class OmniObject(OmniRenkuInst):
         )
         revert_run(out_files=out_files, dataset_name=self.dataset_name)
 
-    def check_updates(self, n_latest: int = 9, check_o_url: bool = True):
+    def check_updates(self, n_latest: int = 9, check_o_url: bool = True, token: Optional[str] = None,):
         """Shows what inputs are supposed to be updated- and imported upon omni_obj.update_object()
 
         Args:
             n_latest (int, optional): Number of latest pipelines to check for the orchestrator check. Defaults to 9.
             check_o_url (bool, optional): If the imported datasets have to be part of an orchestrator. Defaults to True.
+            token (string, optional): Token to access private repositories and dataset in those.
         """
 
         imp_list: List = []
@@ -280,6 +285,7 @@ class OmniObject(OmniRenkuInst):
                 gitlab_url=self.GIT_URL,
                 check_o_url=check_o_url,
                 n_latest=n_latest,
+                token=token
             )
 
             imp_list.append(imp_ids)

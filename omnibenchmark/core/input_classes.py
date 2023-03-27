@@ -109,6 +109,7 @@ class OmniInput:
         check_o_url: bool = True,
         n_latest: int = 9,
         all: bool = True,
+        token: Optional[str] = None,
     ):
         """Update datasets and files that belong to this OmniInput object.
            This will also import new Datasets with the specified keyword..
@@ -131,6 +132,7 @@ class OmniInput:
                     check_o_url=check_o_url,
                     n_latest=n_latest,
                     all=all,
+                    token=token
                 )
             if self.prefix is not None:
                 check_name_matching(self.names, self.prefix.keys())

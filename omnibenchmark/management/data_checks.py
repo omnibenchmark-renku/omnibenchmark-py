@@ -4,23 +4,37 @@ from renku.api import Activity, Project, Dataset
 from omnibenchmark.renku_commands import renku_api
 from omnibenchmark.utils.user_input_checks import flatten
 import requests
-from typing import Union, List, Mapping, Any
+from typing import Union, List, Mapping, Any, Optional
 import os
 
 
 def query_renku_api(
-    url: str, page_num: int, page_item: int = 100
+    url: str, page_num: int, page_item: int = 100, token: Optional[str] = None
 ) -> List[Mapping[Any, Any]]:
-    response = requests.get(url, params={"per_page": page_item, "page": page_num})
+    """Query renku REST API 
+
+    Args:
+        url (str): URL to query
+        page_num (int): Page number to query
+        page_item (int, optional): Number of items per page. Defaults to 100.
+        token (Optional[str], optional): Token to authenticate for querying private projects. Defaults to None.
+
+    Returns:
+        List[Mapping[Any, Any]]: Query response
+    """
+    if token is None:
+        response = requests.get(url, params={"per_page": page_item, "page": page_num})
+    else:
+        response = requests.get(url, params={"per_page": page_item, "page": page_num}, headers={'Authorization': 'Bearer {}'.format(token)})
     return response.json()
 
 
-def query_multipages(url: str, page_item: int = 100) -> List[Mapping[Any, Any]]:
+def query_multipages(url: str, page_item: int = 100, token: Optional[str] = None) -> List[Mapping[Any, Any]]:
     multi_page = True
     page_num = 1
     response: List = []
     while multi_page:
-        res = query_renku_api(url, page_num=page_num, page_item=page_item)
+        res = query_renku_api(url, page_num=page_num, page_item=page_item, token=token)
         page_num += 1
         if len(res) < page_item:
             multi_page = False
@@ -49,19 +63,20 @@ def renku_dataset_exist(name: str, path: Union[os.PathLike, str] = os.getcwd()) 
     return True if len(matches) >= 1 else False
 
 
-def dataset_name_exist(name: str, kg_url: str) -> bool:
+def dataset_name_exist(name: str, kg_url: str, token: Optional[str] = None) -> bool:
     """Check if a renku dataset with a defined name already exists in the knowledge base.
 
     Args:
         name (str): Name to query
         kg_url (str): Url of the knowledge base to query
+        token (Optional[str]): Access token to allow querying private projects and datasets within those
 
     Returns:
         bool: True/False, if a dataset with that name already exist
     """
 
     url = kg_url + "/datasets?query=" + name
-    response = query_multipages(url)
+    response = query_multipages(url=url, token=token)
     # Checks to ensure no complete name matching (Remove if file matching is moved to triplet store queries)
     if any(name in item["name"] for item in response) or any(
         item["name"] in name for item in response

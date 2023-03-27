@@ -28,6 +28,7 @@ def renku_dataset_create(
     creators: Optional[List[str]] = None,
     meta_data: Optional[Dict[str, Any]] = None,
     keyword: Optional[List[str]] = None,
+    token: Optional[str] = None
 ) -> RenkuDataSet:
     """Generate an empty renku dataset in the current project. Works in a renku project only.
 
@@ -54,7 +55,7 @@ def renku_dataset_create(
         print(f"Dataset {name} already exists in this repository.")
         return
 
-    if dataset_name_exist(name, kg_url):
+    if dataset_name_exist(name=name, kg_url=kg_url, token=token):
         print(f"Dataset {name} already taken. Please use a different name.")
         return
 
