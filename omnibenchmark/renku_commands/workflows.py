@@ -79,7 +79,7 @@ def renku_workflow_run(
 def renku_workflow_execute(
     name_or_id: str,
     set_params: List[str],
-    provider: str = "cwltool",
+    provider: str = "toil",
     config: Optional[str] = None,
     values: Optional[str] = None,
     skip_metadata_update: bool = False,
@@ -115,7 +115,7 @@ def renku_update_activity(
     update_all: bool = False,
     paths: Optional[List[PathLike]] = None,
     dry_run: bool = False,
-    provider: str = "cwltool",
+    provider: str = "toil",
     ignore_deleted: bool = True,
     config: Optional[str] = None,
     skip_metadata_update: bool = False,

@@ -28,6 +28,8 @@ def renku_dataset_create(
     creators: Optional[List[str]] = None,
     meta_data: Optional[Dict[str, Any]] = None,
     keyword: Optional[List[str]] = None,
+    storage: Optional[str] = None,
+    datadir: Optional[str] = None
 ) -> RenkuDataSet:
     """Generate an empty renku dataset in the current project. Works in a renku project only.
 
@@ -68,6 +70,8 @@ def renku_dataset_create(
             creators=creators,
             keywords=keyword,
             custom_metadata=meta_data,
+            storage=storage,
+            datadir=datadir,
         )
     )
     print(
@@ -77,7 +81,7 @@ def renku_dataset_create(
 
 
 def renku_dataset_import(
-    uri: str, name: Optional[str] = None, extract: bool = False, yes: bool = True
+    uri: str, name: Optional[str] = None, extract: bool = False, yes: bool = True, datadir: Optional[str] = None, **kwargs
 ):
     """Import renku dataset by url
 
@@ -105,7 +109,7 @@ def renku_dataset_import(
     result = (
         import_dataset_command()
         .build()
-        .execute(uri=uri, name=name, extract=extract, yes=yes)
+        .execute(uri=uri, name=name, extract=extract, yes=yes, datadir=datadir, **kwargs)
     )
 
     return result.output
@@ -118,7 +122,6 @@ def renku_dataset_update(
     exclude: Optional[List[str]] = None,
     ref: Optional[str] = None,
     delete: bool = True,
-    no_external: bool = True,
     no_local: bool = False,
     no_remote: bool = False,
     check_data_directory: bool = False,
@@ -135,7 +138,6 @@ def renku_dataset_update(
         exclude (Optional[List[str]], optional): Files to exclude from updating. Defaults to None.
         ref (Optional[str], optional): commit hash to update the dataset from. Defaults to None.
         delete (bool, optional): Delete files that do not exist in source. Defaults to True.
-        no_external (bool, optional): Only update internal datasets. Defaults to True.
         update_all (bool, optional): Update all dataset files. Defaults to False.
         dry_run (bool, optional): Dry run the update. Defaults to False.
 
@@ -176,7 +178,6 @@ def renku_dataset_update(
             exclude=exclude,
             ref=ref,
             delete=delete,
-            no_external=no_external,
             update_all=update_all,
             dry_run=dry_run,
             no_local=no_local,
@@ -197,6 +198,7 @@ def renku_add_to_dataset(
     create: bool = False,
     datadir: Optional[Union[str, Path]] = None,
     destination: Optional[List[str]] = None,
+    **kwargs,
 ) -> Optional[RenkuDataSet]:
     """Add files to renku dataset
 
@@ -235,6 +237,7 @@ def renku_add_to_dataset(
             create=create,
             destination=destination,
             datadir=datadir,
+            **kwargs,
         )
     )
     return result
