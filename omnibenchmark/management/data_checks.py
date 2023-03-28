@@ -90,10 +90,11 @@ def find_activities_with_missing_inputs() -> List[Activity]:
         List[Activity]: Activities that have missing input files linked
     """
     (
-        outdated_generations,
+        outdated_outputs,
         outdated_activities,
         modified_inputs,
         deleted_inputs,
+        modified_hidden_inputs
     ) = Project().status()
     return Activity.filter(inputs=list(deleted_inputs))
 
