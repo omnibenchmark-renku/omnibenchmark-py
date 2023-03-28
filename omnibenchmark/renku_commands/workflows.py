@@ -10,6 +10,7 @@ from renku.command.command_builder.command import CommandResult
 from renku.core import errors
 from renku.core.util.metadata import construct_creators
 from renku.command.format.activity import tabulate_activities
+from renku.core.workflow.model.concrete_execution_graph import ExecutionGraph
 from omnibenchmark.management.general_checks import is_renku_project
 import logging
 
@@ -180,3 +181,6 @@ def renku_workflow_revert(
         raise errors.ParameterError(
             "Activity has downstream dependent activities: Pass '--force' if you want to revert the activity anyways."
         )
+
+
+#def renku_update_activities_parallel():

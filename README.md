@@ -323,6 +323,9 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.42
+    * Adapt to renku version 2.3.2
+    * Enable parallel execution of activities
 * 0.0.41
     * New input argument "multi_data_matching" to explicitly allow matching files from multiple datasets.
     * New function to link files to a dataset by prefix and keyword.
