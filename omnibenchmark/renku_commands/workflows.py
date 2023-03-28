@@ -183,4 +183,3 @@ def renku_workflow_revert(
         )
 
 
-#def renku_update_activities_parallel():

@@ -226,16 +226,22 @@ def manage_renku_activities(
         outputs.file_mapping = []
 
     no_activities = [out for out in outputs.file_mapping if out not in activity_map]
+    up_list=[]
 
     for out_map in no_activities:
         create_activity(out_map, omni_plan)
         if save:
             renku_save(message="new activity, no image rebuild")
 
+    # get output paths of all activities to be updated
     for activity in activity_map:
-        update_activity(activity)
-        if save:
-            renku_save(message="update activity, no image rebuild")
+        if activity["output_files"] is not None:
+            out_paths = list(activity["output_files"].values())
+            up_list.extend(out_paths)
+    
+    # update activities in parallel       
+    if len(up_list) > 0:
+        omni_wflow.renku_update_activity(paths=up_list)
 
 
 def check_output_directories(out_files: List[str]):
