@@ -1,6 +1,6 @@
 """Commands related to execute a script with renku workflow/run commands"""
 
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Mapping
 from omnibenchmark.core.input_classes import OutMapping
 from omnibenchmark.utils.auto_run import (
     get_file_mapping_from_out_files,
@@ -21,11 +21,17 @@ from omnibenchmark.utils.user_input_checks import (
 from omnibenchmark.core.output_classes import OmniCommand, OmniOutput, OmniPlan
 from omnibenchmark.renku_commands.general import renku_save
 from renku.command.view_model.plan import PlanViewModel
+from renku.domain_model.workflow.plan import AbstractPlan
 from renku.api import Activity, Plan
+from renku.ui.api.util import get_plan_gateway
 from renku.domain_model.project_context import project_context
+from renku.core.workflow.value_resolution import ValueResolver
+from renku.core.workflow.model.concrete_execution_graph import ExecutionGraph
+from renku.core import errors
 import os
 from os import PathLike
 import logging
+from deepmerge import always_merger
 
 logger = logging.getLogger("omnibenchmark.management.run_commands")
 
@@ -71,6 +77,49 @@ def create_activity(out_map: OutMapping, omni_plan: OmniPlan):
     workflow = omni_wflow.renku_workflow_execute(name_or_id=plan.id, set_params=params)
     return workflow
 
+
+def update_workflow_parameter(out_map: OutMapping, workflow: AbstractPlan, map_dict: Optional[Mapping], omni_plan: OmniPlan):
+    file_dict = get_file_type_dict(out_map)
+    if map_dict is None or any(
+        file_type not in list(map_dict.keys()) for file_type in list(file_dict.keys())
+    ):
+        raise NameError(
+            f"Could not assign all workflow items from: ${omni_plan.param_mapping}."
+            f'Please check "renku workflow show ${omni_plan.plan.name}".'
+            f"Update OmniObject.omni_plan.param_mapping accordingly."
+        )
+    params = [
+        map_dict[str(file_type)] + "=" + str(file_path)
+        for file_type, file_path in file_dict.items()
+    ]
+    # apply the provided parameter settings provided by user
+    override_params: Mapping = dict()
+
+    for param in params:
+        name, value = param.split("=", maxsplit=1)
+        keys = name.split(".")
+        set_param = reduce(lambda x, y: {y: x}, reversed(keys), value)  # type: ignore
+        override_params = always_merger.merge(override_params, set_param)
+    
+    rv = ValueResolver.get(workflow, override_params)
+    workflow = rv.apply()
+    return workflow
+
+
+
+def create_execution_graph(out_map_list: List[OutMapping], omni_plan: OmniPlan):
+    #Get and check plan models
+    plan_gateway = get_plan_gateway()
+    plan = omni_plan.plan
+    workflow = plan_gateway.get_by_name_or_id(plan.id)
+    if workflow.deleted:
+        raise errors.ParameterError(f"The specified workflow '{plan.id}' cannot be found.")
+    
+    map_dict = omni_plan.param_mapping
+    workflow_list = [update_workflow_parameter(out_map = out_map, workflow= workflow, map_dict=map_dict, omni_plan=omni_plan) for out_map in out_map_list]
+    graph = ExecutionGraph(workflow_list, virtual_links=True)
+    return graph
+        
 
 def manage_renku_plan(
     omni_plan: Optional[OmniPlan],
