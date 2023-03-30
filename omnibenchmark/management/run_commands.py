@@ -7,7 +7,7 @@ from omnibenchmark.utils.auto_run import (
     get_file_type_dict,
     get_file_name_dict,
 )
-from renku.domain_model.workflow.plan import Plan as PlanDomainModel
+
 from omnibenchmark.utils.exceptions import InputError, ParameterError
 from omnibenchmark.management import wflow_checks as wflow
 from omnibenchmark.management.data_commands import unlink_dataset_files
@@ -19,7 +19,6 @@ from omnibenchmark.utils.user_input_checks import (
     flatten,
 )
 from omnibenchmark.core.output_classes import OmniCommand, OmniOutput, OmniPlan
-from omnibenchmark.renku_commands.general import renku_save
 from renku.command.view_model.plan import PlanViewModel
 from renku.domain_model.workflow.plan import AbstractPlan
 from renku.api import Activity, Plan
@@ -32,6 +31,7 @@ import os
 from os import PathLike
 import logging
 from deepmerge import always_merger
+from networkx import DiGraph
 
 logger = logging.getLogger("omnibenchmark.management.run_commands")
 
@@ -78,7 +78,21 @@ def create_activity(out_map: OutMapping, omni_plan: OmniPlan):
     return workflow
 
 
-def update_workflow_parameter(out_map: OutMapping, workflow: AbstractPlan, map_dict: Optional[Mapping], omni_plan: OmniPlan):
+def update_workflow_parameter(out_map: OutMapping, workflow: AbstractPlan, map_dict: Optional[Mapping], omni_plan: OmniPlan) -> AbstractPlan:
+    """Update the workflow to override existing outputs, inputs and parameter with those specified in out_map 
+
+    Args:
+        out_map (OutMapping): New out mappings to use.
+        workflow (AbstractPlan): Plan to replace values in.
+        map_dict (Optional[Mapping]): Mapping of file types specified in out_map and their corresponding (renku) names in the workflow.
+        omni_plan (OmniPlan): Plan object inclusding mapping
+
+    Raises:
+        NameError: If the mapping is not correct
+
+    Returns:
+        AbstractPlan: Plan object with updated values.
+    """
     file_dict = get_file_type_dict(out_map)
     if map_dict is None or any(
         file_type not in list(map_dict.keys()) for file_type in list(file_dict.keys())
@@ -107,7 +121,19 @@ def update_workflow_parameter(out_map: OutMapping, workflow: AbstractPlan, map_d
 
 
 
-def create_execution_graph(out_map_list: List[OutMapping], omni_plan: OmniPlan):
+def create_execution_graph(out_map_list: List[OutMapping], omni_plan: OmniPlan) -> DiGraph:
+    """Create a DiGraph object that maps all specified output mappings to the specified plan
+
+    Args:
+        out_map_list (List[OutMapping]): List of output mappings to map to the graph
+        omni_plan (OmniPlan): Plan to map output mappings to
+
+    Raises:
+        errors.ParameterError: If the plan is not valid
+
+    Returns:
+        DiGraph: Graph specifying the activities to generate all outputs
+    """
     #Get and check plan models
     plan_gateway = get_plan_gateway()
     plan = omni_plan.plan
@@ -257,7 +283,7 @@ def get_all_output_file_names(output: OmniOutput) -> List[str]:
 
 
 def manage_renku_activities(
-    outputs: OmniOutput, omni_plan: OmniPlan, save: bool = False
+    outputs: OmniOutput, omni_plan: OmniPlan, provider: str = "toil", config: Optional[str] = None,
 ):
     """Manage renku activities by updating existing ones and generating new activities for output files without.
 
@@ -277,10 +303,10 @@ def manage_renku_activities(
     no_activities = [out for out in outputs.file_mapping if out not in activity_map]
     up_list=[]
 
-    for out_map in no_activities:
-        create_activity(out_map, omni_plan)
-        if save:
-            renku_save(message="new activity, no image rebuild")
+    # create new activities:
+    if len(no_activities) > 0:
+        graph = create_execution_graph(no_activities, omni_plan)
+        omni_wflow.mod_renku_execute_workflow_graph(dag=graph.workflow_graph, provider=provider, config=config)
 
     # get output paths of all activities to be updated
     for activity in activity_map:
@@ -290,7 +316,7 @@ def manage_renku_activities(
     
     # update activities in parallel       
     if len(up_list) > 0:
-        omni_wflow.renku_update_activity(paths=up_list)
+        omni_wflow.renku_update_activity(paths=up_list, provider=provider, config=config)
 
 
 def check_output_directories(out_files: List[str]):

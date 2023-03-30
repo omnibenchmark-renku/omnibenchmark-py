@@ -10,8 +10,10 @@ from renku.command.command_builder.command import CommandResult
 from renku.core import errors
 from renku.core.util.metadata import construct_creators
 from renku.command.format.activity import tabulate_activities
-from renku.core.workflow.model.concrete_execution_graph import ExecutionGraph
+from renku.core.workflow.execute import execute_workflow_graph
+from renku.command.command_builder.command import Command
 from omnibenchmark.management.general_checks import is_renku_project
+from networkx import DiGraph
 import logging
 
 logger = logging.getLogger("omnibenchmark.renku_commands")
@@ -183,3 +185,38 @@ def renku_workflow_revert(
         )
 
 
+def execute_workflow_graph_command(skip_metadata_update: bool): 
+    """Wrap execute workflow graph into a renku command for parameter injection
+
+    Args:
+        skip_metadata_update (bool): If renku meta data should be updated (if not triples will not be send to the KG)
+
+    Returns:
+        Command: Renku command
+    """
+    command = Command().command(execute_workflow_graph).require_migration()
+    if skip_metadata_update:
+        command = command.with_database(write=False)
+    else:
+        command = command.with_database(write=True).with_commit()
+    return command
+
+
+def mod_renku_execute_workflow_graph(dag: DiGraph, provider: str = "toil", config: Optional[str] = None, skip_metadata_update: bool = False):
+    """Execute workflow graph 
+
+    Args:
+        dag (DiGraph): A graph object with all activities to generate
+        provider (str, optional): Workflow runner to use. Defaults to "toil".
+        config (Optional[str], optional): Path to config file to specify provider configuration. Defaults to None.
+        skip_metadata_update (bool, optional): If renku meta data should be updated (if not triples will not be send to the KG). Defaults to False.
+    """
+    result = (
+        execute_workflow_graph_command(skip_metadata_update=skip_metadata_update)
+        .build()
+        .execute(
+            dag=dag, 
+            provider=provider, 
+            config=config,
+        )
+    )
