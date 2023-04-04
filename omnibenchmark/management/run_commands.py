@@ -27,6 +27,7 @@ from renku.domain_model.project_context import project_context
 from renku.core.workflow.value_resolution import ValueResolver
 from renku.core.workflow.model.concrete_execution_graph import ExecutionGraph
 from renku.core import errors
+from functools import reduce
 import os
 from os import PathLike
 import logging
