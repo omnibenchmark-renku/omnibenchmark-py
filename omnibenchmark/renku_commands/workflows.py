@@ -3,14 +3,17 @@
 from __future__ import annotations
 from typing import List, Optional
 from omnibenchmark.core.input_classes import PathLike
-from renku.command.run import run_command
+from renku.command.run import run_command_line_command
 from renku.command.workflow import execute_workflow_command, revert_activity_command
 from renku.command.update import update_command
 from renku.command.command_builder.command import CommandResult
 from renku.core import errors
 from renku.core.util.metadata import construct_creators
 from renku.command.format.activity import tabulate_activities
+from renku.core.workflow.execute import execute_workflow_graph
+from renku.command.command_builder.command import Command
 from omnibenchmark.management.general_checks import is_renku_project
+from networkx import DiGraph
 import logging
 
 logger = logging.getLogger("omnibenchmark.renku_commands")
@@ -55,7 +58,7 @@ def renku_workflow_run(
         creators, _ = construct_creators(creators)
 
     workflow = (
-        run_command()
+        run_command_line_command()
         .build()
         .execute(
             name=name,
@@ -79,7 +82,7 @@ def renku_workflow_run(
 def renku_workflow_execute(
     name_or_id: str,
     set_params: List[str],
-    provider: str = "cwltool",
+    provider: str = "toil",
     config: Optional[str] = None,
     values: Optional[str] = None,
     skip_metadata_update: bool = False,
@@ -115,7 +118,7 @@ def renku_update_activity(
     update_all: bool = False,
     paths: Optional[List[PathLike]] = None,
     dry_run: bool = False,
-    provider: str = "cwltool",
+    provider: str = "toil",
     ignore_deleted: bool = True,
     config: Optional[str] = None,
     skip_metadata_update: bool = False,
@@ -180,3 +183,40 @@ def renku_workflow_revert(
         raise errors.ParameterError(
             "Activity has downstream dependent activities: Pass '--force' if you want to revert the activity anyways."
         )
+
+
+def execute_workflow_graph_command(skip_metadata_update: bool): 
+    """Wrap execute workflow graph into a renku command for parameter injection
+
+    Args:
+        skip_metadata_update (bool): If renku meta data should be updated (if not triples will not be send to the KG)
+
+    Returns:
+        Command: Renku command
+    """
+    command = Command().command(execute_workflow_graph).require_migration()
+    if skip_metadata_update:
+        command = command.with_database(write=False)
+    else:
+        command = command.with_database(write=True).with_commit()
+    return command
+
+
+def mod_renku_execute_workflow_graph(dag: DiGraph, provider: str = "toil", config: Optional[str] = None, skip_metadata_update: bool = False):
+    """Execute workflow graph 
+
+    Args:
+        dag (DiGraph): A graph object with all activities to generate
+        provider (str, optional): Workflow runner to use. Defaults to "toil".
+        config (Optional[str], optional): Path to config file to specify provider configuration. Defaults to None.
+        skip_metadata_update (bool, optional): If renku meta data should be updated (if not triples will not be send to the KG). Defaults to False.
+    """
+    result = (
+        execute_workflow_graph_command(skip_metadata_update=skip_metadata_update)
+        .build()
+        .execute(
+            dag=dag, 
+            provider=provider, 
+            config=config,
+        )
+    )
