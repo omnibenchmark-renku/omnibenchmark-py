@@ -2,7 +2,7 @@ import gitlab
 from gitlab.v4.objects.pipelines import ProjectPipeline
 from gitlab.v4.objects.projects import Project
 from omnibenchmark.management.data_commands import get_project_info_from_url
-from typing import List, Optional
+from typing import List, Optional, Mapping, Union
 import base64
 import yaml
 
@@ -12,17 +12,19 @@ def get_orchestrator_projects_from_cicd_yaml(
     gitlab_url: str = "https://renkulab.io/gitlab",
     target_branches: List[str] = ["master", "main"],
     exclude_stages: List[str] = ["build"],
-) -> List[str]:
+    return_stages: bool = False,
+) -> Union[Mapping, List[str]]:
     """Get all projects associated to an orchestrator from the orchestrators gitlab cicd yaml file
 
     Args:
         o_url (str): Orchestrator url
-        gitlab_url (_type_, optional): Gitlab url. Defaults to "https://renkulab.io/gitlab".
+        gitlab_url (str): Gitlab url. Defaults to "https://renkulab.io/gitlab".
         target_branches (List[str], optional): branch(es) to use. Defaults to ["master", "main"].
         exclude_stages (List[str], optional): Stages to ignore. Defaults to ["build"].
+        return_stages (bool): If stages should be returned as well.    
 
     Returns:
-        List[str]: Project urls associated to the
+        Union[Mapping, List[str]]: Project urls associated to the orchestrator (with corresponding stages, if return_stages=True)
     """
     o_info = get_project_info_from_url(o_url)
     renku_git = gitlab.Gitlab(gitlab_url)
@@ -42,7 +44,10 @@ def get_orchestrator_projects_from_cicd_yaml(
         and all(trigger_k in run_val.keys() for trigger_k in trigger_keys)
         and run_val["stage"] in stages
     }
-    return [proc["trigger"]["project"] for proc in process.values()]
+    if return_stages:
+        return {proc["trigger"]["project"]: proc["stage"] for proc in process.values()}
+    else:
+        return [proc["trigger"]["project"] for proc in process.values()]
 
 
 def get_project_infos(
