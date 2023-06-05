@@ -1,5 +1,6 @@
 from omnibenchmark.management import general_checks
 from omnibenchmark.utils.exceptions import InputError
+from renku.core.errors import RequestError
 import pytest
 import requests
 
@@ -14,42 +15,47 @@ def test_is_renku_project_for_non_exist_dir():
 
 
 ### Test find_orchestrator
-def test_find_orchestrator_matching_key(monkeypatch, mock_html_content):
-    class MockResponse:
-        def __init__(self):
-            self.content = mock_html_content
+def test_find_orchestrator_matching_key(monkeypatch, mock_response_essential):
 
     def mock_get(*args, **kwargs):
-        return MockResponse()
+        return mock_response_essential
 
     monkeypatch.setattr(requests, "get", mock_get)
     assert (
-        general_checks.find_orchestrator("omni_batch")
-        == "https://renkulab.io/knowledge-graph/projects/omnibenchmark/orchestrator"
+        general_checks.find_orchestrator("explicit")
+        == "https://mocklab.io/kg/projects/another-orchestrator-path"
+    )
+
+### Test find_orchestrator multiple benchmark keys
+def test_find_orchestrator_multi_matching_key(monkeypatch, mock_response_essential):
+
+    def mock_get(*args, **kwargs):
+        return mock_response_essential
+
+    monkeypatch.setattr(requests, "get", mock_get)
+    assert (
+        general_checks.find_orchestrator("one")
+        == "https://mocklab.io/kg/projects/orchestrator-path"
     )
 
 
-def test_find_orchestrator_not_existing_header(monkeypatch, mock_html_content):
-    class MockResponse:
-        def __init__(self):
-            self.content = mock_html_content
+def test_find_orchestrator_not_existing_url(monkeypatch, mock_response_essential):
 
     def mock_get(*args, **kwargs):
-        return MockResponse()
+        mock_resp = mock_response_essential
+        mock_resp.status_code = 404
+        return mock_resp
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    with pytest.raises(InputError, match=r"Could not find columns with names new*?"):
-        general_checks.find_orchestrator("omni_batch", key_header="new")
+    with pytest.raises(RequestError, match=r"Requested url not available:*?"):
+        general_checks.find_orchestrator("omni_batch")
 
 
-def test_find_orchestrator_not_existing_key(monkeypatch, mock_html_content):
-    class MockResponse:
-        def __init__(self):
-            self.content = mock_html_content
-
+def test_find_orchestrator_not_existing_key(monkeypatch, mock_response_essential):
+    
     def mock_get(*args, **kwargs):
-        return MockResponse()
+        return mock_response_essential
 
     monkeypatch.setattr(requests, "get", mock_get)
     assert general_checks.find_orchestrator("omni") is None
