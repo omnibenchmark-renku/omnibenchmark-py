@@ -276,7 +276,6 @@ class OmniObject(OmniRenkuInst):
                 o_url=self.orchestrator,
                 filter_ex=True,
                 query_url=self.DATA_QUERY_URL,
-                data_url=self.DATA_URL,
                 gitlab_url=self.GIT_URL,
                 check_o_url=check_o_url,
                 n_latest=n_latest,

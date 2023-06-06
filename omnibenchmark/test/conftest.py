@@ -65,6 +65,26 @@ def mock_dataset_json():
 
 
 @pytest.fixture
+def mock_entity_json():
+    return [
+        {
+            "_links": [{"rel": "details", "href": "https://this_is_a_mo.ck"}],
+            "description": "A mock dataset that does not exoist in real",
+            "type": "dataset",
+            "name": "A mock dataset",
+            "slug": "mock_dataset",
+            "visibility": "public",
+            "creators": ["Tesuto Mock"],
+            "matchingScore": 3.455,
+            "date": "2021-06-10T07:17:51.817557Z",
+            "projectsCount": 0,
+            "keywords": ["mock"],
+            "images": [],
+        }
+    ]
+
+
+@pytest.fixture
 def mock_dataset_info():
     return {
         "_links": [

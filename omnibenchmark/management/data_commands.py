@@ -22,28 +22,31 @@ from iteration_utilities import unique_everseen  # type: ignore
 
 
 # Find datasets by string
-def query_datasets_by_string(
+def query_entities_by_string(
     string: str,
-    url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
+    entity: str = "dataset",
+    url: str = "https://renkulab.io/knowledge-graph/entities?query=",
     page_item: int = 100,
 ) -> List[Mapping[Any, Any]]:
-    """Query datasets in the knowledge base by a string.
+    """Query entities (e.g. datasets) in the knowledge base by a string.
 
     Args:
-        string (str): String to query datasets for
-        url (str): URL to the knowledgebase dataset query API. Default "https://renkulab.io/knowledge-graph/datasets?query=".
+        string (str): String to query entity for
+        entity (str): Entity type to query. Default "dataset" 
+        url (str): URL to the knowledgebase query API. Default "https://renkulab.io/knowledge-graph/entities?query=".
 
     Returns:
-        List[Mapping[Any, Any]]: List of all datasets associated to that string with their metadata
+        List[Mapping[Any, Any]]: List of all entities associated to that string with their metadata
     """
     query_url = url + string
-    return query_multipages(url=query_url, page_item=page_item)
+    entities = query_multipages(url=query_url, page_item=page_item)
+    return [ent for ent in entities if ent.get("type") == entity]
 
 
 # Find dataset by match of property
 def query_datasets_by_property(
     string: str,
-    url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
+    url: str = "https://renkulab.io/knowledge-graph/entities?query=",
     match_string: Optional[str] = None,
     property_name: str = "keywords",
 ) -> List[Mapping[Any, Any]]:
@@ -51,7 +54,7 @@ def query_datasets_by_property(
 
     Args:
         string (str): String to query datasets for
-        url (str): URL to the knowledgebase dataset query API. Default "https://renkulab.io/knowledge-graph/datasets?query=".
+        url (str): URL to the knowledgebase dataset query API. Default "https://renkulab.io/knowledge-graph/entities?query=".
         match_string (Optional[str], optional): String to filter matching properties by.
                                                 Will be the same as the query string, if None.
                                                 Defaults to None.
@@ -63,7 +66,7 @@ def query_datasets_by_property(
     """
     if match_string is None:
         match_string = string
-    all_data_json = query_datasets_by_string(string=string, url=url)
+    all_data_json = query_entities_by_string(string=string, entity = "dataset", url=url)
     matched_dataset: List = []
     for dataset in all_data_json:
         data_prop = (
@@ -93,7 +96,7 @@ def filter_existing(data_json: List) -> Tuple[List, List]:
     datasets = renku_api.renku_dataset_list()
     name_list = [dataset.name for dataset in datasets]
     for data in data_json:
-        if data["name"] in name_list:
+        if data["slug"] in name_list:
             update_list.append(data)
         else:
             import_list.append(data)
@@ -101,7 +104,7 @@ def filter_existing(data_json: List) -> Tuple[List, List]:
 
 
 # Apply predefined filter
-def import_filter(data_json: List, filter_names: Optional[List[str]] = None) -> List:
+def import_filter(data_json: List, filter_names: Optional[List[str]] = None) -> List[Mapping[Any, Any]]:
     """Filter import datasets by specified names.
 
     Args:
@@ -114,25 +117,23 @@ def import_filter(data_json: List, filter_names: Optional[List[str]] = None) -> 
     if filter_names is None:
         return data_json
     else:
-        return [data for data in data_json if data["name"] not in filter_names]
+        return [data for data in data_json if data["slug"] not in filter_names]
 
 
 # Get dataset field by matching property
-def get_field_by_dataset_property(
+def get_ref_by_dataset_property(
     string: str,
-    url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
+    url: str = "https://renkulab.io/knowledge-graph/entities?query=",
     property_name: str = "keywords",
-    field: str = "identifier",
     filter_ex: bool = False,
     filter_names: Optional[List[str]] = None,
 ) -> Tuple[List[str], List[str]]:
-    """Get a specific field of all datasets that match a specified query.
+    """Get the dataset reference of all datasets that match a specified query.
 
     Args:
         string (str): String to query datasets for
         url (str, optional): URL to the knowledgebase dataset query API.
         property_name (str, optional): Dataset property to match with the query string. Defaults to "keywords".
-        field (str, optional): Dataset field to return. Defaults to "identifier".
         filter_ex (bool, optional): If true return the name of all existing datasets instead. Defaults to False.
         filter_names (Optional[List[str]], optional): Names to be filtered from the dataset list. Defaults to None.
 
@@ -149,26 +150,24 @@ def get_field_by_dataset_property(
         data_json, up_json = filter_existing(data_json=data_json)
 
     return (
-        [dataset[field] for dataset in data_json],
-        [dataset["name"] for dataset in up_json],
+        [dataset.get("_links")[0].get("href") for dataset in data_json],    #type:ignore
+        [dataset["slug"] for dataset in up_json],
     )
 
 
 # Get data info by dataset id
-def get_data_info_by_id(
-    id: str, url: str = "https://renkulab.io/knowledge-graph/datasets/"
+def get_data_info_by_url(
+    url: str
 ) -> Mapping[Any, Any]:
-    """Get dataset metadat by dataset id
+    """Get dataset metadata by dataset id
 
     Args:
-        id (str): Renku dataset identifier
-        url (str, optional): URL to the knowledgebase dataset API. Defaults to "https://renkulab.io/knowledge-graph/datasets/".
+        url (str): Dataset url.
 
     Returns:
         Mapping[Any, Any]: Dataset metadata (e.g., name, description, keywords, links, creator, ...)
     """
-    query_url = url + id
-    response = requests.get(query_url)
+    response = requests.get(url)
     return response.json()
 
 
@@ -211,6 +210,22 @@ def find_dataset_linked_to_wflow(
     return origin_info
 
 
+def get_dataset_from_project(info_list: List[Mapping], project_url: str) -> List:
+    """Identify the original dataset infos connected to a project url from a given list and the project url
+
+    Args:
+        info_list (Mapping): List of dataset infos potentially linked to the project url
+        project_url (str): Project url to check
+
+    Returns:
+        List: Dataset infos related to the project url
+    """
+    all_datasets = query_multipages(url=project_url + "/datasets")
+    all_ids = [dat["identifier"] for dat in all_datasets]
+    return [info for info in info_list if info["identifier"] in all_ids]
+
+
+
 def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
     """Filter a list of datasets to get only the original dataset if their are multiple datasets found with the same name.
 
@@ -221,7 +236,7 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
         List[Mapping]: Dataset list with unique datasets
     """
     info_list = list(unique_everseen(info_list))
-    name_list = [info["name"] for info in info_list]
+    name_list = [info.get("name") for info in info_list]
     dup_names = set(
         [info_name for info_name in name_list if name_list.count(info_name) > 1]
     )
@@ -230,16 +245,12 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
         dup_info = [info for info in info_list if info["name"] == dup]
         dup_project = set([info["project"]["_links"][0]["href"] for info in dup_info])
         if len(dup_project) == 1:
-            all_datasets = query_multipages(url=list(dup_project)[0] + "/datasets")
-            all_ids = [dat["identifier"] for dat in all_datasets]
-            origin_info = [info for info in dup_info if info["identifier"] in all_ids]
+            origin_info = get_dataset_from_project(info_list = dup_info, project_url = list(dup_project)[0])
         else:
             o_info = find_dataset_linked_to_wflow(dup_info)
             o_project = set([info["project"]["_links"][0]["href"] for info in o_info])
             if len(o_project) == 1:
-                all_datasets = query_multipages(url=list(o_project)[0] + "/datasets")
-                all_ids = [dat["identifier"] for dat in all_datasets]
-                origin_info = [info for info in o_info if info["identifier"] in all_ids]
+                origin_info = get_dataset_from_project(info_list = o_info, project_url = list(o_project)[0])
             else:
                 origin_info = []
         if len(origin_info) != 1:
@@ -254,28 +265,25 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
 
 
 # Get origin dataset ids
-def get_origin_dataset_ids(
-    ids: List[str], url: str = "https://renkulab.io/knowledge-graph/datasets/"
+def get_origin_dataset_infos(
+    refs: List[str]
 ) -> List[Mapping]:
-    """Filter a list of dataset ids for original dataset ids
+    """Filter a list of dataset urls for original dataset urls
        (datasets associated to projects, where they were generated and not imported).
 
     Args:
-        ids (List[str]): List of dataset ids to filter
-        url (str, optional): URL to the knowledgebase dataset API. Defaults to "https://renkulab.io/knowledge-graph/datasets/".
+        refs (List[str]): List of dataset references (urls) to filter
 
     Returns:
         List[Mapping]: Filtered datasets and their metadata
     """
     all_infos: List = []
-    for data_id in ids:
-        data_info = get_data_info_by_id(id=data_id, url=url)
+    for data_url in refs:
+        data_info = get_data_info_by_url(url=data_url)
         if "sameAs" in data_info.keys():
             if not data_info["sameAs"] == data_info["url"]:
-                same_id = data_info["sameAs"].split("/")[
-                    -1
-                ]  # Unstable string manipulation??
-                data_info = get_data_info_by_id(id=same_id, url=url)
+                same_url = data_info["sameAs"]
+                data_info = get_data_info_by_url(url=same_url)
         if data_info not in all_infos and "name" in data_info.keys():
             all_infos.append(data_info)
     origin_infos = filter_duplicated_names(all_infos)
@@ -286,7 +294,7 @@ def get_project_info_from_url(project_url: str) -> Mapping[Any, Any]:
     """Get project metadata from url
 
     Args:
-        project_url (str): URL to the knowledgebase dproject URL.
+        project_url (str): URL to the knowledgebase project URL.
 
     Returns:
         Mapping[Any, Any]: Project metadata dictionary
@@ -346,8 +354,7 @@ def get_data_url_by_keyword(
     o_url: str,
     filter_ex: bool = False,
     filter_names: Optional[List[str]] = None,
-    query_url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
-    data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
+    query_url: str = "https://renkulab.io/knowledge-graph/entities?query=",
     gitlab_url: str = "https://renkulab.io/gitlab",
     check_o_url: bool = True,
     n_latest: int = 9,
@@ -360,25 +367,24 @@ def get_data_url_by_keyword(
         filter_ex (bool, optional): If existing datasets should be filtered automatically. Defaults to False.
         filter_names (Optional[List[str]], optional): Names to be filtered from the dataset list. Defaults to None.
         query_url (str, optional): URL to the knowledgebase dataset query API.
-        data_url (str, optional): URL to the knowledgebase dataset API.
         gitlab_url (str, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
 
     Returns:
         Tuple[List[str], List[str]]: 1. List with all matching non-existing dataset urls,
                                      2. List with all matching existig dataset urls.
     """
-    all_ids, up_exist = get_field_by_dataset_property(
+    all_ids, up_exist = get_ref_by_dataset_property(
         string=keyword, url=query_url, filter_ex=filter_ex, filter_names=filter_names
     )
     up_exist = list(unique_everseen(up_exist))
     if len(all_ids) + len(up_exist) < 1:
         print(f"WARNING:No datasets found with keyword {keyword}")
         return [], []
-    origin_infos = get_origin_dataset_ids(ids=all_ids, url=data_url)
+    origin_infos = get_origin_dataset_infos(refs=all_ids)
     if len(origin_infos) + len(up_exist) < 1:
         print(
             "WARNING:Could not identify dataset sources.\n"
-            f"Please check each of {data_url}{all_ids} to make sure they are the intended source"
+            f"Please check each of {all_ids} to make sure they are the intended source"
         )
         return [], []
     if check_o_url:
@@ -429,8 +435,7 @@ def update_datasets_by_keyword(
     o_url: str,
     filter_ex: bool = True,
     filter_names: Optional[List[str]] = None,
-    query_url: str = "https://renkulab.io/knowledge-graph/datasets?query=",
-    data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
+    query_url: str = "https://renkulab.io/knowledge-graph/entities?query=",
     gitlab_url: str = "https://renkulab.io/gitlab",
     check_o_url: bool = True,
     n_latest: int = 9,
@@ -444,7 +449,6 @@ def update_datasets_by_keyword(
         filter_ex (bool, optional): If existing datasets should be filtered automatically. Defaults to True.
         filter_names (Optional[List[str]], optional): Names to be filtered from the dataset list. Defaults to None.
         query_url (_type_, optional): URL to the knowledgebase dataset query API.
-        data_url (_type_, optional): URL to the knowledgebase dataset API.
         gitlab_url (_type_, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
         all (bool, optional): If all datasets with matching keyword should be imported.
     """
@@ -454,7 +458,6 @@ def update_datasets_by_keyword(
         filter_ex=filter_ex,
         filter_names=filter_names,
         query_url=query_url,
-        data_url=data_url,
         gitlab_url=gitlab_url,
         check_o_url=check_o_url,
         n_latest=n_latest,
