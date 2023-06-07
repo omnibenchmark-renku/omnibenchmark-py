@@ -6,7 +6,7 @@ class OmniRenkuInst(object):
 
     KG_URL = "https://renkulab.io/knowledge-graph"
     DATA_URL = KG_URL + "/datasets/"
-    DATA_QUERY_URL = KG_URL + "/datasets?query="
+    DATA_QUERY_URL = KG_URL + "/entities?query="
     RENKU_URL = "https://renkulab.io"
     GIT_URL = "https://renkulab.io/gitlab"
     GRAPHQL_URL = "https://renkulab.io/knowledge-graph/graphql"
