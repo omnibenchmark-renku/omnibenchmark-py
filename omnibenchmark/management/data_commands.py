@@ -266,7 +266,8 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
 
 # Get origin dataset ids
 def get_origin_dataset_infos(
-    refs: List[str]
+    refs: List[str],
+    data_url: str = "https://renkulab.io/knowledge-graph/datasets/"
 ) -> List[Mapping]:
     """Filter a list of dataset urls for original dataset urls
        (datasets associated to projects, where they were generated and not imported).
@@ -282,7 +283,8 @@ def get_origin_dataset_infos(
         data_info = get_data_info_by_url(url=data_url)
         if "sameAs" in data_info.keys():
             if not data_info["sameAs"] == data_info["url"]:
-                same_url = data_info["sameAs"]
+                same_id = data_info["sameAs"].split("/")[-1]
+                same_url = data_url + same_id
                 data_info = get_data_info_by_url(url=same_url)
         if data_info not in all_infos and "name" in data_info.keys():
             all_infos.append(data_info)
@@ -355,6 +357,7 @@ def get_data_url_by_keyword(
     filter_ex: bool = False,
     filter_names: Optional[List[str]] = None,
     query_url: str = "https://renkulab.io/knowledge-graph/entities?query=",
+    data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
     gitlab_url: str = "https://renkulab.io/gitlab",
     check_o_url: bool = True,
     n_latest: int = 9,
@@ -380,7 +383,7 @@ def get_data_url_by_keyword(
     if len(all_ids) + len(up_exist) < 1:
         print(f"WARNING:No datasets found with keyword {keyword}")
         return [], []
-    origin_infos = get_origin_dataset_infos(refs=all_ids)
+    origin_infos = get_origin_dataset_infos(refs=all_ids, data_url = data_url)
     if len(origin_infos) + len(up_exist) < 1:
         print(
             "WARNING:Could not identify dataset sources.\n"
@@ -436,6 +439,7 @@ def update_datasets_by_keyword(
     filter_ex: bool = True,
     filter_names: Optional[List[str]] = None,
     query_url: str = "https://renkulab.io/knowledge-graph/entities?query=",
+    data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
     gitlab_url: str = "https://renkulab.io/gitlab",
     check_o_url: bool = True,
     n_latest: int = 9,
@@ -458,6 +462,7 @@ def update_datasets_by_keyword(
         filter_ex=filter_ex,
         filter_names=filter_names,
         query_url=query_url,
+        data_url= data_url,
         gitlab_url=gitlab_url,
         check_o_url=check_o_url,
         n_latest=n_latest,
