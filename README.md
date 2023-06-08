@@ -323,6 +323,9 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.43
+    * Adapt to renku version 2.4.21
+    * Switch to cross entity search api
 * 0.0.42
     * Adapt to renku version 2.3.2
     * Enable parallel execution of activities
