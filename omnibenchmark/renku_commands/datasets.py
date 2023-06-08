@@ -124,7 +124,6 @@ def renku_dataset_update(
     delete: bool = True,
     no_local: bool = False,
     no_remote: bool = False,
-    no_external: bool = False,
     check_data_directory: bool = False,
     update_all: bool = False,
     dry_run: bool = False,
@@ -183,7 +182,6 @@ def renku_dataset_update(
             dry_run=dry_run,
             no_local=no_local,
             no_remote=no_remote,
-            no_external=no_external,
             check_data_directory=check_data_directory,
             plain=plain,
         )
