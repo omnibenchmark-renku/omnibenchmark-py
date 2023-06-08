@@ -6,18 +6,18 @@ import pytest
 
 # query_datasets_by_string
 @pytest.mark.api_call
-def test_query_datasets_by_string_works():
-    query_res = data_commands.query_datasets_by_string("test")
+def test_query_entities_by_string_works():
+    query_res = data_commands.query_entities_by_string("test")
     assert isinstance(query_res, list)
     assert "name" in query_res[0].keys()
 
 
 # query_datasets_by_property
-def test_query_datasets_by_property_with_matching_key(mock_dataset_json, monkeypatch):
+def test_query_datasets_by_property_with_matching_key(mock_entity_json, monkeypatch):
     class MockResponse:
         @staticmethod
         def json():
-            return mock_dataset_json
+            return mock_entity_json
 
     def mock_get(*args, **kwargs):
         return MockResponse()
@@ -25,14 +25,14 @@ def test_query_datasets_by_property_with_matching_key(mock_dataset_json, monkeyp
     monkeypatch.setattr(requests, "get", mock_get)
 
     res = data_commands.query_datasets_by_property("mock")
-    assert res[0]["name"] == "mock_dataset"
+    assert res[0]["slug"] == "mock_dataset"
 
 
-def test_query_datasets_by_property_not_matching_key(mock_dataset_json, monkeypatch):
+def test_query_datasets_by_property_not_matching_key(mock_entity_json, monkeypatch):
     class MockResponse:
         @staticmethod
         def json():
-            return mock_dataset_json
+            return mock_entity_json
 
     def mock_get(*args, **kwargs):
         return MockResponse()
@@ -43,11 +43,11 @@ def test_query_datasets_by_property_not_matching_key(mock_dataset_json, monkeypa
     assert res == []
 
 
-def test_query_datasets_by_property_other_property(mock_dataset_json, monkeypatch):
+def test_query_datasets_by_property_other_property(mock_entity_json, monkeypatch):
     class MockResponse:
         @staticmethod
         def json():
-            return mock_dataset_json
+            return mock_entity_json
 
     def mock_get(*args, **kwargs):
         return MockResponse()
@@ -55,109 +55,109 @@ def test_query_datasets_by_property_other_property(mock_dataset_json, monkeypatc
     monkeypatch.setattr(requests, "get", mock_get)
 
     res = data_commands.query_datasets_by_property(
-        string="mock", match_string="XXXXXX", property_name="identifier"
+        string="mock", match_string="A mock dataset", property_name="name"
     )
-    assert res[0]["name"] == "mock_dataset"
+    assert res[0]["slug"] == "mock_dataset"
 
 
 # filter_existing
-def test_filter_existing_with_existing(get_renkuDataset_List, mock_dataset_json):
-    imp_list, up_list = data_commands.filter_existing(mock_dataset_json)
+def test_filter_existing_with_existing(get_renkuDataset_List, mock_entity_json):
+    imp_list, up_list = data_commands.filter_existing(mock_entity_json)
     assert imp_list == []
-    assert up_list == mock_dataset_json
+    assert up_list == mock_entity_json
 
 
-def test_filter_existing_not_existing(get_renkuDataset_List, mock_dataset_json):
-    mock_dataset_json[0]["name"] = "something"
-    imp_list, up_list = data_commands.filter_existing(mock_dataset_json)
-    assert imp_list == mock_dataset_json
+def test_filter_existing_not_existing(get_renkuDataset_List, mock_entity_json):
+    mock_entity_json[0]["slug"] = "something"
+    imp_list, up_list = data_commands.filter_existing(mock_entity_json)
+    assert imp_list == mock_entity_json
     assert up_list == []
 
 
 @pytest.mark.api_call
-def test_get_data_info_by_id_works():
-    query_res = data_commands.query_datasets_by_string("test")
-    query_id = query_res[0]["identifier"]
-    data_info = data_commands.get_data_info_by_id(query_id)
-    assert data_info["name"] == query_res[0]["name"]
+def test_get_data_info_by_url_works():
+    query_res = data_commands.query_entities_by_string("test")
+    query_url = query_res[0]["_links"][0]["href"]
+    data_info = data_commands.get_data_info_by_url(query_url)
+    assert data_info["name"] == query_res[0]["slug"]
     assert "url" in data_info.keys()
 
 
 # get_field_by_dataset_property
-def test_get_field_by_dataset_property_no_filter(mock_dataset_json, monkeypatch):
+def test_get_ref_by_dataset_property_no_filter(mock_entity_json, monkeypatch):
     class MockResponse:
         @staticmethod
         def json():
-            return mock_dataset_json
+            return mock_entity_json
 
     def mock_get(*args, **kwargs):
         return MockResponse()
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    res1, res2 = data_commands.get_field_by_dataset_property("mock")
-    assert res1 == ["XXXXXX"]
+    res1, res2 = data_commands.get_ref_by_dataset_property("mock")
+    assert res1 == ["https://this_is_a_mo.ck"]
     assert res2 == []
 
 
-def test_get_field_by_dataset_property_filter_names(mock_dataset_json, monkeypatch):
+def test_get_ref_by_dataset_property_filter_names(mock_entity_json, monkeypatch):
     class MockResponse:
         @staticmethod
         def json():
-            return mock_dataset_json
+            return mock_entity_json
 
     def mock_get(*args, **kwargs):
         return MockResponse()
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    res1, res2 = data_commands.get_field_by_dataset_property(
+    res1, res2 = data_commands.get_ref_by_dataset_property(
         "mock", filter_names="mock_dataset"
     )
     assert res1 == []
     assert res2 == []
 
 
-def test_get_field_by_dataset_property_with_filter(
-    mock_dataset_json, monkeypatch, get_renkuDataset_List
+def test_get_ref_by_dataset_property_with_filter(
+    mock_entity_json, monkeypatch, get_renkuDataset_List
 ):
     class MockResponse:
         @staticmethod
         def json():
-            return mock_dataset_json
+            return mock_entity_json
 
     def mock_get(*args, **kwargs):
         return MockResponse()
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    res1, res2 = data_commands.get_field_by_dataset_property("mock", filter_ex=True)
+    res1, res2 = data_commands.get_ref_by_dataset_property("mock", filter_ex=True)
     assert res1 == []
     assert res2 == ["mock_dataset"]
 
 
-def test_get_field_by_dataset_property_with_filter_no_match(
-    mock_dataset_json, monkeypatch, get_renkuDataset_List
+def test_get_ref_by_dataset_property_with_filter_no_match(
+    mock_entity_json, monkeypatch, get_renkuDataset_List
 ):
-    mock_dataset_json[0]["name"] = "something"
+    mock_entity_json[0]["slug"] = "something"
 
     class MockResponse:
         @staticmethod
         def json():
-            return mock_dataset_json
+            return mock_entity_json
 
     def mock_get(*args, **kwargs):
         return MockResponse()
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    res1, res2 = data_commands.get_field_by_dataset_property("mock", filter_ex=True)
-    assert res1 == ["XXXXXX"]
+    res1, res2 = data_commands.get_ref_by_dataset_property("mock", filter_ex=True)
+    assert res1 == ["https://this_is_a_mo.ck"]
     assert res2 == []
 
 
-def test_get_field_by_dataset_property_no_data(
-    mock_dataset_json, monkeypatch, get_renkuDataset_List
+def test_get_ref_by_dataset_property_no_data(
+    mock_entity_json, monkeypatch, get_renkuDataset_List
 ):
     class MockResponse:
         @staticmethod
@@ -169,7 +169,7 @@ def test_get_field_by_dataset_property_no_data(
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    res1, res2 = data_commands.get_field_by_dataset_property("mock", filter_ex=True)
+    res1, res2 = data_commands.get_ref_by_dataset_property("mock", filter_ex=True)
     assert res1 == []
     assert res2 == []
 
@@ -206,22 +206,13 @@ def test_filter_duplicated_names_works(
 
 @pytest.mark.api_call
 def test_filter_duplicated_names_identical_data(
-    mock_dataset_info, monkeypatch, mock_dataset_json
+    mock_dataset_info, monkeypatch
 ):
     mock_copy = mock_dataset_info.copy()
     mock_copy["name"] = "new"
     info_list = [mock_dataset_info, mock_copy]
     info_list = [mock_dataset_info, mock_dataset_info]
 
-    class MockResponse:
-        @staticmethod
-        def json():
-            return mock_dataset_json
-
-    def mock_get(*args, **kwargs):
-        return MockResponse()
-
-    monkeypatch.setattr(requests, "get", mock_get)
 
     uni_dat = data_commands.filter_duplicated_names(info_list)
     assert uni_dat == [mock_dataset_info]
@@ -229,26 +220,16 @@ def test_filter_duplicated_names_identical_data(
 
 @pytest.mark.api_call
 def test_filter_duplicated_names_no_dup(
-    mock_dataset_info, monkeypatch, mock_dataset_json
+    mock_dataset_info, monkeypatch
 ):
     info_list = [mock_dataset_info, mock_dataset_info]
-
-    class MockResponse:
-        @staticmethod
-        def json():
-            return mock_dataset_json
-
-    def mock_get(*args, **kwargs):
-        return MockResponse()
-
-    monkeypatch.setattr(requests, "get", mock_get)
 
     uni_dat = data_commands.filter_duplicated_names(info_list)
     assert uni_dat == [mock_dataset_info]
 
 
 # get_origin_dataset_ids
-def test_get_origin_dataset_ids_unique_id(monkeypatch, mock_dataset_info):
+def test_get_origin_dataset_infos_unique_ref(monkeypatch, mock_dataset_info):
     class MockResponse:
         @staticmethod
         def json():
@@ -259,11 +240,11 @@ def test_get_origin_dataset_ids_unique_id(monkeypatch, mock_dataset_info):
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    data_ids = data_commands.get_origin_dataset_ids(["idx"])
+    data_ids = data_commands.get_origin_dataset_infos(["idx"])
     assert data_ids == [mock_dataset_info]
 
 
-def test_get_origin_dataset_ids_with_sameas(monkeypatch, mock_dataset_info):
+def test_get_origin_dataset_infos_with_sameas(monkeypatch, mock_dataset_info):
 
     mock_dataset_info["sameAs"] = "idy"
 
@@ -277,11 +258,11 @@ def test_get_origin_dataset_ids_with_sameas(monkeypatch, mock_dataset_info):
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    data_ids = data_commands.get_origin_dataset_ids(["idx"])
+    data_ids = data_commands.get_origin_dataset_infos(["idx"])
     assert data_ids == [mock_dataset_info]
 
 
-def test_get_origin_dataset_ids_with_noname(monkeypatch, mock_dataset_info):
+def test_get_origin_dataset_infos_with_noname(monkeypatch, mock_dataset_info):
 
     del mock_dataset_info["name"]
 
@@ -295,17 +276,17 @@ def test_get_origin_dataset_ids_with_noname(monkeypatch, mock_dataset_info):
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    data_ids = data_commands.get_origin_dataset_ids(["idx"])
+    data_ids = data_commands.get_origin_dataset_infos(["idx"])
     assert data_ids == []
 
 
 @pytest.mark.api_call
-def test_get_origin_dataset_ids_works():
-    query_res = data_commands.query_datasets_by_string("test")
-    query_id = query_res[0]["identifier"]
+def test_get_origin_dataset_infos_works():
+    query_res = data_commands.query_entities_by_string("test")
+    query_url = query_res[0]["_links"][0]["href"]
 
-    data_ids = data_commands.get_origin_dataset_ids([query_id])
-    assert data_ids[0]["name"] == query_res[0]["name"]
+    data_ids = data_commands.get_origin_dataset_infos([query_url])
+    assert data_ids[0]["name"] == query_res[0]["slug"]
 
 
 # Check_orchestrator
