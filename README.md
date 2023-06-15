@@ -323,6 +323,9 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.44
+    * Add omni_essentials for orchestrator url
+    * Add local cache for orchestrator url
 * 0.0.43
     * Adapt to renku version 2.4.21
     * Switch to cross entity search api

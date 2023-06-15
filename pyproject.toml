@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "omnibenchmark"
-version = "0.0.43"
+version = "0.0.44"
 authors = [
   { name="Almut Lütge", email="almut.lue@gmail.com" },
 ]
@@ -39,7 +39,7 @@ dev = ["black", "bumpver", "pytest", "mypy"]
 "Documentation" = "https://omnibenchmark.readthedocs.io"
 
 [tool.bumpver]
-current_version = "0.0.43"
+current_version = "0.0.44"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
