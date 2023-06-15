@@ -5,9 +5,9 @@ import requests
 
 from omnibenchmark.utils.local_cache.config import local_bench_cat_data, init_dirs
 
-git_url = "https://renkulab.io/gitlab/"
+git_url = "https://raw.githubusercontent.com/"
 omni_essentials = "omnibenchmark/omni_essentials/"
-cat_json = "-/raw/main/general/benchmark_categories.json?inline=false"
+cat_json = "main/general/benchmark_categories.json?inline=false"
 
 bench_cat_url = git_url + omni_essentials + cat_json
 
