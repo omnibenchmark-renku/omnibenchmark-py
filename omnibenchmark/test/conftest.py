@@ -38,6 +38,32 @@ def disable_api_calls(monkeypatch):
 
     monkeypatch.setattr(requests, "get", lambda *args, **kwargs: stunted_get())
 
+@pytest.fixture
+def mock_orchestrator_json():
+    return [
+        {
+            "benchmark_names": ["one", "another"],
+            "orchestrator_url": "https://mocklab.io/kg/projects/orchestrator-path"
+        },
+        {
+            "benchmark_names": "explicit",
+            "orchestrator_url": "https://mocklab.io/kg/projects/another-orchestrator-path"
+        },
+    ]
+
+
+@pytest.fixture
+def mock_response_essential(mock_orchestrator_json):
+    class MockResponse:
+        def __init__(self):
+            self.status_code = 200
+            
+        @staticmethod
+        def json():
+            return mock_orchestrator_json
+
+    return MockResponse()
+
 
 @pytest.fixture
 def mock_html_content():
