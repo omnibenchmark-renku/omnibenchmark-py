@@ -63,16 +63,16 @@ def dataset_name_exist(name: str, kg_url: str) -> bool:
     url = kg_url + "/datasets?query=" + name
     response = query_multipages(url)
     # Checks to ensure no complete name matching (Remove if file matching is moved to triplet store queries)
-    if any(name in item["name"] for item in response) or any(
-        item["name"] in name for item in response
+    if any(name in item["slug"] for item in response) or any(
+        item["slug"] in name for item in response
     ):
         conflicting = [
-            item["name"]
+            item["slug"]
             for item in response
-            if name in item["name"] or item["name"] in name
+            if name in item["slug"] or item["slug"] in name
         ]
         nl = "\n"
-        name_list = set([item["name"] for item in response])
+        name_list = set([item["slug"] for item in response])
         print(
             f"A dataset with a complete match of {name} already exist.\n"
             f"Conflicting dataset name(s): {nl}{nl.join(conflicting)}.\n"
@@ -80,7 +80,7 @@ def dataset_name_exist(name: str, kg_url: str) -> bool:
             # f"{nl}{nl.join(name_list)}"
         )
         return True
-    return True if name in [item["name"] for item in response] else False
+    return True if name in [item["slug"] for item in response] else False
 
 
 def find_activities_with_missing_inputs() -> List[Activity]:
