@@ -31,6 +31,7 @@ from functools import reduce
 import os
 from os import PathLike
 import logging
+import copy
 from deepmerge import always_merger
 from networkx import DiGraph
 
@@ -112,13 +113,12 @@ def update_workflow_parameter(out_map: OutMapping, workflow: AbstractPlan, map_d
 
     for param in params:
         name, value = param.split("=", maxsplit=1)
-        keys = name.split(".")
-        set_param = reduce(lambda x, y: {y: x}, reversed(keys), value)  # type: ignore
+        set_param = reduce(lambda x, y: {y: x}, reversed(name.split(".")), value)  # type: ignore
         override_params = always_merger.merge(override_params, set_param)
     
-    rv = ValueResolver.get(workflow, override_params)
-    workflow = rv.apply()
-    return workflow
+    rv = ValueResolver.get(copy.deepcopy(workflow), override_params)
+    adapted_plan = rv.apply()
+    return adapted_plan
 
 
 
