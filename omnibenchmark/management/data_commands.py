@@ -236,13 +236,13 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
         List[Mapping]: Dataset list with unique datasets
     """
     info_list = list(unique_everseen(info_list))
-    name_list = [info.get("name") for info in info_list]
+    name_list = [info.get("slug") for info in info_list]
     dup_names = set(
         [info_name for info_name in name_list if name_list.count(info_name) > 1]
     )
-    uni_list = [info for info in info_list if info["name"] not in dup_names]
+    uni_list = [info for info in info_list if info.get("slug") not in dup_names]
     for dup in dup_names:
-        dup_info = [info for info in info_list if info["name"] == dup]
+        dup_info = [info for info in info_list if info.get("slug") == dup]
         dup_project = set([info["project"]["_links"][0]["href"] for info in dup_info])
         if len(dup_project) == 1:
             origin_info = get_dataset_from_project(info_list = dup_info, project_url = list(dup_project)[0])
@@ -286,7 +286,7 @@ def get_origin_dataset_infos(
                 same_id = data_info["sameAs"].split("/")[-1]
                 same_url = data_url + same_id
                 data_info = get_data_info_by_url(url=same_url)
-        if data_info not in all_infos and "name" in data_info.keys():
+        if data_info not in all_infos and "slug" in data_info.keys():
             all_infos.append(data_info)
     origin_infos = filter_duplicated_names(all_infos)
     return origin_infos
