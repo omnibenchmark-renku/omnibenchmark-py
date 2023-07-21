@@ -342,7 +342,7 @@ def check_orchestrator(
         bridge_projects.extend(
             [
                 brid.downstream_pipeline["project_id"]
-                for brid in pipe.bridges.list()
+                for brid in pipe.bridges.list(get_all=True)
                 if brid.status == "success"
             ]
         )
