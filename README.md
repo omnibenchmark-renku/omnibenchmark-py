@@ -323,9 +323,11 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.46
+    * Adapt to slug/name switch in renku dataset/project dataset APIs 
 * 0.0.45
     * FIX:
-    *  automatic activity generation
+    *  Automatic activity generation
 * 0.0.44
     * Add omni_essentials for orchestrator url
     * Add local cache for orchestrator url
