@@ -264,7 +264,7 @@ def test_get_origin_dataset_infos_with_sameas(monkeypatch, mock_dataset_info):
 
 def test_get_origin_dataset_infos_with_noname(monkeypatch, mock_dataset_info):
 
-    del mock_dataset_info["name"]
+    del mock_dataset_info["slug"]
 
     class MockResponse:
         @staticmethod

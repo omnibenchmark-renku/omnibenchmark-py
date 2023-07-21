@@ -78,7 +78,8 @@ def mock_dataset_json():
             "description": "A mock dataset that does not exoist in real",
             "identifier": "XXXXXX",
             "title": "A mock dataset",
-            "name": "mock_dataset",
+            "name": "mock_dataset new name",
+            "slug": "mock_dataset",
             "published": {
                 "creator": [{"email": "mock.test@mail.com", "name": "Tesuto Mock"}]
             },
@@ -124,7 +125,8 @@ def mock_dataset_info():
             },
         ],
         "identifier": "asdfghjjkl8765r",
-        "name": "mock_dataset",
+        "name": "mock_dataset new name",
+        "slug": "mock_dataset",
         "title": "mock dataset info",
         "url": "https://renkulab.io/datasets/asdfghjjkl8765r",
         "derivedFrom": "https://renkulab.io/datasets/asdfghjjkl8765r",
