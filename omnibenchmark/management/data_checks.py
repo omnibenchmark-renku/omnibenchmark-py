@@ -1,7 +1,7 @@
 """Checks concerning (usually renku) datasets"""
 
 from renku.api import Activity, Project, Dataset
-from omnibenchmark.renku_commands import renku_api
+from renku.domain_model.project_context import project_context
 from omnibenchmark.utils.user_input_checks import flatten
 import requests
 from typing import Union, List, Mapping, Any
@@ -42,8 +42,9 @@ def renku_dataset_exist(name: str, path: Union[os.PathLike, str] = os.getcwd()) 
 
     current_dir = os.getcwd()
     os.chdir(path)
-    datasets = renku_api.renku_dataset_list()
-    # datasets = Dataset.list()
+    project_context.clear()
+    #datasets = renku_api.renku_dataset_list()
+    datasets = Dataset.list()
     matches = [dataset.name for dataset in datasets if dataset.name == name]
     os.chdir(current_dir)
     return True if len(matches) >= 1 else False
