@@ -26,7 +26,7 @@ def is_renku_project(path: Union[os.PathLike, str] = os.getcwd()) -> bool:
     project = Project()
     repo = project.repository
     os.chdir(current_dir)
-    return repo.is_valid()
+    return True if '.renku/metadata.yml' in repo.files else False
 
 
 def get_bench_essentials(

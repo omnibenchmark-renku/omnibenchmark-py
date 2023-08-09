@@ -246,17 +246,17 @@ def get_renkuDataset_List(monkeypatch, mock_api_Dataset):
     def get_mock_list():
         return [mock_api_Dataset]
 
-    # monkeypatch.setattr(
-    #    renku.ui.api.models.dataset.Dataset,
-    #    "list",
-    #    lambda *args, **kwargs: get_mock_list(),
-    # )
-
     monkeypatch.setattr(
-        omnibenchmark.renku_commands.renku_api,
-        "renku_dataset_list",
-        lambda *args, **kwargs: get_mock_list(),
+       renku.ui.api.models.dataset.Dataset,
+       "list",
+       lambda *args, **kwargs: get_mock_list(),
     )
+
+    #monkeypatch.setattr(
+    #    omnibenchmark.renku_commands.renku_api,
+    #    "renku_dataset_list",
+    #    lambda *args, **kwargs: get_mock_list(),
+    #)
 
 
 @pytest.fixture
