@@ -224,11 +224,11 @@ def get_dataset_from_project(info_list: List[Mapping], project_url: str) -> List
     """
     all_datasets = query_multipages(url=project_url + "/datasets")
     all_ids = [dat["identifier"] for dat in all_datasets]
-    return [info for info in info_list if info["identifier"] in all_ids]
+    return [info for info in info_list if any(val in all_ids for val in [info["identifier"], info["url"].split("/")[-1]])]
 
 
 
-def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
+def filter_duplicated_names(info_list: List[Mapping], o_url: Optional[str] = None) -> List[Mapping]:
     """Filter a list of datasets to get only the original dataset if their are multiple datasets found with the same name.
 
     Args:
@@ -253,7 +253,10 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
             o_project = set([info["project"]["_links"][0]["href"] for info in o_info])
             if len(o_project) == 1:
                 origin_info = get_dataset_from_project(info_list = o_info, project_url = list(o_project)[0])
-            else:
+            elif o_url is not None and len(o_project) > 1:
+                dat_info = [d_info for d_info in o_info if check_orchestrator(d_info, o_url = o_url) is not None]
+                origin_info = dat_info if len(dat_info) == 1 else []
+            else:    
                 origin_info = []
         if len(origin_info) != 1:
             print(
@@ -269,7 +272,8 @@ def filter_duplicated_names(info_list: List[Mapping]) -> List[Mapping]:
 # Get origin dataset ids
 def get_origin_dataset_infos(
     refs: List[str],
-    data_url: str = "https://renkulab.io/knowledge-graph/datasets/"
+    data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
+    o_url: Optional[str] = None
 ) -> List[Mapping]:
     """Filter a list of dataset urls for original dataset urls
        (datasets associated to projects, where they were generated and not imported).
@@ -281,16 +285,16 @@ def get_origin_dataset_infos(
         List[Mapping]: Filtered datasets and their metadata
     """
     all_infos: List = []
-    for data_url in refs:
-        data_info = get_data_info_by_url(url=data_url)
+    for ref_url in refs:
+        data_info = get_data_info_by_url(url=ref_url)
         if "sameAs" in data_info.keys():
-            if not data_info["sameAs"] == data_info["url"]:
+            if not data_info["sameAs"] == data_info["url"] and data_info["sameAs"].startswith("https://renkulab.io"):
                 same_id = data_info["sameAs"].split("/")[-1]
                 same_url = data_url + same_id
                 data_info = get_data_info_by_url(url=same_url)
         if data_info not in all_infos and "slug" in data_info.keys():
             all_infos.append(data_info)
-    origin_infos = filter_duplicated_names(all_infos)
+    origin_infos = filter_duplicated_names(all_infos, o_url = o_url)
     return origin_infos
 
 
@@ -310,7 +314,7 @@ def get_project_info_from_url(project_url: str) -> Mapping[Any, Any]:
 def check_orchestrator(
     data_info: Mapping,
     o_url: str,
-    gitlab_url: str = "https://renkulab.io/gitlab",
+    gitlab_url: str = "https://gitlab.renkulab.io",
     n_latest: int = 9,
 ) -> Optional[str]:
     """Check if a dataset is associated to a project that is part of the specified orchestrators projects.
@@ -318,7 +322,7 @@ def check_orchestrator(
     Args:
         data_info (Mapping): Dataset metadata to check
         o_url (str): orchestrator url to check if the dataset project is associated to.
-        gitlab_url (url, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
+        gitlab_url (url, optional): General Gitlab url. Defaults to "https://gitlab.renkulab.io".
 
     Returns:
         Optional[str]: Dataset url, if the dataset is associated to a project that is part of the orchestrator.
@@ -360,7 +364,7 @@ def get_data_url_by_keyword(
     filter_names: Optional[List[str]] = None,
     query_url: str = "https://renkulab.io/knowledge-graph/entities?query=",
     data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
-    gitlab_url: str = "https://renkulab.io/gitlab",
+    gitlab_url: str = "https://gitlab.renkulab.io",
     check_o_url: bool = True,
     n_latest: int = 9,
 ) -> Tuple[List[str], List[str]]:
@@ -372,7 +376,7 @@ def get_data_url_by_keyword(
         filter_ex (bool, optional): If existing datasets should be filtered automatically. Defaults to False.
         filter_names (Optional[List[str]], optional): Names to be filtered from the dataset list. Defaults to None.
         query_url (str, optional): URL to the knowledgebase dataset query API.
-        gitlab_url (str, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
+        gitlab_url (str, optional): General Gitlab url. Defaults to "https://gitlab.renkulab.io".
 
     Returns:
         Tuple[List[str], List[str]]: 1. List with all matching non-existing dataset urls,
@@ -385,7 +389,7 @@ def get_data_url_by_keyword(
     if len(all_ids) + len(up_exist) < 1:
         print(f"WARNING:No datasets found with keyword {keyword}")
         return [], []
-    origin_infos = get_origin_dataset_infos(refs=all_ids, data_url = data_url)
+    origin_infos = get_origin_dataset_infos(refs=all_ids, data_url = data_url, o_url = o_url)
     if len(origin_infos) + len(up_exist) < 1:
         print(
             "WARNING:Could not identify dataset sources.\n"
@@ -443,7 +447,7 @@ def update_datasets_by_keyword(
     filter_names: Optional[List[str]] = None,
     query_url: str = "https://renkulab.io/knowledge-graph/entities?query=",
     data_url: str = "https://renkulab.io/knowledge-graph/datasets/",
-    gitlab_url: str = "https://renkulab.io/gitlab",
+    gitlab_url: str = "https://gitlab.renkulab.io",
     check_o_url: bool = True,
     n_latest: int = 9,
     all: bool = True,
@@ -456,7 +460,7 @@ def update_datasets_by_keyword(
         filter_ex (bool, optional): If existing datasets should be filtered automatically. Defaults to True.
         filter_names (Optional[List[str]], optional): Names to be filtered from the dataset list. Defaults to None.
         query_url (_type_, optional): URL to the knowledgebase dataset query API.
-        gitlab_url (_type_, optional): General Gitlab url. Defaults to "https://renkulab.io/gitlab".
+        gitlab_url (_type_, optional): General Gitlab url. Defaults to "https://gitlab.renkulab.io".
         all (bool, optional): If all datasets with matching keyword should be imported.
     """
     imp_ids, up_names = get_data_url_by_keyword(

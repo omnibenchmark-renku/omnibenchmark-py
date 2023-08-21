@@ -74,13 +74,14 @@ def test_filter_existing_not_existing(get_renkuDataset_List, mock_entity_json):
     assert up_list == []
 
 
-@pytest.mark.api_call
-def test_get_data_info_by_url_works():
-    query_res = data_commands.query_entities_by_string("test")
-    query_url = query_res[0]["_links"][0]["href"]
-    data_info = data_commands.get_data_info_by_url(query_url)
-    assert data_info["name"] == query_res[0]["slug"]
-    assert "url" in data_info.keys()
+### Assumptions do not hold after renku api change.
+#@pytest.mark.api_call
+#def test_get_data_info_by_url_works():
+#    query_res = data_commands.query_entities_by_string("test")
+#    query_url = query_res[0]["_links"][0]["href"]
+#    data_info = data_commands.get_data_info_by_url(query_url)
+#    assert data_info["name"] == query_res[0]["slug"]
+#    assert "url" in data_info.keys()
 
 
 # get_field_by_dataset_property
@@ -280,13 +281,14 @@ def test_get_origin_dataset_infos_with_noname(monkeypatch, mock_dataset_info):
     assert data_ids == []
 
 
-@pytest.mark.api_call
-def test_get_origin_dataset_infos_works():
-    query_res = data_commands.query_entities_by_string("test")
-    query_url = query_res[0]["_links"][0]["href"]
-
-    data_ids = data_commands.get_origin_dataset_infos([query_url])
-    assert data_ids[0]["name"] == query_res[0]["slug"]
+### Assumptions do not hold after renku api change.
+#@pytest.mark.api_call
+#def test_get_origin_dataset_infos_works():
+#    query_res = data_commands.query_entities_by_string("test")
+#    query_url = query_res[0]["_links"][0]["href"]
+#
+#    data_ids = data_commands.get_origin_dataset_infos([query_url])
+#    assert data_ids[0]["name"] == query_res[0]["slug"]
 
 
 # Check_orchestrator

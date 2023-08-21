@@ -8,7 +8,7 @@ class OmniRenkuInst(object):
     DATA_URL = KG_URL + "/datasets/"
     DATA_QUERY_URL = KG_URL + "/entities?query="
     RENKU_URL = "https://renkulab.io"
-    GIT_URL = "https://renkulab.io/gitlab"
+    GIT_URL = "https://gitlab.renkulab.io"
     GRAPHQL_URL = "https://renkulab.io/knowledge-graph/graphql"
     GIT_API = "https://renkulab.io/gitlab/api/v4/"
     ESS_URL = "https://raw.githubusercontent.com/omnibenchmark/omni_essentials/"
