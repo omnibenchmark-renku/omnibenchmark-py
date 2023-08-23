@@ -323,6 +323,10 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.47
+    * FIX:
+    * Adapt to renku REST API changes for dataset imports/queries
+    * Update gitlab url
 * 0.0.46
     * Adapt to slug/name switch in renku dataset/project dataset APIs 
 * 0.0.45
