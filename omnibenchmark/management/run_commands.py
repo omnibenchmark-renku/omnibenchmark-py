@@ -284,13 +284,16 @@ def get_all_output_file_names(output: OmniOutput) -> List[str]:
 
 
 def manage_renku_activities(
-    outputs: OmniOutput, omni_plan: OmniPlan, provider: str = "toil", config: Optional[str] = None,
+    outputs: OmniOutput, omni_plan: OmniPlan, provider: str = "toil", config: Optional[str] = None, n: int = 10
 ):
     """Manage renku activities by updating existing ones and generating new activities for output files without.
 
     Args:
         outputs (OmniOutput): An OmniOutput object
         omni_plan (OmniPlan): A plan/workflow description with mappings to the output
+        provider (str): Provider name to run workflow with
+        config (str): Path to provider config file
+        n (int): Number of activities to be send in parallel to the provider. Execution will still depend on the provider itself.
     """
     project_context.clear()
     out_files = get_all_output_file_names(outputs)
@@ -306,8 +309,10 @@ def manage_renku_activities(
 
     # create new activities:
     if len(no_activities) > 0:
-        graph = create_execution_graph(no_activities, omni_plan)
-        omni_wflow.mod_renku_execute_workflow_graph(dag=graph.workflow_graph, provider=provider, config=config)
+        no_act_chunks = [no_activities[i:i + n] for i in range(0, len(no_activities), n)]
+        for no_act in no_act_chunks:
+            graph = create_execution_graph(no_act, omni_plan)
+            omni_wflow.mod_renku_execute_workflow_graph(dag=graph.workflow_graph, provider=provider, config=config)
 
     # get output paths of all activities to be updated
     for activity in activity_map:
@@ -317,7 +322,9 @@ def manage_renku_activities(
     
     # update activities in parallel       
     if len(up_list) > 0:
-        omni_wflow.renku_update_activity(paths=up_list, provider=provider, config=config)
+        up_list_chunks = [up_list[i:i + n] for i in range(0, len(up_list), n)]
+        for up in up_list_chunks:
+            omni_wflow.renku_update_activity(paths=up, provider=provider, config=config)
 
 
 def check_output_directories(out_files: List[str]):

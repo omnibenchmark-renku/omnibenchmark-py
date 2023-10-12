@@ -122,7 +122,7 @@ class OmniObject(OmniRenkuInst):
         )
         return renku_dataset
 
-    def run_renku(self, all: bool = True, provider: str = "toil", config: Optional[str] = None):
+    def run_renku(self, all: bool = True, provider: str = "toil", config: Optional[str] = None, n:int = 10):
         self.command = check_omni_command(self.command, self.script, self.outputs)
         if self.outputs is not None:
             out_files = get_all_output_file_names(self.outputs)
@@ -136,7 +136,7 @@ class OmniObject(OmniRenkuInst):
         )
         if self.outputs is not None and all:
             manage_renku_activities(
-                outputs=self.outputs, omni_plan=self.omni_plan, provider=provider, config=config
+                outputs=self.outputs, omni_plan=self.omni_plan, provider=provider, config=config, n=n
             )
 
     def update_result_dataset(self, clean: bool = True):
