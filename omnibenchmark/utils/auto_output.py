@@ -62,7 +62,7 @@ def join_inputs_parameter(
 
 def get_out_names_from_input_params(
     output_end: Mapping[str, str],
-    name: str,
+    slug: str,
     input: Optional[str] = None,
     parameter: Optional[Mapping[str, str]] = None,
     sort_keys: bool = True,
@@ -75,7 +75,7 @@ def get_out_names_from_input_params(
         input (str): Specific input for this output. Should be potentially uniquely identifyable shortcuts, e.g, dataset names.
         output_end (Mapping[str, str]): Mapping of all output file types and their corresponding endings,
                                         e.g. {'norm_counts': 'mtx.gz'}.
-        name (str): Name of the method, dataset, etc. the output belongs to.
+        slug (str): Name of the method, dataset, etc. the output belongs to.
         parameters (Optional[Mapping[str, str]], optional): Mapping of parameter and the values used to generate these outputs.
                                                             Defaults to None.
         out_template (str, optional): Template to generate names from.
@@ -86,7 +86,7 @@ def get_out_names_from_input_params(
     """
 
     # check template
-    valid_keys = ["unique_values", "name", "out_name", "out_end"]
+    valid_keys = ["unique_values", "slug", "out_name", "out_end"]
     for arg in kwargs.keys():
         valid_keys.append(arg)
     temp_keys = [
@@ -100,7 +100,7 @@ def get_out_names_from_input_params(
     unique_values = join_inputs_parameter(input, parameter, sort_keys=sort_keys)
     sub_dict = kwargs
     sub_dict["unique_values"] = unique_values
-    sub_dict["name"] = name
+    sub_dict["slug"] = slug
     output_names = {}
     for out in output_end.keys():
         out_end = output_end[out]
@@ -198,7 +198,7 @@ def get_template_vars_dependencies(
 
 
 def get_all_output_combinations(
-    name: str,
+    slug: str,
     output_end: Mapping[str, str],
     inputs: Optional[OmniInput] = None,
     parameter: Optional[OmniParameter] = None,
@@ -210,7 +210,7 @@ def get_all_output_combinations(
     """Get OutMappings for all possible input and parameter combinations
 
     Args:
-        name (str): Output name
+        slug (str): Output name
         output_end (Mapping[str, str]): Mapping of output file types with their corresponding file endings
         inputs (Optional[OmniInput], optional): An OmniInput object. Defaults to None.
         parameter (Optional[OmniParameter], optional): An OmniParameter object. Defaults to None.
@@ -238,7 +238,7 @@ def get_all_output_combinations(
             input_str = None
         finally:
             out_names = get_out_names_from_input_params(
-                name=name,
+                slug=slug,
                 output_end=output_end,
                 input=input_str,
                 parameter=comb["parameter"],
@@ -251,7 +251,7 @@ def get_all_output_combinations(
 
     if len(out_list) == 0:
         out_names = get_out_names_from_input_params(
-            name=name,
+            slug=slug,
             output_end=output_end,
             sort_keys=sort_keys,
             out_template=out_template,

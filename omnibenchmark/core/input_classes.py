@@ -34,7 +34,7 @@ class OmniInput:
         input_files: Optional[Mapping[str, Mapping[str, str]]] = None,
         keyword: Optional[List[str]] = None,
         default: Optional[str] = None,
-        filter_names: Optional[List[str]] = None,
+        filter_slugs: Optional[List[str]] = None,
         filter_duplicated: bool = True,
         multi_data_matching: bool = False,
     ):
@@ -55,7 +55,7 @@ class OmniInput:
         self.input_files = input_files
         self.keyword = keyword
         self.default = default
-        self.filter_names = filter_names
+        self.filter_slugs = filter_slugs
         self.filter_duplicated = filter_duplicated
         self.multi_data_matching = multi_data_matching
 
@@ -72,7 +72,7 @@ class OmniInput:
             self.input_files = get_input_files_from_prefix(
                 self.prefix,
                 self.keyword,
-                self.filter_names,
+                self.filter_slugs,
                 filter_duplicated=self.filter_duplicated,
                 multi_data_matching=multi_data_matching,
             )
@@ -123,7 +123,7 @@ class OmniInput:
             for key in self.keyword:
                 update_datasets_by_keyword(
                     keyword=key,
-                    filter_names=self.filter_names,
+                    filter_slugs=self.filter_slugs,
                     o_url=orchestrator,
                     query_url=query_url,
                     data_url=data_url,
@@ -137,7 +137,7 @@ class OmniInput:
                 self.input_files = get_input_files_from_prefix(
                     self.prefix,
                     self.keyword,
-                    self.filter_names,
+                    self.filter_slugs,
                     filter_duplicated=self.filter_duplicated,
                     multi_data_matching=self.multi_data_matching,
                 )

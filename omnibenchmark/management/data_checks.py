@@ -29,15 +29,15 @@ def query_multipages(url: str, page_item: int = 100) -> List[Mapping[Any, Any]]:
     return response
 
 
-def renku_dataset_exist(name: str, path: Union[os.PathLike, str] = os.getcwd()) -> bool:
-    """Check if a renku dataset with a specific name already exist at a certain project path.
+def renku_dataset_exist(slug: str, path: Union[os.PathLike, str] = os.getcwd()) -> bool:
+    """Check if a renku dataset with a specific slug already exist at a certain project path.
 
     Args:
-        name (str): Dataset name
+        slug (str): Dataset slug
         path (PathLike, optional): Project path to check. Defaults to ".".
 
     Returns:
-        bool: True/False a dataset with that name exist in the project at that path.
+        bool: True/False a dataset with that slug exist in the project at that path.
     """
 
     current_dir = os.getcwd()
@@ -45,43 +45,43 @@ def renku_dataset_exist(name: str, path: Union[os.PathLike, str] = os.getcwd()) 
     project_context.clear()
     #datasets = renku_api.renku_dataset_list()
     datasets = Dataset.list()
-    matches = [dataset.name for dataset in datasets if dataset.name == name]
+    matches = [dataset.slug for dataset in datasets if dataset.slug == slug]
     os.chdir(current_dir)
     return True if len(matches) >= 1 else False
 
 
-def dataset_name_exist(name: str, kg_url: str) -> bool:
+def dataset_slug_exist(slug: str, kg_url: str) -> bool:
     """Check if a renku dataset with a defined name already exists in the knowledge base.
 
     Args:
-        name (str): Name to query
+        slug (str): Slug to query
         kg_url (str): Url of the knowledge base to query
 
     Returns:
         bool: True/False, if a dataset with that name already exist
     """
 
-    url = kg_url + "/datasets?query=" + name
+    url = kg_url + "/datasets?query=" + slug
     response = query_multipages(url)
     # Checks to ensure no complete name matching (Remove if file matching is moved to triplet store queries)
-    if any(name in item["slug"] for item in response) or any(
-        item["slug"] in name for item in response
+    if any(slug in item["slug"] for item in response) or any(
+        item["slug"] in slug for item in response
     ):
         conflicting = [
             item["slug"]
             for item in response
-            if name in item["slug"] or item["slug"] in name
+            if slug in item["slug"] or item["slug"] in slug
         ]
         nl = "\n"
-        name_list = set([item["slug"] for item in response])
+        slug_list = set([item["slug"] for item in response])
         print(
-            f"A dataset with a complete match of {name} already exist.\n"
+            f"A dataset with a complete match of {slug} already exist.\n"
             f"Conflicting dataset name(s): {nl}{nl.join(conflicting)}.\n"
             # "Please specify a name without a complete match within:\n"
             # f"{nl}{nl.join(name_list)}"
         )
         return True
-    return True if name in [item["slug"] for item in response] else False
+    return True if slug in [item["slug"] for item in response] else False
 
 
 def find_activities_with_missing_inputs() -> List[Activity]:

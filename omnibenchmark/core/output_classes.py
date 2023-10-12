@@ -25,7 +25,7 @@ class OmniOutput:
 
     def __init__(
         self,
-        name: str,
+        slug: str,
         out_names: List[str],
         output_end: Optional[Mapping[str, str]] = None,
         out_template: str = "data/${name}/${name}_${unique_values}_${out_name}.${out_end}",
@@ -55,7 +55,7 @@ class OmniOutput:
             template_fun (Optional[Callable[..., Mapping]], optional): Function to automatically generate output filenames.
             template_vars (Optional[Mapping], optional): Variables that are used by template_fun. Defaults to None.
         """
-        self.name = name
+        self.slug = slug
         self.out_names = out_names
         self.output_end = output_end
         self.out_template = out_template
@@ -78,7 +78,7 @@ class OmniOutput:
 
             check_name_matching(self.out_names, self.output_end.keys())
             self.file_mapping = get_all_output_combinations(
-                name=self.name,
+                slug=self.slug,
                 output_end=self.output_end,
                 out_template=self.out_template,
                 inputs=self.inputs,
@@ -123,7 +123,7 @@ class OmniOutput:
                 self.template_vars if self.template_vars is not None else {}
             )
             new_file_mapping = get_all_output_combinations(
-                name=self.name,
+                slug=self.slug,
                 output_end=self.output_end,
                 out_template=self.out_template,
                 inputs=self.inputs,

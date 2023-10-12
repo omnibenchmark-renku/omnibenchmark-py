@@ -147,29 +147,29 @@ def match_files_by_name(file_type_dict_all: Mapping) -> Mapping[str, Mapping]:
     return com_dict
 
 
-def check_dataset_name(input_dict: Mapping[str, str], data_name: str) -> str:
-    """Check if data_name includes the longest matching sequence of all input files
+def check_dataset_slug(input_dict: Mapping[str, str], data_slug: str) -> str:
+    """Check if data_slug includes the longest matching sequence of all input files
 
     Args:
         input_dict (Mapping[str, str]): An input file type- name mapping
-        data_name (str): Dataset name to check
+        data_slug (str): Dataset slug to check
 
     Returns:
-        str: Either the dataset name, if it is equal the longest matching sequence
-             or a name of the dataset name, longest match seq and an input file name hash.
+        str: Either the dataset slug, if it is equal the longest matching sequence
+             or a slug of the dataset slug, longest match seq and an input file name hash.
     """
     best_match = best_match_name_seq(input_dict)
-    if best_match == data_name:
-        return data_name
+    if best_match == data_slug:
+        return data_slug
     else:
-        new_name = (
-            data_name
+        new_slug = (
+            data_slug
             + "_"
             + get_name_hash_from_input_dict(input_dict)[0:5]
             + "_"
             + best_match
         )
-        return new_name.rstrip("_- .")
+        return new_slug.rstrip("_- .")
 
 
 def remove_duplicated_inputs(pat_list: List, in_files: List[str]) -> List[str]:
@@ -255,7 +255,7 @@ def match_input_pattern(
 def get_input_files_from_prefix(
     input_prefix: Mapping[str, List[str]],
     keyword: List[str],
-    filter_names: Optional[List[str]] = None,
+    filter_slugs: Optional[List[str]] = None,
     filter_duplicated: bool = True,
     multi_data_matching: bool = False,
 ) -> Mapping[str, Mapping]:
@@ -264,7 +264,7 @@ def get_input_files_from_prefix(
     Args:
         input_prefix (Mapping[str, List[str]]): Dictionary with all file types and their valid prefixes.
         keyword (List[str]): Keyword of datasets that contain input files
-        filter_names (Optional[List[str]]): Dataset names to be ignored when querying input files
+        filter_slugs (Optional[List[str]]): Dataset names to be ignored when querying input files
         filter_duplicated (bool): If duplicated inputs from the same dataset and prefix pattern
                                   associated to the same input file types shall automatically be removed.
         multi_data_matching (bool): If true files from different renku datasets will be matched (defaults to False).
@@ -313,23 +313,23 @@ def get_input_files_from_prefix(
         if not all(os.path.exists(fi) for fi in input_files[data].values())
     ]
     rm_data = incomplete_data + non_exist_data
-    if filter_names is not None:
+    if filter_slugs is not None:
         filter_list = [
-            filter_nam
-            for filter_nam in filter_names
-            if filter_nam in input_files.keys()
+            filter_slug
+            for filter_slug in filter_slugs
+            if filter_slug in input_files.keys()
         ]
         rm_data = rm_data + filter_list
     for data in rm_data:
         del input_files[data]
-    dataset_names = [data.name for data in key_data]
+    dataset_slugs = [data.slug for data in key_data]
 
-    for input_nam in list(input_files.keys()):
-        if input_nam in dataset_names:
-            new_name = check_dataset_name(input_files[input_nam], input_nam)
-            if new_name != input_nam:
-                input_files[new_name] = input_files[input_nam]
-                del input_files[input_nam]
+    for input_slug in list(input_files.keys()):
+        if input_slug in dataset_slugs:
+            new_slug = check_dataset_slug(input_files[input_slug], input_slug)
+            if new_slug != input_slug:
+                input_files[new_slug] = input_files[input_slug]
+                del input_files[input_slug]
 
     return input_files
 
