@@ -5,6 +5,7 @@ from omnibenchmark.utils.exceptions import ParameterError
 from collections import defaultdict
 from renku.ui.api.models.dataset import Dataset
 from omnibenchmark.renku_commands import renku_api
+from renku.domain_model.project_context import project_context
 from difflib import SequenceMatcher
 import hashlib
 import re
@@ -196,7 +197,7 @@ def remove_duplicated_inputs(pat_list: List, in_files: List[str]) -> List[str]:
 def match_input_pattern(
     input_files: Dict,
     input_prefix: Mapping,
-    name: str,
+    slug: str,
     files: List,
     filter_duplicated: bool = True,
 ) -> Dict:
@@ -205,7 +206,7 @@ def match_input_pattern(
     Args:
         input_files (Dict): Dictionary with all already assigned inputs.
         input_prefix (Mapping): Prefix name - prefix value mapping.
-        name (str): input name to be used as key in input_files.
+        slug (str): input slug to be used as key in input_files.
         files (List): List of all files to be grouped.
         filter_duplicated (bool, optional): If duplicated inputs groups should be rautomnatically removed. Defaults to True.
 
@@ -213,7 +214,7 @@ def match_input_pattern(
         Dict: Dictionary specified in input_files with the new best matching groups added.
     """
     tmp_dict: Dict = {}
-    input_files[name] = {}
+    input_files[slug] = {}
     for file_type, prefixes in input_prefix.items():
         prefix_list = (
             [prefixes] if not isinstance(prefixes, list) else prefixes  # type: ignore
@@ -232,22 +233,22 @@ def match_input_pattern(
             print(
                 f"WARNING:Could not find any input file matching the following pattern {prefixes}.\n"
                 f"Please make sure you specified a correct prefix! \n"
-                f"Input dataset {name} will be ignored!"
+                f"Input dataset {slug} will be ignored!"
             )
             break
         else:
-            input_files[name][file_type] = in_file[0]
+            input_files[slug][file_type] = in_file[0]
     if len(tmp_dict) > 0:
-        tmp_dict.update(input_files[name])
+        tmp_dict.update(input_files[slug])
         group_dict = match_files_by_name(tmp_dict)
         n = len(in_file) if len(in_file) <= 5 else 5
         print(
             f"WARNING: Ambigous input files. Found {in_file[0:n]}, ...\n"
-            f"Automatic group detection for files in {name}.\n"
+            f"Automatic group detection for files in {slug}.\n"
             f"Please check matches to ensure correct groups: 'omni_obj.inputs.input_files'"
         )
-        del input_files[name]
-        group_data_dict = {name + "_" + k: group_dict[k] for k in group_dict.keys()}
+        del input_files[slug]
+        group_data_dict = {slug + "_" + k: group_dict[k] for k in group_dict.keys()}
         input_files.update(group_data_dict)
     return input_files
 
@@ -273,8 +274,9 @@ def get_input_files_from_prefix(
         Mapping[str, Mapping]: Input file types with their corresponding files.
     """
     input_files: Dict = {}
-    # datasets = Dataset.list()
-    datasets = renku_api.renku_dataset_list()
+    project_context.clear()
+    datasets = Dataset.list()
+    #datasets = renku_api.renku_dataset_list()
     key_data = [
         dataset
         for dataset in datasets
@@ -286,7 +288,7 @@ def get_input_files_from_prefix(
         input_files = match_input_pattern(
             input_files=input_files,
             input_prefix=input_prefix,
-            name="all",
+            slug="all",
             files=all_files,
             filter_duplicated=filter_duplicated,
         )
@@ -295,7 +297,7 @@ def get_input_files_from_prefix(
             input_files = match_input_pattern(
                 input_files=input_files,
                 input_prefix=input_prefix,
-                name=data.name,
+                slug=data.slug,
                 files=data.files,
                 filter_duplicated=filter_duplicated,
             )
@@ -350,8 +352,9 @@ def get_parameter_from_dataset(
         Mapping[str, List]: Mapping with parameters and all possible values
     """
     values: Dict = {}
-    datasets = renku_api.renku_dataset_list()
-    # datasets = Dataset.list()
+    #datasets = renku_api.renku_dataset_list()
+    project_context.clear()
+    datasets = Dataset.list()
     key_data = [
         dataset
         for dataset in datasets

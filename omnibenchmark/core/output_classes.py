@@ -28,7 +28,7 @@ class OmniOutput:
         slug: str,
         out_names: List[str],
         output_end: Optional[Mapping[str, str]] = None,
-        out_template: str = "data/${name}/${name}_${unique_values}_${out_name}.${out_end}",
+        out_template: str = "data/${slug}/${slug}_${unique_values}_${out_name}.${out_end}",
         file_mapping: Optional[List[OutMapping]] = None,
         inputs: Optional[OmniInput] = None,
         parameter: Optional[OmniParameter] = None,

@@ -66,7 +66,7 @@ def get_out_names_from_input_params(
     input: Optional[str] = None,
     parameter: Optional[Mapping[str, str]] = None,
     sort_keys: bool = True,
-    out_template: str = "data/${name}/${name}_${unique_values}_${out_name}.${out_end}",
+    out_template: str = "data/${slug}/${slug}_${unique_values}_${out_name}.${out_end}",
     **kwargs,
 ) -> Mapping[str, str]:
     """Generates automatic output file names from inputs and parameters used, based on a template defined in out_template.
