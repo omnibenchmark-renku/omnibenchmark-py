@@ -77,7 +77,6 @@ def mock_dataset_json():
             "_links": [{"rel": "details", "href": "https://this_is_a_mo.ck"}],
             "description": "A mock dataset that does not exoist in real",
             "identifier": "XXXXXX",
-            "title": "A mock dataset",
             "name": "mock_dataset new name",
             "slug": "mock_dataset",
             "published": {
@@ -206,9 +205,9 @@ def mock_renkuApiDatasetFile(mock_renkuDatasetFile):
 @pytest.fixture
 def mock_renkuDataset(mock_renkuDatasetFile):
 
-    mock_data = RenkuDataset(name="mock_dataset")
+    mock_data = RenkuDataset(slug="mock_dataset")
     mock_data.keywords = ["mock"]
-    mock_data.title = "This is a mock dataset and does not exist on the KG"
+    mock_data.name = "This is a mock dataset and does not exist on the KG"
     mock_data.dataset_files = [mock_renkuDatasetFile]
     return mock_data
 
@@ -216,9 +215,9 @@ def mock_renkuDataset(mock_renkuDatasetFile):
 @pytest.fixture
 def mock_renkuDataset_2files(mock_renkuDatasetFile):
 
-    mock_data = RenkuDataset(name="mock_dataset")
+    mock_data = RenkuDataset(slug="mock_dataset")
     mock_data.keywords = ["mock"]
-    mock_data.title = "This is a mock dataset and does not exist on the KG"
+    mock_data.name = "This is a mock dataset and does not exist on the KG"
     ent = Entity(path="some/path/to/features_file.txt", checksum="XDFGHJKP")
     mock_data_fi = RenkuDatasetFile(entity=ent)
     mock_data.dataset_files = [mock_renkuDatasetFile, mock_data_fi]
@@ -303,7 +302,7 @@ def mock_omni_output_plan():
         {"output_files": {"output1": "this/is/another/default"}}
     )  # type:ignore
     omni_out = OmniOutput(
-        name="mock_plan_out", out_names=["output1"], file_mapping=[out_map]
+        slug="mock_plan_out", out_names=["output1"], file_mapping=[out_map]
     )
     return omni_out
 
@@ -452,7 +451,7 @@ def mock_omni_output(mock_out_mapping, mock_omni_parameter, mock_omni_input):
     ]
     mock_out_mapping["parameter"] = mock_omni_parameter.default
     omni_out = OmniOutput(
-        name="mock_res",
+        slug="mock_res",
         out_names=["out_file1", "out_file2"],
         file_mapping=[mock_out_mapping],
         inputs=mock_omni_input,

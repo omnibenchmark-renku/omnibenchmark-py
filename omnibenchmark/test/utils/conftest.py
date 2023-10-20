@@ -34,7 +34,7 @@ def mock_paramDatasetFile():
 
 @pytest.fixture
 def mock_paramDataset(mock_paramDatasetFile):
-    mock_data = RenkuDataset(name="param_dataset")
+    mock_data = RenkuDataset(slug="param_dataset")
     mock_data.keywords = ["mock_param"]
     mock_data.title = "Mock param dataset"
     mock_data.dataset_files = [mock_paramDatasetFile, mock_paramDatasetFile]

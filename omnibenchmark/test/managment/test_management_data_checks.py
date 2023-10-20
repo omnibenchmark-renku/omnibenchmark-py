@@ -11,9 +11,9 @@ def test_renku_dataset_exists_for_existing(get_renkuDataset_List):
 
 
 ### Test dataset_name_exist
-def test_dataset_name_exist_for_not_existing(mock_dataset_query):
-    assert not data_checks.dataset_name_exist("quatsch", kg_url="mock_url")
+def test_dataset_slug_exist_for_not_existing(mock_dataset_query):
+    assert not data_checks.dataset_slug_exist("quatsch", kg_url="mock_url")
 
 
-def test_dataset_name_exist_for_existing(mock_dataset_query):
-    assert data_checks.dataset_name_exist("mock_dataset", kg_url="mock_url")
+def test_dataset_slug_exist_for_existing(mock_dataset_query):
+    assert data_checks.dataset_slug_exist("mock_dataset", kg_url="mock_url")

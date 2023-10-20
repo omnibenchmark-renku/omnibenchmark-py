@@ -1,7 +1,7 @@
 ---
 data:
-    name: "out_dataset"
-    title: "example omniobject output"
+    slug: "out_dataset"
+    name: "example omniobject output"
     description: "This dataset is supposed to store the output files from the example omniobject"
     keywords: ["example"]
 script: "path/to/method/dataset/metric/script.py"
@@ -20,10 +20,10 @@ inputs:
       count_file: "data/import_this_dataset/import_this_dataset__counts.mtx.gz"
       dim_red_file: "data/import_this_dataset/import_this_dataset__dim_red_file.json"
   default: "import_this_dataset"
-  filter_names: ["data1", "data2"]
+  filter_slugs: ["data1", "data2"]
   multi_data_matching: False
 outputs:
-  template: "data/${name}/${name}_${unique_values}_${out_name}.${out_end}"
+  template: "data/${slug}/${slug}_${unique_values}_${out_name}.${out_end}"
   template_vars:
     vars1: "random"
     vars2: "variable"

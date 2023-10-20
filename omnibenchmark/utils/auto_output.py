@@ -203,7 +203,7 @@ def get_all_output_combinations(
     inputs: Optional[OmniInput] = None,
     parameter: Optional[OmniParameter] = None,
     sort_keys: bool = True,
-    out_template: str = "data/${name}/${name}_${unique_values}_${out_name}.${out_end}",
+    out_template: str = "data/${slug}/${slug}_${unique_values}_${out_name}.${out_end}",
     template_fun: Optional[Callable[..., Mapping]] = None,
     **kwargs,
 ) -> List[OutMapping]:

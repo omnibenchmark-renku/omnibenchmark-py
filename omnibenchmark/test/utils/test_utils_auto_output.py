@@ -40,7 +40,7 @@ def test_join_inputs_parameter_with_none():
 # get_out_names_from_input_params
 def test_get_out_names_from_input_params_name_out_end(mock_out_end):
     test_out_name = omni.get_out_names_from_input_params(
-        name="test_in", output_end=mock_out_end
+        slug="test_in", output_end=mock_out_end
     )
     assert test_out_name == {
         "red_dim": "data/test_in/test_in__red_dim.mtx.gz",
@@ -51,7 +51,7 @@ def test_get_out_names_from_input_params_name_out_end(mock_out_end):
 def test_get_out_names_from_input_params_remove_dubble_points(mock_out_end):
     mock_out_end["red_dim"] = ".mtx.gz"
     test_out_name = omni.get_out_names_from_input_params(
-        name="test_in", output_end=mock_out_end
+        slug="test_in", output_end=mock_out_end
     )
     assert test_out_name == {
         "red_dim": "data/test_in/test_in__red_dim.mtx.gz",
@@ -63,7 +63,7 @@ def test_get_out_names_from_input_params_name_out_end_parameter(
     mock_out_end, mock_param
 ):
     test_out_name = omni.get_out_names_from_input_params(
-        name="test_in", output_end=mock_out_end, parameter=mock_param, sort_keys=False
+        slug="test_in", output_end=mock_out_end, parameter=mock_param, sort_keys=False
     )
     assert test_out_name == {
         "red_dim": "data/test_in/test_in_param_str_value_str__param_num_10_red_dim.mtx.gz",
@@ -73,9 +73,9 @@ def test_get_out_names_from_input_params_name_out_end_parameter(
 
 def test_get_out_names_from_input_params_new_template(mock_out_end):
     test_out_name = omni.get_out_names_from_input_params(
-        name="test_in",
+        slug="test_in",
         output_end=mock_out_end,
-        out_template="${name}_${out_name}.${out_end}",
+        out_template="${slug}_${out_name}.${out_end}",
     )
     assert test_out_name == {
         "red_dim": "test_in_red_dim.mtx.gz",
@@ -85,9 +85,9 @@ def test_get_out_names_from_input_params_new_template(mock_out_end):
 
 def test_get_out_names_from_input_params_new_tem_vars(mock_out_end):
     test_out_name = omni.get_out_names_from_input_params(
-        name="test_in",
+        slug="test_in",
         output_end=mock_out_end,
-        out_template="${name}_${out_name}_${test_name}.${out_end}",
+        out_template="${slug}_${out_name}_${test_name}.${out_end}",
         test_name="new",
     )
     assert test_out_name == {
@@ -99,7 +99,7 @@ def test_get_out_names_from_input_params_new_tem_vars(mock_out_end):
 def test_get_out_names_from_input_params_invalid_template(mock_out_end):
     with pytest.raises(NameError, match=r"Invalid output filename template: .*?"):
         omni.get_out_names_from_input_params(
-            name="test_in",
+            slug="test_in",
             output_end=mock_out_end,
             out_template="${quatsch}_${out_name}.${out_end}",
         )
@@ -217,7 +217,7 @@ def test_get_input_parameter_combinations_input(mock_omni_input):
 # get_all_output_combinations
 def test_get_all_output_combinations_no_in_param():
     all_out = omni.get_all_output_combinations(
-        name="test_out", output_end={"dim_red": "mtx.gz", "counts": "json"}
+        slug="test_out", output_end={"dim_red": "mtx.gz", "counts": "json"}
     )
     assert all_out == [
         {
@@ -233,7 +233,7 @@ def test_get_all_output_combinations_no_in_param():
 
 def test_get_all_output_combinations_no_in(mock_omni_parameter):
     all_out = omni.get_all_output_combinations(
-        name="test_out", output_end={"dim_red": "mtx.gz"}, parameter=mock_omni_parameter
+        slug="test_out", output_end={"dim_red": "mtx.gz"}, parameter=mock_omni_parameter
     )
     assert all_out[0] == {
         "input_files": None,
@@ -246,7 +246,7 @@ def test_get_all_output_combinations_no_in(mock_omni_parameter):
 
 def test_get_all_output_combinations_no_param(mock_omni_input):
     all_out = omni.get_all_output_combinations(
-        name="test_out", output_end={"dim_red": "mtx.gz"}, inputs=mock_omni_input
+        slug="test_out", output_end={"dim_red": "mtx.gz"}, inputs=mock_omni_input
     )
     assert all_out[0] == {
         "input_files": {
@@ -260,10 +260,10 @@ def test_get_all_output_combinations_no_param(mock_omni_input):
 
 def test_get_all_output_combinations_new_template(mock_omni_input):
     all_out = omni.get_all_output_combinations(
-        name="test_out",
+        slug="test_out",
         output_end={"dim_red": "mtx.gz"},
         inputs=mock_omni_input,
-        out_template="data/${name}/${name}_${unique_values}_${out_name}_${test_name}.${out_end}",
+        out_template="data/${slug}/${slug}_${unique_values}_${out_name}_${test_name}.${out_end}",
         test_name="new",
     )
     assert all_out[0] == {
@@ -286,10 +286,10 @@ def test_get_all_output_combinations_template_function(mock_omni_input):
         return temp_val
 
     all_out = omni.get_all_output_combinations(
-        name="test_out",
+        slug="test_out",
         output_end={"dim_red": "mtx.gz"},
         inputs=mock_omni_input,
-        out_template="data/${name}/${name}_${unique_values}_${out_name}_${in_type}.${out_end}",
+        out_template="data/${slug}/${slug}_${unique_values}_${out_name}_${in_type}.${out_end}",
         template_fun=temp_func,
     )
     assert all_out[0] == {
@@ -307,27 +307,27 @@ def test_get_all_output_combinations_template_function(mock_omni_input):
 def test_get_all_output_combinations_template_fun_vars(
     mock_omni_input, mock_omni_parameter
 ):
-    def temp_func(comb, name_dict):
-        data_name = list(comb["input_files"].keys())[0]
-        if data_name in name_dict.keys():
-            data_name = name_dict[data_name]
+    def temp_func(comb, slug_dict):
+        data_slug = list(comb["input_files"].keys())[0]
+        if data_slug in slug_dict.keys():
+            data_slug = slug_dict[data_slug]
         temp_val = {
-            "data_name": data_name,
+            "data_slug": data_slug,
             "param1": comb["parameter"]["param1"],
             "param2": comb["parameter"]["param2"],
         }
         return temp_val
 
-    name_dict = {"data1": "positive_control"}
+    slug_dict = {"data1": "positive_control"}
 
     all_out = omni.get_all_output_combinations(
-        name="test_out",
+        slug="test_out",
         output_end={"dim_red": "mtx.gz"},
         inputs=mock_omni_input,
         parameter=mock_omni_parameter,
-        out_template="data/${name}/${data_name}_${name}_${param1}_${param2}_${out_name}.${out_end}",
+        out_template="data/${slug}/${data_slug}_${slug}_${param1}_${param2}_${out_name}.${out_end}",
         template_fun=temp_func,
-        name_dict=name_dict,
+        slug_dict=slug_dict,
     )
     assert all_out[0]["output_files"] == {
         "dim_red": "data/test_out/positive_control_test_out_0_test_dim_red.mtx.gz"
