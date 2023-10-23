@@ -315,7 +315,7 @@ def test_check_orchestrator_existing(monkeypatch, mock_dataset_info):
             return MockResponse()
 
     monkeypatch.setattr(requests, "get", get_project_info)
-    o_check = data_commands.check_orchestrator(mock_dataset_info, o_url="some/url")
+    o_check = data_commands.check_orchestrator(mock_dataset_info, o_url="some/url", gitlab_url='https://gitlab.renkulab.io')
     assert o_check == mock_dataset_info["url"]
 
 

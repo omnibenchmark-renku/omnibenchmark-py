@@ -2,6 +2,7 @@ import gitlab
 from gitlab.v4.objects.pipelines import ProjectPipeline
 from gitlab.v4.objects.projects import Project
 from omnibenchmark.management.data_commands import get_project_info_from_url
+from omnibenchmark.utils.default_global_vars import GIT_URL
 from typing import List, Optional
 import base64
 import yaml
@@ -9,7 +10,7 @@ import yaml
 
 def get_orchestrator_projects_from_cicd_yaml(
     o_url: str,
-    gitlab_url: str = "https://renkulab.io/gitlab",
+    gitlab_url: str = GIT_URL,
     target_branches: List[str] = ["master", "main"],
     exclude_stages: List[str] = ["build"],
 ) -> List[str]:
@@ -17,7 +18,7 @@ def get_orchestrator_projects_from_cicd_yaml(
 
     Args:
         o_url (str): Orchestrator url
-        gitlab_url (_type_, optional): Gitlab url. Defaults to "https://renkulab.io/gitlab".
+        gitlab_url (_type_, optional): Gitlab url. Defaults to utils/default_global_vars/GIT_URL.
         target_branches (List[str], optional): branch(es) to use. Defaults to ["master", "main"].
         exclude_stages (List[str], optional): Stages to ignore. Defaults to ["build"].
 
@@ -46,13 +47,13 @@ def get_orchestrator_projects_from_cicd_yaml(
 
 
 def get_project_infos(
-    p_url: str, gitlab_url: str = "https://renkulab.io/gitlab"
+    p_url: str, gitlab_url: str = GIT_URL
 ) -> Optional[Project]:
     """Get project info from url
 
     Args:
         p_url (str): project url
-        gitlab_url (_type_, optional): gitlab url. Defaults to "https://renkulab.io/gitlab".
+        gitlab_url (_type_, optional): gitlab url. Defaults to utils/default_global_vars/GIT_URL.
 
     Returns:
         Project: An instance of gitlab API project class

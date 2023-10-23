@@ -14,6 +14,7 @@ from omnibenchmark.utils.auto_input import (
     drop_none_elements,
 )
 from omnibenchmark.utils.exceptions import InputError
+from omnibenchmark.utils.default_global_vars import GIT_URL, DATA_QUERY_URL, DATA_URL
 from omnibenchmark.management.data_commands import update_datasets_by_keyword
 from omnibenchmark.management.parameter_checks import (
     filter_parameter,
@@ -103,9 +104,9 @@ class OmniInput:
     def update_inputs(
         self,
         orchestrator: str,
-        query_url: str,
-        data_url: str,
-        gitlab_url: str,
+        query_url: str = DATA_QUERY_URL,
+        data_url: str = DATA_URL,
+        gitlab_url: str = GIT_URL,
         check_o_url: bool = True,
         n_latest: int = 9,
         all: bool = True,
@@ -206,9 +207,9 @@ class OmniParameter:
     def update_parameter(
         self,
         orchestrator: str,
-        query_url: str,
-        data_url: str,
-        gitlab_url: str,
+        query_url: str = DATA_QUERY_URL,
+        data_url: str = DATA_URL,
+        gitlab_url: str = GIT_URL,
         check_o_url: bool = True,
         n_latest: int = 9,
     ):

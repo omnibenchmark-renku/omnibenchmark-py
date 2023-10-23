@@ -19,7 +19,7 @@ def test_renku_dataset_create_for_existing_dataset(get_renkuDataset_List, monkey
         lambda *args, **kwargs: get_mock_status(),
     )
     return_value = ren_datasets.renku_dataset_create(
-        slug="mock_dataset", kg_url="some.url"
+        slug="mock_dataset", data_query_url="some.url"
     )
     assert isinstance(return_value, type(None))
 
@@ -37,7 +37,7 @@ def test_renku_dataset_create_for_dataset_slug_exist(
     )
 
     return_value = ren_datasets.renku_dataset_create(
-        slug="mock_dataset", kg_url="some.url"
+        slug="mock_dataset", data_query_url="some.url"
     )
     assert isinstance(return_value, type(None))
 
@@ -47,7 +47,7 @@ def test_renku_dataset_create_works():
 
     data_slug = "test_omnibench"
     data_object = ren_datasets.renku_dataset_create(
-        slug=data_slug, kg_url="https://renkulab.io/knowledge-graph"
+        slug=data_slug
     )
     remove_dataset_command().build().execute("test_omnibench")
 
@@ -57,7 +57,7 @@ def test_renku_dataset_create_works():
 def test_renku_dataset_create_no_project_context(no_project_context):
 
     with pytest.raises(ProjectError, match=r"Directory is not a renku project*?"):
-        ren_datasets.renku_dataset_create(slug="mock_dataset", kg_url="some.url")
+        ren_datasets.renku_dataset_create(slug="mock_dataset", data_query_url="some.url")
 
 
 ### Test renku_dataset_import

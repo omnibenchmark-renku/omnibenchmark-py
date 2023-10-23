@@ -4,6 +4,7 @@ from typing import Any, TypeVar, Optional, List, Union, Dict
 from pathlib import Path
 from renku.domain_model.dataset import Dataset as RenkuDataSet
 import omnibenchmark.management.general_checks
+from omnibenchmark.utils.default_global_vars import DATA_QUERY_URL
 from omnibenchmark.management.data_checks import dataset_slug_exist, renku_dataset_exist
 from renku.command.dataset import (
     create_dataset_command,
@@ -22,7 +23,7 @@ logger = logging.getLogger("omnibenchmark.renku_commands")
 
 def renku_dataset_create(
     slug: str,
-    kg_url: str,
+    data_query_url: str = DATA_QUERY_URL,
     name: Optional[str] = None,
     description: Optional[str] = None,
     creators: Optional[List[str]] = None,
@@ -56,7 +57,7 @@ def renku_dataset_create(
         print(f"Dataset {slug} already exists in this repository.")
         return
 
-    if dataset_slug_exist(slug, kg_url):
+    if dataset_slug_exist(slug=slug, data_query_url= data_query_url):
         print(f"Dataset {slug} already taken. Please use a different slug.")
         return
 

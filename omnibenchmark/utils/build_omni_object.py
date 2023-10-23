@@ -12,6 +12,7 @@ from os import PathLike
 from typing import Any, Optional, List, Union
 from omnibenchmark.utils.decorators import option_dict_none, option_dict_list
 from omnibenchmark.utils.user_input_checks import flatten, empty_object_to_none
+from omnibenchmark.utils.default_global_vars import KG_URL, GIT_URL, DATA_QUERY_URL, DATA_URL, BENCH_URL
 import logging
 from typeguard import check_type
 
@@ -58,6 +59,12 @@ class ConfigParam(TypedDict, total=False):
     combinations: Optional[Mapping]
     filter: Optional[Mapping]
 
+class ConfigUrl(TypedDict, total=False):
+    kg_url: str
+    data_query_url: str
+    data_url: str
+    git_url: str
+    bench_url: str
 
 class ConfigDict(TypedDict, total=False):
     # data: Required[ConfigData]
@@ -70,6 +77,7 @@ class ConfigDict(TypedDict, total=False):
     inputs: Optional[ConfigInput]
     outputs: Optional[ConfigOutput]
     parameter: Optional[ConfigParam]
+    urls: Optional[ConfigUrl]
 
 
 # Functions to build OmniObjects from yaml/config_dict
@@ -321,11 +329,18 @@ def build_omni_object_from_config(config: ConfigDict) -> OmniObject:
     obj_bench_name = empty_object_to_none(config_in["benchmark_name"])
     obj_orchestrator = empty_object_to_none(config_in["orchestrator"])
 
+    config_url = defaultdict(list, config_in["urls"])
+    obj_kg_url = KG_URL if config_url.get("kg_url") is None else config_url.get("kg_url")
+    obj_data_query_url = DATA_QUERY_URL if config_url.get("data_query_url") is None else config_url.get("data_query_url")
+    obj_data_url = DATA_URL if config_url.get("data_url") is None else config_url.get("data_url")
+    obj_git_url = GIT_URL if config_url.get("git_url") is None else config_url.get("git_url")
+    obj_bench_url = BENCH_URL if config_url.get("bench_url") is None else config_url.get("bench_url")
+
     omni_object = OmniObject(
-        slug=obj_slug,  # type:ignore
+        slug=obj_slug,                      # type:ignore
         keyword=obj_key,
-        name=obj_name,  # type:ignore
-        description=obj_description,  # type:ignore
+        name=obj_name,                      # type:ignore
+        description=obj_description,        # type:ignore
         script=obj_script,
         benchmark_name=obj_bench_name,
         orchestrator=obj_orchestrator,
@@ -333,6 +348,11 @@ def build_omni_object_from_config(config: ConfigDict) -> OmniObject:
         command=omni_command,
         outputs=omni_output,
         parameter=omni_parameter,
+        kg_url=obj_kg_url,                  # type:ignore
+        data_query_url=obj_data_query_url,  # type:ignore
+        data_url=obj_data_url,              # type:ignore
+        git_url=obj_git_url,
+        bench_url=obj_bench_url             # type:ignore
     )
     return omni_object
 

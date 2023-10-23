@@ -4,6 +4,7 @@ from renku.api import Activity, Project, Dataset
 from renku.domain_model.project_context import project_context
 from omnibenchmark.utils.user_input_checks import flatten
 import requests
+from omnibenchmark.utils.default_global_vars import DATA_QUERY_URL
 from typing import Union, List, Mapping, Any
 import os
 
@@ -50,18 +51,18 @@ def renku_dataset_exist(slug: str, path: Union[os.PathLike, str] = os.getcwd()) 
     return True if len(matches) >= 1 else False
 
 
-def dataset_slug_exist(slug: str, kg_url: str) -> bool:
+def dataset_slug_exist(slug: str, data_query_url: str = DATA_QUERY_URL) -> bool:
     """Check if a renku dataset with a defined name already exists in the knowledge base.
 
     Args:
         slug (str): Slug to query
-        kg_url (str): Url of the knowledge base to query
+        data_query_url (str): Url of the knowledge base to query
 
     Returns:
         bool: True/False, if a dataset with that name already exist
     """
 
-    url = kg_url + "/datasets?query=" + slug
+    url = data_query_url + slug
     response = query_multipages(url)
     # Checks to ensure no complete name matching (Remove if file matching is moved to triplet store queries)
     if any(slug in item["slug"] for item in response) or any(

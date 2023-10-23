@@ -25,14 +25,14 @@ from omnibenchmark.management.wflow_checks import (
     check_plan_exist,
     filter_activity_exist,
 )
-from omnibenchmark.utils.default_global_vars import OmniRenkuInst
+from omnibenchmark.utils.default_global_vars import KG_URL, GIT_URL, DATA_QUERY_URL, DATA_URL, BENCH_URL
 from renku.domain_model.dataset import Dataset as RenkuDataSet
 from renku.command.view_model.plan import PlanViewModel
 from typing import List, Optional
 from os import PathLike
 
 
-class OmniObject(OmniRenkuInst):
+class OmniObject():
 
     """OmniBench object
 
@@ -55,6 +55,11 @@ class OmniObject(OmniRenkuInst):
         orchestrator: Optional[str] = None,
         wflow_name: Optional[str] = None,
         dataset_slug: Optional[str] = None,
+        kg_url: str = KG_URL,
+        git_url: str = GIT_URL,
+        data_query_url: str = DATA_QUERY_URL,
+        data_url: str = DATA_URL,
+        bench_url: str = BENCH_URL
     ):
         """An object to manage an omnibenchmark module
 
@@ -90,14 +95,18 @@ class OmniObject(OmniRenkuInst):
         self.wflow_name = wflow_name
         self.dataset_slug = dataset_slug
         self.renku: bool = is_renku_project()
-        self.kg_url: str = super().KG_URL
+        self.kg_url = kg_url
+        self.git_url = git_url
+        self.data_query_url = data_query_url
+        self.data_url = data_url
+        self.bench_url = bench_url
 
         if self.command is None and self.script is not None:
             self.command = OmniCommand(script=self.script, outputs=self.outputs)
 
         if self.orchestrator is None and self.benchmark_name is not None:
             self.orchestrator = find_orchestrator(
-                benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
+                benchmark_name=self.benchmark_name, bench_url=self.bench_url
             )
 
         if self.wflow_name is None:
@@ -171,21 +180,21 @@ class OmniObject(OmniRenkuInst):
         if self.orchestrator is None:
             if self.benchmark_name is not None:
                 self.orchestrator = find_orchestrator(
-                    benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
+                    benchmark_name=self.benchmark_name, bench_url=self.bench_url
                 )
             if self.orchestrator is None:
                 print(
                     f"WARNING: No orchestrator specified! \n"
                     f"No new datasets will be imported. Consider specifying an orchestrator by running:\n"
                     f"OmniObject.orchestrator = find_orchestrator(BENCHMARK_NAME) \n"
-                    f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs."
+                    f"Look at {self.bench_url} to get a list of possible BENCHMARK_NAMEs."
                 )
         if self.inputs is not None and self.orchestrator is not None:
             self.inputs.update_inputs(
                 orchestrator=self.orchestrator,
-                query_url=self.DATA_QUERY_URL,
-                data_url=self.DATA_URL,
-                gitlab_url=self.GIT_URL,
+                query_url=self.data_query_url,
+                data_url=self.data_url,
+                gitlab_url=self.git_url,
                 check_o_url=check_o_url,
                 n_latest=n_latest,
                 all=all,
@@ -193,9 +202,9 @@ class OmniObject(OmniRenkuInst):
         if self.parameter is not None and self.orchestrator is not None:
             self.parameter.update_parameter(
                 orchestrator=self.orchestrator,
-                query_url=self.DATA_QUERY_URL,
-                data_url=self.DATA_URL,
-                gitlab_url=self.GIT_URL,
+                query_url=self.data_query_url,
+                data_url=self.data_url,
+                gitlab_url=self.git_url,
                 check_o_url=check_o_url,
                 n_latest=n_latest,
             )
@@ -249,14 +258,14 @@ class OmniObject(OmniRenkuInst):
         if self.orchestrator is None:
             if self.benchmark_name is not None:
                 self.orchestrator = find_orchestrator(
-                    benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
+                    benchmark_name=self.benchmark_name, bench_url=self.bench_url
                 )
             if self.orchestrator is None:
                 print(
                     f"WARNING: No orchestrator specified! \n"
                     f"No new datasets will be imported. Consider specifying an orchestrator by running:\n"
                     f"OmniObject.orchestrator = find_orchestrator(BENCHMARK_NAME) \n"
-                    f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs."
+                    f"Look at {self.bench_url} to get a list of possible BENCHMARK_NAMEs."
                 )
                 return
         if self.parameter is None:
@@ -275,9 +284,9 @@ class OmniObject(OmniRenkuInst):
                 filter_slugs=self.inputs.filter_slugs,
                 o_url=self.orchestrator,
                 filter_ex=True,
-                query_url=self.DATA_QUERY_URL,
-                data_url= self.DATA_URL,
-                gitlab_url=self.GIT_URL,
+                query_url=self.data_query_url,
+                data_url= self.data_url,
+                gitlab_url=self.git_url,
                 check_o_url=check_o_url,
                 n_latest=n_latest,
             )
