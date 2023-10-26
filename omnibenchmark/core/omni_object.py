@@ -124,7 +124,7 @@ class OmniObject():
 
         renku_dataset = renku_dataset_create(
             slug=self.dataset_slug,  # type:ignore
-            kg_url=self.kg_url,
+            data_query_url=self.data_query_url,
             name=self.name,
             description=self.description,
             keyword=self.keyword,
