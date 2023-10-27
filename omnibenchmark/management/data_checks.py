@@ -65,24 +65,22 @@ def dataset_slug_exist(slug: str, data_query_url: str = DATA_QUERY_URL) -> bool:
     url = data_query_url + slug
     response = query_multipages(url)
     # Checks to ensure no complete name matching (Remove if file matching is moved to triplet store queries)
-    if any(slug in item["slug"] for item in response) or any(
-        item["slug"] in slug for item in response
+    response_data = [res for res in response if res.get("type") == "dataset"]
+    if slug in [item.get("slug") for item in response_data] or any(
+        item.get("slug") in slug for item in response_data if item.get("slug") is not None  # type:ignore
     ):
         conflicting = [
-            item["slug"]
-            for item in response
-            if slug in item["slug"] or item["slug"] in slug
+            item.get("slug")
+            for item in response_data
+            if item.get("slug") is not None and slug in item.get("slug") or item.get("slug") is not None and item.get("slug") in slug # type:ignore
         ]
         nl = "\n"
-        slug_list = set([item["slug"] for item in response])
         print(
-            f"A dataset with a complete match of {slug} already exist.\n"
+            f"A dataset with a complete match of {slug} already exist.\n" # type:ignore
             f"Conflicting dataset name(s): {nl}{nl.join(conflicting)}.\n"
-            # "Please specify a name without a complete match within:\n"
-            # f"{nl}{nl.join(name_list)}"
         )
         return True
-    return True if slug in [item["slug"] for item in response] else False
+    return True if slug in [item.get("slug") for item in response_data] else False
 
 
 def find_activities_with_missing_inputs() -> List[Activity]:
