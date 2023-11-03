@@ -24,7 +24,7 @@ def renku_workflow_run(
     name: Optional[str] = None,
     description: Optional[str] = None,
     keyword: Optional[str] = None,
-    success_codes: Optional[List[int]] = None,
+    success_codes: List[int] = [],
     explicit_inputs: List = [],
     explicit_outputs: List = [],
     explicit_parameters: List = [],
@@ -73,7 +73,7 @@ def renku_workflow_run(
             no_output_detection=no_output_detection,
             no_parameter_detection=no_parameter_detection,
             success_codes=success_codes,
-            command_line=command_line,
+            command_line=[command_line],
             creators=creators,
         )
     )
