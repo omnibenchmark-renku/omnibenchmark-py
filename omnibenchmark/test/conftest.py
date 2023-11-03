@@ -76,6 +76,7 @@ def mock_dataset_json():
         {
             "_links": [{"rel": "details", "href": "https://this_is_a_mo.ck"}],
             "description": "A mock dataset that does not exoist in real",
+            "type":	"dataset",
             "identifier": "XXXXXX",
             "name": "mock_dataset new name",
             "slug": "mock_dataset",

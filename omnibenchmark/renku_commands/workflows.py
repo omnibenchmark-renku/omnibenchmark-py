@@ -31,6 +31,7 @@ def renku_workflow_run(
     no_output: bool = False,
     no_input_detection: bool = False,
     no_output_detection: bool = False,
+    no_parameter_detection: bool = False,
     creators: Optional[List[str]] = None,
 ) -> CommandResult:
     """Run a renku workflow
@@ -70,6 +71,7 @@ def renku_workflow_run(
             no_output=no_output,
             no_input_detection=no_input_detection,
             no_output_detection=no_output_detection,
+            no_parameter_detection=no_parameter_detection,
             success_codes=success_codes,
             command_line=command_line,
             creators=creators,

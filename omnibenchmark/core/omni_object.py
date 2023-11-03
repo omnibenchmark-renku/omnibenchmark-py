@@ -115,7 +115,7 @@ class OmniObject():
         if self.dataset_slug is None:
             self.dataset_slug = self.slug
 
-    def create_dataset(self) -> RenkuDataSet:
+    def create_dataset(self, check_slug: bool = True) -> RenkuDataSet:
         """create renku-dataset defined by the attributes of the class instance
 
         Returns:
@@ -128,6 +128,7 @@ class OmniObject():
             name=self.name,
             description=self.description,
             keyword=self.keyword,
+            check_slug=check_slug
         )
         return renku_dataset
 

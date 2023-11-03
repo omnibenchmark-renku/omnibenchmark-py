@@ -30,7 +30,8 @@ def renku_dataset_create(
     meta_data: Optional[Dict[str, Any]] = None,
     keyword: Optional[List[str]] = None,
     storage: Optional[str] = None,
-    datadir: Optional[str] = None
+    datadir: Optional[str] = None,
+    check_slug: bool = True,
 ) -> RenkuDataSet:
     """Generate an empty renku dataset in the current project. Works in a renku project only.
 
@@ -57,7 +58,7 @@ def renku_dataset_create(
         print(f"Dataset {slug} already exists in this repository.")
         return
 
-    if dataset_slug_exist(slug=slug, data_query_url= data_query_url):
+    if check_slug and dataset_slug_exist(slug=slug, data_query_url= data_query_url):
         print(f"Dataset {slug} already taken. Please use a different slug.")
         return
 
