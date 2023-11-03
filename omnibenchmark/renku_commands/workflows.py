@@ -14,6 +14,7 @@ from renku.core.workflow.execute import execute_workflow_graph
 from renku.command.command_builder.command import Command
 from omnibenchmark.management.general_checks import is_renku_project
 from networkx import DiGraph
+import shlex
 import logging
 
 logger = logging.getLogger("omnibenchmark.renku_commands")
@@ -58,6 +59,8 @@ def renku_workflow_run(
     if creators:
         creators, _ = construct_creators(creators)
 
+    command_list = shlex.split(command_line)
+
     workflow = (
         run_command_line_command()
         .build()
@@ -73,7 +76,7 @@ def renku_workflow_run(
             no_output_detection=no_output_detection,
             no_parameter_detection=no_parameter_detection,
             success_codes=success_codes,
-            command_line=[command_line],
+            command_line=command_list,
             creators=creators,
         )
     )

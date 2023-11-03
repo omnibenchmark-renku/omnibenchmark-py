@@ -20,7 +20,7 @@ classifiers = [
 keywords  = ["benchmark", "omnibenchmark", "renku"]
 
 dependencies = [
-    "renku >= 2.7.0",
+    "renku",
     "requests",
     "iteration_utilities",
     "typeguard == 3.0.2",
