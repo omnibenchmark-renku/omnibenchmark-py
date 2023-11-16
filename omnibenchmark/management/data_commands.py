@@ -287,10 +287,11 @@ def get_origin_dataset_infos(
         List[Mapping]: Filtered datasets and their metadata
     """
     all_infos: List = []
+    checkurl = re.sub("/knowledge-graph/.*$", "", data_url)
     for ref_url in refs:
         data_info = get_data_info_by_url(url=ref_url)
         if "sameAs" in data_info.keys():
-            if not data_info["sameAs"] == data_info["url"] and data_info["sameAs"].startswith("https://renkulab.io"):
+            if not data_info["sameAs"] == data_info["url"] and data_info["sameAs"].startswith(checkurl):
                 same_id = data_info["sameAs"].split("/")[-1]
                 same_url = data_url + same_id
                 data_info = get_data_info_by_url(url=same_url)
