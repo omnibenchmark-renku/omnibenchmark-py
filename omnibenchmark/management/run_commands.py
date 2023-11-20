@@ -284,7 +284,7 @@ def get_all_output_file_names(output: OmniOutput) -> List[str]:
 
 
 def manage_renku_activities(
-    outputs: OmniOutput, omni_plan: OmniPlan, provider: str = "toil", config: Optional[str] = None, n: Optional[int] = 2
+    outputs: OmniOutput, omni_plan: OmniPlan, provider: str = "toil", config: Optional[str] = None, n: Optional[int] = 1
 ):
     """Manage renku activities by updating existing ones and generating new activities for output files without.
 
