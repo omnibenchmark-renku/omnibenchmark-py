@@ -142,6 +142,7 @@ def renku_update_activity(
     try:
         result = (
             update_command(skip_metadata_update=skip_metadata_update)
+            .with_commit()
             .build()
             .execute(
                 update_all=update_all,
