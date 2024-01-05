@@ -20,7 +20,7 @@ classifiers = [
 keywords  = ["benchmark", "omnibenchmark", "renku"]
 
 dependencies = [
-    "renku",
+    "renku == 2.8.0",
     "requests",
     "iteration_utilities",
     "typeguard == 3.0.2",
@@ -33,10 +33,10 @@ dependencies = [
 dev = ["black", "bumpver", "pytest", "mypy"]
 
 [project.urls]
-"Homepage" = "https://omnibenchmark.pages.uzh.ch/omni_dash"
-"Code" = "https://github.com/almutlue/omnibenchmark-py"
-"Bug Tracker" = "https://github.com/almutlue/omnibenchmark-py/issues"
-"Documentation" = "https://omnibenchmark.readthedocs.io"
+"Homepage" = "https://omnibenchmark.com"
+"Code" = "https://github.com/omnibenchmark/omnibenchmark-py"
+"Bug Tracker" = "https://github.com/omnibenchmark/omnibenchmark-py/issues"
+"Documentation" = "https://omnibenchmark.github.io/documentation/"
 
 [tool.bumpver]
 current_version = "0.0.48"

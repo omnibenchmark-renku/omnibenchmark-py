@@ -323,6 +323,11 @@ You can find the corresponding GitLab project at the [omnibenchmark website](htt
 
 
 ## Release History
+* 0.0.48
+    * Enable global vars setting on object build
+    * FIX:
+    * Adapt to name changes in renku python
+    * Adapt to renku-py 2.8.0
 * 0.0.47
     * FIX:
     * Adapt to renku REST API changes for dataset imports/queries
