@@ -12,6 +12,7 @@ from os import PathLike
 from typing import Any, Optional, List, Union
 from omnibenchmark.utils.decorators import option_dict_none, option_dict_list
 from omnibenchmark.utils.user_input_checks import flatten, empty_object_to_none
+from omnibenchmark.utils.default_global_vars import KG_URL, GIT_URL, DATA_QUERY_URL, DATA_URL, BENCH_URL
 import logging
 from typeguard import check_type
 
@@ -22,8 +23,8 @@ logger = logging.getLogger("omnibenchmark.build_object")
 
 
 class ConfigData(TypedDict, total=False):
-    name: str
-    title: Optional[str]
+    slug: str
+    name: Optional[str]
     description: Optional[str]
     keywords: Optional[Union[str, List[str]]]
 
@@ -34,7 +35,7 @@ class ConfigInput(TypedDict, total=False):
     prefix: Optional[dict]
     input_files: Optional[dict]
     default: Optional[str]
-    filter_names: Optional[Union[str, List[str]]]
+    filter_slugs: Optional[Union[str, List[str]]]
     multi_data_matching: Optional[bool]
 
 
@@ -58,6 +59,12 @@ class ConfigParam(TypedDict, total=False):
     combinations: Optional[Mapping]
     filter: Optional[Mapping]
 
+class ConfigUrl(TypedDict, total=False):
+    kg_url: str
+    data_query_url: str
+    data_url: str
+    git_url: str
+    bench_url: str
 
 class ConfigDict(TypedDict, total=False):
     # data: Required[ConfigData]
@@ -70,6 +77,7 @@ class ConfigDict(TypedDict, total=False):
     inputs: Optional[ConfigInput]
     outputs: Optional[ConfigOutput]
     parameter: Optional[ConfigParam]
+    urls: Optional[ConfigUrl]
 
 
 # Functions to build OmniObjects from yaml/config_dict
@@ -120,7 +128,7 @@ def build_omni_input_from_config_inputs(
         list(set(flatten([list(in1.keys()) for in1 in get_values(in_files)])))
     )
     default_in = empty_object_to_none(inputs["default"])
-    filter_names = empty_object_to_none(into_list(inputs["filter_names"]))
+    filter_slugs = empty_object_to_none(into_list(inputs["filter_slugs"]))
     in_names = in_names or get_keys(prefix) or in_file_types
     multi = inputs["multi_data_matching"]
     multi_match = multi if not isinstance(multi, List) else False
@@ -131,7 +139,7 @@ def build_omni_input_from_config_inputs(
             keyword=keywords,
             input_files=in_files,
             default=default_in,
-            filter_names=filter_names,
+            filter_slugs=filter_slugs,
             multi_data_matching=multi_match,
         )
     else:
@@ -217,14 +225,14 @@ def build_omni_output_from_config(
     )
     template = config_outputs["template"]
     if len(template) == 0:
-        template = "data/${name}/${name}_${unique_values}_${out_name}.${out_end}"
+        template = "data/${slug}/${slug}_${unique_values}_${out_name}.${out_end}"
     try:
-        name = config_in["data"]["name"]
+        slug = config_in["data"]["slug"]
     except Exception:
         raise (
             InputError(
                 f"Invalid config file: {config}\n"
-                f"Please provide a config.yaml file with a value for data: name:"
+                f"Please provide a config.yaml file with a value for data: slug"
             )
         )
     file_map = config_outputs["file_mapping"]
@@ -242,7 +250,7 @@ def build_omni_output_from_config(
 
     if not isinstance(out_names, type(None)):
         return OmniOutput(
-            name=name,
+            slug=slug,
             out_names=out_names,
             output_end=out_ends,
             out_template=template,
@@ -313,19 +321,26 @@ def build_omni_object_from_config(config: ConfigDict) -> OmniObject:
         config=config, omni_output=omni_output
     )
     config_data = defaultdict(list, config_in["data"])
-    obj_name = empty_object_to_none(config_data["name"])
+    obj_slug = empty_object_to_none(config_data["slug"])
     obj_key = empty_object_to_none(into_list(config_data["keywords"]))
-    obj_title = empty_object_to_none(config_data["title"])
+    obj_name = empty_object_to_none(config_data["name"])
     obj_description = empty_object_to_none(config_data["description"])
     obj_script = empty_object_to_none(config_in["script"])
     obj_bench_name = empty_object_to_none(config_in["benchmark_name"])
     obj_orchestrator = empty_object_to_none(config_in["orchestrator"])
 
+    config_url = defaultdict(list, config_in["urls"])
+    obj_kg_url = KG_URL if config_url.get("kg_url") is None else config_url.get("kg_url")
+    obj_data_query_url = DATA_QUERY_URL if config_url.get("data_query_url") is None else config_url.get("data_query_url")
+    obj_data_url = DATA_URL if config_url.get("data_url") is None else config_url.get("data_url")
+    obj_git_url = GIT_URL if config_url.get("git_url") is None else config_url.get("git_url")
+    obj_bench_url = BENCH_URL if config_url.get("bench_url") is None else config_url.get("bench_url")
+
     omni_object = OmniObject(
-        name=obj_name,  # type:ignore
+        slug=obj_slug,                      # type:ignore
         keyword=obj_key,
-        title=obj_title,  # type:ignore
-        description=obj_description,  # type:ignore
+        name=obj_name,                      # type:ignore
+        description=obj_description,        # type:ignore
         script=obj_script,
         benchmark_name=obj_bench_name,
         orchestrator=obj_orchestrator,
@@ -333,6 +348,11 @@ def build_omni_object_from_config(config: ConfigDict) -> OmniObject:
         command=omni_command,
         outputs=omni_output,
         parameter=omni_parameter,
+        kg_url=obj_kg_url,                  # type:ignore
+        data_query_url=obj_data_query_url,  # type:ignore
+        data_url=obj_data_url,              # type:ignore
+        git_url=obj_git_url,
+        bench_url=obj_bench_url             # type:ignore
     )
     return omni_object
 

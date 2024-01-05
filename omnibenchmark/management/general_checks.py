@@ -5,7 +5,7 @@ from omnibenchmark.utils.exceptions import InputError
 from renku.core.errors import RequestError
 from omnibenchmark.utils.general import into_list
 from omnibenchmark.utils.local_cache.config import local_bench_cat_data
-from omnibenchmark.utils.local_cache.sync import bench_cat_url
+from omnibenchmark.utils.default_global_vars import BENCH_URL
 from typing import Union, Optional, List, Mapping
 import warnings
 import os
@@ -30,7 +30,7 @@ def is_renku_project(path: Union[os.PathLike, str] = os.getcwd()) -> bool:
 
 
 def get_bench_essentials(
-    bench_url: str = bench_cat_url,
+    bench_url: str = BENCH_URL,
     local_cache: bool = False
 ) -> Union[Mapping, List]:
     if local_cache:
@@ -50,14 +50,14 @@ def get_bench_essentials(
 
 def find_orchestrator(
     benchmark_name: str,
-    bench_url: str = bench_cat_url,
+    bench_url: str = BENCH_URL,
     local_cache: bool = False
 ) -> Optional[str]:
     """Get the orchestrator url from the benchmark name.
 
     Args:
         benchmark_name (str): Name of the benchmark 
-        bench_url (str, optional): Url to the "essentials" orchestrator file with all benchmark-specific infos. Defaults to bench_cat_url.
+        bench_url (str, optional): Url to the "essentials" orchestrator file with all benchmark-specific infos. Defaults to BENCH_URL.
         local_cache (bool, optional): If the essentials  orchestrator file should be loaded from cache. Defaults to False.
 
     Returns:
@@ -77,14 +77,14 @@ def find_orchestrator(
 
 def get_benchmark_groups(
     field_name: str,
-    bench_url: str = bench_cat_url,
+    bench_url: str = BENCH_URL,
     local_cache: bool = False
 ) -> List[str]:
     """Get an overview of all available benchmarks 
 
     Args:
         field_name (str): Field to retrieve, must be part of the essentials orchestrator yaml file, e.g., 'orchestrator_url'
-        bench_url (str, optional): Url to the essentials orchestrator file. Defaults to bench_cat_url.
+        bench_url (str, optional): Url to the essentials orchestrator file. Defaults to BENCH_URL.
         local_cache (bool, optional): If the essentials orchestrator file should be loaded from cache. Defaults to False.
 
     Raises:

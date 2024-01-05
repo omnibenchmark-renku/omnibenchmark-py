@@ -14,6 +14,7 @@ from omnibenchmark.utils.auto_input import (
     drop_none_elements,
 )
 from omnibenchmark.utils.exceptions import InputError
+from omnibenchmark.utils.default_global_vars import GIT_URL, DATA_QUERY_URL, DATA_URL
 from omnibenchmark.management.data_commands import update_datasets_by_keyword
 from omnibenchmark.management.parameter_checks import (
     filter_parameter,
@@ -34,7 +35,7 @@ class OmniInput:
         input_files: Optional[Mapping[str, Mapping[str, str]]] = None,
         keyword: Optional[List[str]] = None,
         default: Optional[str] = None,
-        filter_names: Optional[List[str]] = None,
+        filter_slugs: Optional[List[str]] = None,
         filter_duplicated: bool = True,
         multi_data_matching: bool = False,
     ):
@@ -55,7 +56,7 @@ class OmniInput:
         self.input_files = input_files
         self.keyword = keyword
         self.default = default
-        self.filter_names = filter_names
+        self.filter_slugs = filter_slugs
         self.filter_duplicated = filter_duplicated
         self.multi_data_matching = multi_data_matching
 
@@ -72,7 +73,7 @@ class OmniInput:
             self.input_files = get_input_files_from_prefix(
                 self.prefix,
                 self.keyword,
-                self.filter_names,
+                self.filter_slugs,
                 filter_duplicated=self.filter_duplicated,
                 multi_data_matching=multi_data_matching,
             )
@@ -103,9 +104,9 @@ class OmniInput:
     def update_inputs(
         self,
         orchestrator: str,
-        query_url: str,
-        data_url: str,
-        gitlab_url: str,
+        query_url: str = DATA_QUERY_URL,
+        data_url: str = DATA_URL,
+        gitlab_url: str = GIT_URL,
         check_o_url: bool = True,
         n_latest: int = 9,
         all: bool = True,
@@ -123,7 +124,7 @@ class OmniInput:
             for key in self.keyword:
                 update_datasets_by_keyword(
                     keyword=key,
-                    filter_names=self.filter_names,
+                    filter_slugs=self.filter_slugs,
                     o_url=orchestrator,
                     query_url=query_url,
                     data_url=data_url,
@@ -137,7 +138,7 @@ class OmniInput:
                 self.input_files = get_input_files_from_prefix(
                     self.prefix,
                     self.keyword,
-                    self.filter_names,
+                    self.filter_slugs,
                     filter_duplicated=self.filter_duplicated,
                     multi_data_matching=self.multi_data_matching,
                 )
@@ -206,9 +207,9 @@ class OmniParameter:
     def update_parameter(
         self,
         orchestrator: str,
-        query_url: str,
-        data_url: str,
-        gitlab_url: str,
+        query_url: str = DATA_QUERY_URL,
+        data_url: str = DATA_URL,
+        gitlab_url: str = GIT_URL,
         check_o_url: bool = True,
         n_latest: int = 9,
     ):

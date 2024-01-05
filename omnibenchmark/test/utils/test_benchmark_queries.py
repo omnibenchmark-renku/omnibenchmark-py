@@ -7,13 +7,13 @@ def test_get_orchestrator_projects_from_cicd_yaml_existing_benchmark():
     o_url = "https://renkulab.io/knowledge-graph/projects/omnibenchmark/omni-batch-py/orchestrator-py"
     assert (
         "omnibenchmark/omni-batch-py/cellbench-py"
-        in omni.get_orchestrator_projects_from_cicd_yaml(o_url)
+        in omni.get_orchestrator_projects_from_cicd_yaml(o_url, gitlab_url='https://gitlab.renkulab.io')
     )
 
 
 def test_get_orchestrator_projects_from_cicd_yaml_exclude_stage():
     o_url = "https://renkulab.io/knowledge-graph/projects/omnibenchmark/omni-batch-py/orchestrator-py"
     project_list = omni.get_orchestrator_projects_from_cicd_yaml(
-        o_url, exclude_stages=["metric_run"]
+        o_url, exclude_stages=["metric_run"], gitlab_url='https://gitlab.renkulab.io'
     )
     assert "omnibenchmark/omni-batch-py/lisi-py" not in project_list

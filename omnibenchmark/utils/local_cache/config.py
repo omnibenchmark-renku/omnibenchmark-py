@@ -12,3 +12,5 @@ local_bench_cat_data = os.path.join(data_dir, "benchmark_categories.json")
 
 def init_dirs():
     os.makedirs(data_dir, exist_ok=True)
+
+

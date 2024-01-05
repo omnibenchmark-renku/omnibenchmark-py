@@ -25,14 +25,14 @@ from omnibenchmark.management.wflow_checks import (
     check_plan_exist,
     filter_activity_exist,
 )
-from omnibenchmark.utils.default_global_vars import OmniRenkuInst
+from omnibenchmark.utils.default_global_vars import KG_URL, GIT_URL, DATA_QUERY_URL, DATA_URL, BENCH_URL
 from renku.domain_model.dataset import Dataset as RenkuDataSet
 from renku.command.view_model.plan import PlanViewModel
 from typing import List, Optional
 from os import PathLike
 
 
-class OmniObject(OmniRenkuInst):
+class OmniObject():
 
     """OmniBench object
 
@@ -41,9 +41,9 @@ class OmniObject(OmniRenkuInst):
 
     def __init__(
         self,
-        name: str,
+        slug: str,
         keyword: Optional[List[str]] = None,
-        title: Optional[str] = None,
+        name: Optional[str] = None,
         description: Optional[str] = None,
         script: Optional[PathLike] = None,
         command: Optional[OmniCommand] = None,
@@ -54,14 +54,19 @@ class OmniObject(OmniRenkuInst):
         benchmark_name: Optional[str] = None,
         orchestrator: Optional[str] = None,
         wflow_name: Optional[str] = None,
-        dataset_name: Optional[str] = None,
+        dataset_slug: Optional[str] = None,
+        kg_url: str = KG_URL,
+        git_url: str = GIT_URL,
+        data_query_url: str = DATA_QUERY_URL,
+        data_url: str = DATA_URL,
+        bench_url: str = BENCH_URL
     ):
         """An object to manage an omnibenchmark module
 
         Args:
-            name (str): Module name
+            slug (str): Module slug (non-mutable)
             keyword (Optional[List[str]], optional): Keyword associated to the modules output dataset. Defaults to None.
-            title (Optional[str], optional): Title of the modules output dataset. Defaults to None.
+            name (Optional[str], optional): Name (mutable) of the modules output dataset. Defaults to None.
             description (Optional[str], optional): Description of the modules output dataset. Defaults to None.
             script (Optional[PathLike], optional): Script to generate the modules workflow for. Defaults to None.
             command (Optional[OmniCommand], optional): Workflow command, automatically generated if missing. Defaults to None.
@@ -72,12 +77,12 @@ class OmniObject(OmniRenkuInst):
             benchmark_name (Optional[str], optional): Name of the benchmark the module is associated to. Defaults to None.
             orchestrator (Optional[str], optional): Orchestrator url of the benchmark th emodule is associated to.
                                                     Automatic detection. Defaults to None.
-            wflow_name (Optional[str], optional): Workflow name. Will be set to the module name if none. Defaults to None.
-            dataset_name (Optional[str], optional): Dataset name. Will be set to the module name if none. Defaults to None.
+            wflow_name (Optional[str], optional): Workflow name. Will be set to the module slug if none. Defaults to None.
+            dataset_slug (Optional[str], optional): Dataset slug. Will be set to the module slug if none. Defaults to None.
         """
-        self.name = name
+        self.slug = slug
         self.keyword = keyword
-        self.title = title
+        self.name = name
         self.description = description
         self.command = command
         self.inputs = inputs
@@ -88,25 +93,29 @@ class OmniObject(OmniRenkuInst):
         self.orchestrator = orchestrator
         self.benchmark_name = benchmark_name
         self.wflow_name = wflow_name
-        self.dataset_name = dataset_name
+        self.dataset_slug = dataset_slug
         self.renku: bool = is_renku_project()
-        self.kg_url: str = super().KG_URL
+        self.kg_url = kg_url
+        self.git_url = git_url
+        self.data_query_url = data_query_url
+        self.data_url = data_url
+        self.bench_url = bench_url
 
         if self.command is None and self.script is not None:
             self.command = OmniCommand(script=self.script, outputs=self.outputs)
 
         if self.orchestrator is None and self.benchmark_name is not None:
             self.orchestrator = find_orchestrator(
-                benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
+                benchmark_name=self.benchmark_name, bench_url=self.bench_url
             )
 
         if self.wflow_name is None:
-            self.wflow_name = self.name
+            self.wflow_name = self.slug
 
-        if self.dataset_name is None:
-            self.dataset_name = self.name
+        if self.dataset_slug is None:
+            self.dataset_slug = self.slug
 
-    def create_dataset(self) -> RenkuDataSet:
+    def create_dataset(self, check_slug: bool = True) -> RenkuDataSet:
         """create renku-dataset defined by the attributes of the class instance
 
         Returns:
@@ -114,11 +123,12 @@ class OmniObject(OmniRenkuInst):
         """
 
         renku_dataset = renku_dataset_create(
-            self.dataset_name,  # type:ignore
-            self.kg_url,
-            title=self.title,
+            slug=self.dataset_slug,  # type:ignore
+            data_query_url=self.data_query_url,
+            name=self.name,
             description=self.description,
             keyword=self.keyword,
+            check_slug=check_slug
         )
         return renku_dataset
 
@@ -143,18 +153,18 @@ class OmniObject(OmniRenkuInst):
         """Add output files to the objects dataset and update the dataset"""
         if self.outputs is None:
             print(
-                f"No output files detected. Nothing to update for {self.dataset_name}."
+                f"No output files detected. Nothing to update for {self.dataset_slug}."
             )
             return
         out_files = get_all_output_file_names(self.outputs)
         update_dataset_files(
-            urls=out_files, dataset_name=self.dataset_name  # type:ignore
+            urls=out_files, dataset_slug=self.dataset_slug  # type:ignore
         )
-        renku_dataset_update(names=[self.dataset_name])  # type:ignore
+        renku_dataset_update(slugs=[self.dataset_slug])  # type:ignore
         out_no_input = find_outputs_with_missing_inputs()
         if len(out_no_input) > 0:
             revert_run(
-                out_files=out_no_input, dataset_name=self.dataset_name, remove=clean
+                out_files=out_no_input, dataset_slug=self.dataset_slug, remove=clean
             )
 
     def update_object(
@@ -171,21 +181,21 @@ class OmniObject(OmniRenkuInst):
         if self.orchestrator is None:
             if self.benchmark_name is not None:
                 self.orchestrator = find_orchestrator(
-                    benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
+                    benchmark_name=self.benchmark_name, bench_url=self.bench_url
                 )
             if self.orchestrator is None:
                 print(
                     f"WARNING: No orchestrator specified! \n"
                     f"No new datasets will be imported. Consider specifying an orchestrator by running:\n"
                     f"OmniObject.orchestrator = find_orchestrator(BENCHMARK_NAME) \n"
-                    f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs."
+                    f"Look at {self.bench_url} to get a list of possible BENCHMARK_NAMEs."
                 )
         if self.inputs is not None and self.orchestrator is not None:
             self.inputs.update_inputs(
                 orchestrator=self.orchestrator,
-                query_url=self.DATA_QUERY_URL,
-                data_url=self.DATA_URL,
-                gitlab_url=self.GIT_URL,
+                query_url=self.data_query_url,
+                data_url=self.data_url,
+                gitlab_url=self.git_url,
                 check_o_url=check_o_url,
                 n_latest=n_latest,
                 all=all,
@@ -193,9 +203,9 @@ class OmniObject(OmniRenkuInst):
         if self.parameter is not None and self.orchestrator is not None:
             self.parameter.update_parameter(
                 orchestrator=self.orchestrator,
-                query_url=self.DATA_QUERY_URL,
-                data_url=self.DATA_URL,
-                gitlab_url=self.GIT_URL,
+                query_url=self.data_query_url,
+                data_url=self.data_url,
+                gitlab_url=self.git_url,
                 check_o_url=check_o_url,
                 n_latest=n_latest,
             )
@@ -216,7 +226,7 @@ class OmniObject(OmniRenkuInst):
         out_files = flatten(
             [list(fi["output_files"].values()) for fi in self.outputs.file_mapping]
         )
-        revert_run(out_files=out_files, dataset_name=self.dataset_name)
+        revert_run(out_files=out_files, dataset_slug=self.dataset_slug)
 
     def check_updates(self, n_latest: int = 9, check_o_url: bool = True):
         """Shows what inputs are supposed to be updated- and imported upon omni_obj.update_object()
@@ -249,14 +259,14 @@ class OmniObject(OmniRenkuInst):
         if self.orchestrator is None:
             if self.benchmark_name is not None:
                 self.orchestrator = find_orchestrator(
-                    benchmark_name=self.benchmark_name, bench_url=self.BENCH_URL
+                    benchmark_name=self.benchmark_name, bench_url=self.bench_url
                 )
             if self.orchestrator is None:
                 print(
                     f"WARNING: No orchestrator specified! \n"
                     f"No new datasets will be imported. Consider specifying an orchestrator by running:\n"
                     f"OmniObject.orchestrator = find_orchestrator(BENCHMARK_NAME) \n"
-                    f"Look at {self.BENCH_URL} to get a list of possible BENCHMARK_NAMEs."
+                    f"Look at {self.bench_url} to get a list of possible BENCHMARK_NAMEs."
                 )
                 return
         if self.parameter is None:
@@ -270,20 +280,20 @@ class OmniObject(OmniRenkuInst):
                 ]
             )
         for key in keys:
-            imp_ids, up_names = get_data_url_by_keyword(
+            imp_ids, up_slugs = get_data_url_by_keyword(
                 keyword=key,
-                filter_names=self.inputs.filter_names,
+                filter_slugs=self.inputs.filter_slugs,
                 o_url=self.orchestrator,
                 filter_ex=True,
-                query_url=self.DATA_QUERY_URL,
-                data_url= self.DATA_URL,
-                gitlab_url=self.GIT_URL,
+                query_url=self.data_query_url,
+                data_url= self.data_url,
+                gitlab_url=self.git_url,
                 check_o_url=check_o_url,
                 n_latest=n_latest,
             )
 
             imp_list.append(imp_ids)
-            up_list.append(up_names)
+            up_list.append(up_slugs)
 
         imp_list = flatten(imp_list)
         up_list = flatten(up_list)

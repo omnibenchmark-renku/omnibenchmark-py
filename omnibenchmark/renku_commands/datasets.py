@@ -4,7 +4,8 @@ from typing import Any, TypeVar, Optional, List, Union, Dict
 from pathlib import Path
 from renku.domain_model.dataset import Dataset as RenkuDataSet
 import omnibenchmark.management.general_checks
-from omnibenchmark.management.data_checks import dataset_name_exist, renku_dataset_exist
+from omnibenchmark.utils.default_global_vars import DATA_QUERY_URL
+from omnibenchmark.management.data_checks import dataset_slug_exist, renku_dataset_exist
 from renku.command.dataset import (
     create_dataset_command,
     import_dataset_command,
@@ -21,21 +22,22 @@ logger = logging.getLogger("omnibenchmark.renku_commands")
 
 
 def renku_dataset_create(
-    name: str,
-    kg_url: str,
-    title: Optional[str] = None,
+    slug: str,
+    data_query_url: str = DATA_QUERY_URL,
+    name: Optional[str] = None,
     description: Optional[str] = None,
     creators: Optional[List[str]] = None,
     meta_data: Optional[Dict[str, Any]] = None,
     keyword: Optional[List[str]] = None,
     storage: Optional[str] = None,
-    datadir: Optional[str] = None
+    datadir: Optional[str] = None,
+    check_slug: bool = True,
 ) -> RenkuDataSet:
     """Generate an empty renku dataset in the current project. Works in a renku project only.
 
     Args:
-        name ([str]): Dataset name
-        title (str, optional): Dataset title. Defaults to None.
+        slug ([str]): Dataset name
+        name (str, optional): Dataset name. Defaults to None.
         description (str, optional): Description of the dataset. Defaults to None.
         creators (str, optional): Dataset creator. Defaults to None,
                                   which will be the github account activated for that renku project.
@@ -52,20 +54,20 @@ def renku_dataset_create(
             "No dataset was created."
         )
 
-    if renku_dataset_exist(name):
-        print(f"Dataset {name} already exists in this repository.")
+    if renku_dataset_exist(slug):
+        print(f"Dataset {slug} already exists in this repository.")
         return
 
-    if dataset_name_exist(name, kg_url):
-        print(f"Dataset {name} already taken. Please use a different name.")
+    if check_slug and dataset_slug_exist(slug=slug, data_query_url= data_query_url):
+        print(f"Dataset {slug} already taken. Please use a different slug.")
         return
 
     result = (
         create_dataset_command()
         .build()
         .execute(
+            slug=slug,
             name=name,
-            title=title,
             description=description,
             creators=creators,
             keywords=keyword,
@@ -75,19 +77,22 @@ def renku_dataset_create(
         )
     )
     print(
-        f"Renku dataset with name {name} and the following keywords {keyword} was generated."
+        f"Renku dataset with name {slug} and the following keywords {keyword} was generated."
     )
     return result.output
 
 
 def renku_dataset_import(
-    uri: str, name: Optional[str] = None, extract: bool = False, yes: bool = True, datadir: Optional[str] = None, **kwargs
+    uri: str, slug: Optional[str] = None, extract: bool = False, yes: bool = True, datadir: Optional[str] = None, 
+    previous_dataset: Optional[str] = None,
+    delete: bool = False,
+    gitlab_token: Optional[str] = None,**kwargs
 ):
     """Import renku dataset by url
 
     Args:
         uri (str): URL to the dataset to import
-        name (str, optional): Name of the imported dataset. Defaults to None.
+        slug(str, optional): Slug of the imported dataset. Defaults to None.
         extract (bool, optional): If the dataset is zipped and shall be extracted. Defaults to False.
         yes (bool, optional): Skip manual confirmation. Defaults to True.
 
@@ -101,22 +106,22 @@ def renku_dataset_import(
             "No dataset was imported."
         )
 
-    if name is not None:
-        if renku_dataset_exist(name):
-            logger.info(f"Dataset {name} already exists in this repository.")
+    if slug is not None:
+        if renku_dataset_exist(slug):
+            logger.info(f"Dataset {slug} already exists in this repository.")
             return
 
     result = (
         import_dataset_command()
         .build()
-        .execute(uri=uri, name=name, extract=extract, yes=yes, datadir=datadir, **kwargs)
+        .execute(uri=uri, slug=slug, extract=extract, yes=yes, datadir=datadir, previous_dataset=previous_dataset, delete=delete, gitlab_token=gitlab_token, **kwargs)
     )
 
     return result.output
 
 
 def renku_dataset_update(
-    names: List[str],
+    slugs: List[str],
     creators: Optional[List[str]] = None,
     include: Optional[List[str]] = None,
     exclude: Optional[List[str]] = None,
@@ -132,7 +137,7 @@ def renku_dataset_update(
     """Update an imported renku dataset from source
 
     Args:
-        names (List[str]):name of the dataset
+        slugs (List[str]): Slugs of the dataset
         creators (Optional[List[str]], optional): Original dataset creator. Defaults to None.
         include (Optional[List[str]], optional): Files to include into the update. Defaults to None.
         exclude (Optional[List[str]], optional): Files to exclude from updating. Defaults to None.
@@ -154,7 +159,7 @@ def renku_dataset_update(
 
     if (
         not update_all
-        and len(names) == 0
+        and len(slugs) == 0
         and include is None
         and exclude is None
         and not dry_run
@@ -163,7 +168,7 @@ def renku_dataset_update(
             "Either names, update_all, dry_run, or include/exclude should be specified"
         )
 
-    if len(names) >= 1 and update_all:
+    if len(slugs) >= 1 and update_all:
         raise errors.ParameterError("Cannot pass dataset names with update_all")
     elif (include or exclude is not None) and update_all:
         raise errors.ParameterError("Cannot pass include/exclude with update_all")
@@ -172,7 +177,7 @@ def renku_dataset_update(
         update_datasets_command(dry_run=dry_run)
         .build()
         .execute(
-            names=names,
+            slugs=slugs,
             creators=creators,
             include=include,
             exclude=exclude,
@@ -192,7 +197,7 @@ def renku_dataset_update(
 
 def renku_add_to_dataset(
     urls: List[str],
-    dataset_name: str,
+    dataset_slug: str,
     force: bool = False,
     overwrite: bool = True,
     create: bool = False,
@@ -204,7 +209,7 @@ def renku_add_to_dataset(
 
     Args:
         urls (List[str]): Urls to add
-        dataset_name (str): Name of the dataset
+        dataset_slug (str): Slug of the dataset
         external (bool, optional): Do urls point to external files. Defaults to False.
         force (bool, optional): Force overwriting of files. Defaults to False.
         overwrite (bool, optional): Ovrwrite files. Defaults to True.
@@ -224,14 +229,14 @@ def renku_add_to_dataset(
         )
 
     if datadir is None:
-        datadir = "data/" + dataset_name
+        datadir = "data/" + dataset_slug
 
     result = (
         add_to_dataset_command()
         .build()
         .execute(
             urls=urls,
-            dataset_name=dataset_name,
+            dataset_slug=dataset_slug,
             force=force,
             overwrite=overwrite,
             create=create,
@@ -244,7 +249,7 @@ def renku_add_to_dataset(
 
 
 def renku_unlink_from_dataset(
-    name: str,
+    slug: str,
     include: Optional[List[str]] = None,
     exclude: Optional[List[str]] = None,
     yes: bool = True,
@@ -252,7 +257,7 @@ def renku_unlink_from_dataset(
     """Unlink files from renku dataset
 
     Args:
-        name (str): Dataset name to unlink files from.
+        slug (str): Dataset name to unlink files from.
         include (Optional[str], optional): Pattern of files to include. Defaults to None.
         exclude (Optional[str], optional): Pattern of files to exclude. Defaults to None.
         yes (bool, optional): confirm file unlinking. Defaults to True.
@@ -277,15 +282,15 @@ def renku_unlink_from_dataset(
         )
 
     file_unlink_command().build().execute(
-        name=name, include=include, exclude=exclude, yes=yes
+        slug=slug, include=include, exclude=exclude, yes=yes
     )
 
 
-def renku_dataset_remove(data_name: str):
+def renku_dataset_remove(slug: str):
     """Remove renku dataset from the current project
 
     Args:
-        data_name (str): Name of the dataset to remove from the project
+        slug (str): Slug of the dataset to remove from the project
 
     Raises:
         ProjectError: raised if the project is not a renku project.
@@ -297,4 +302,4 @@ def renku_dataset_remove(data_name: str):
             "No files were added."
         )
 
-    remove_dataset_command().build().execute(data_name)
+    remove_dataset_command().build().execute(slug)

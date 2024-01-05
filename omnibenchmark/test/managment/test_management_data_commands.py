@@ -113,7 +113,7 @@ def test_get_ref_by_dataset_property_filter_names(mock_entity_json, monkeypatch)
     monkeypatch.setattr(requests, "get", mock_get)
 
     res1, res2 = data_commands.get_ref_by_dataset_property(
-        "mock", filter_names="mock_dataset"
+        "mock", filter_slugs="mock_dataset"
     )
     assert res1 == []
     assert res2 == []
@@ -184,7 +184,7 @@ def test_find_dataset_linked_to_wflow(mock_dataset_info):
 
 # filter_duplicated_names
 @pytest.mark.api_call
-def test_filter_duplicated_names_works(
+def test_filter_duplicated_slugs_works(
     mock_dataset_info, monkeypatch, mock_dataset_json
 ):
     mock_copy = mock_dataset_info.copy()
@@ -201,12 +201,12 @@ def test_filter_duplicated_names_works(
 
     monkeypatch.setattr(requests, "get", mock_get)
 
-    uni_dat = data_commands.filter_duplicated_names(info_list)
+    uni_dat = data_commands.filter_duplicated_slugs(info_list)
     assert uni_dat == [mock_copy]
 
 
 @pytest.mark.api_call
-def test_filter_duplicated_names_identical_data(
+def test_filter_duplicated_slugs_identical_data(
     mock_dataset_info, monkeypatch
 ):
     mock_copy = mock_dataset_info.copy()
@@ -215,17 +215,17 @@ def test_filter_duplicated_names_identical_data(
     info_list = [mock_dataset_info, mock_dataset_info]
 
 
-    uni_dat = data_commands.filter_duplicated_names(info_list)
+    uni_dat = data_commands.filter_duplicated_slugs(info_list)
     assert uni_dat == [mock_dataset_info]
 
 
 @pytest.mark.api_call
-def test_filter_duplicated_names_no_dup(
+def test_filter_duplicated_slugs_no_dup(
     mock_dataset_info, monkeypatch
 ):
     info_list = [mock_dataset_info, mock_dataset_info]
 
-    uni_dat = data_commands.filter_duplicated_names(info_list)
+    uni_dat = data_commands.filter_duplicated_slugs(info_list)
     assert uni_dat == [mock_dataset_info]
 
 
@@ -315,7 +315,7 @@ def test_check_orchestrator_existing(monkeypatch, mock_dataset_info):
             return MockResponse()
 
     monkeypatch.setattr(requests, "get", get_project_info)
-    o_check = data_commands.check_orchestrator(mock_dataset_info, o_url="some/url")
+    o_check = data_commands.check_orchestrator(mock_dataset_info, o_url="some/url", gitlab_url='https://gitlab.renkulab.io')
     assert o_check == mock_dataset_info["url"]
 
 
@@ -337,7 +337,7 @@ def test_get_data_url_by_keyword_no_datasets(mock_dataset_json, monkeypatch):
 # link_files_by_prefix
 def test_link_files_by_prefix_existing_file(get_renkuDataset_List, capsys):
     data_commands.link_files_by_prefix(
-        keyword="mock", prefix=["genes"], data_name="some", dry_run=True
+        keyword="mock", prefix=["genes"], data_slug="some", dry_run=True
     )
     captured = capsys.readouterr()
     assert re.match(
@@ -348,7 +348,7 @@ def test_link_files_by_prefix_existing_file(get_renkuDataset_List, capsys):
 
 def test_link_files_by_prefix_non_keyword(get_renkuDataset_List, capsys):
     data_commands.link_files_by_prefix(
-        keyword="quatsch", prefix=["genes"], data_name="some", dry_run=True
+        keyword="quatsch", prefix=["genes"], data_slug="some", dry_run=True
     )
     captured = capsys.readouterr()
     assert re.match(
@@ -359,7 +359,7 @@ def test_link_files_by_prefix_non_keyword(get_renkuDataset_List, capsys):
 
 def test_link_files_by_prefix_prefix_string(get_renkuDataset_List, capsys):
     data_commands.link_files_by_prefix(
-        keyword="mock", prefix="genes", data_name="some", dry_run=True
+        keyword="mock", prefix="genes", data_slug="some", dry_run=True
     )
     captured = capsys.readouterr()
     assert re.match(

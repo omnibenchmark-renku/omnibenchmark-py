@@ -168,7 +168,7 @@ def test_build_omni_output_from_config_no_outputs(mock_config):
 
 
 def test_build_omni_output_from_config_no_name(mock_config):
-    del mock_config["data"]["name"]
+    del mock_config["data"]["slug"]
     with pytest.raises(InputError, match=r"Invalid config file:*?"):
         omni.build_omni_output_from_config(mock_config)
 
@@ -317,11 +317,11 @@ def test_get_omni_object_from_yaml_random_key(monkeypatch, mock_config):
 def test_get_omni_object_from_yaml_type_mismatch(monkeypatch, mock_config):
     def return_mock_config(*args, **kwargs):
         m_conf = mock_config
-        m_conf["data"]["name"] = 10
+        m_conf["data"]["slug"] = 10
         return m_conf
 
     monkeypatch.setattr(yaml, "load", return_mock_config)
-    with pytest.raises(TypeCheckError, match=r"value of key 'name' of value of key 'data' of dict is not an instance of str"):
+    with pytest.raises(TypeCheckError, match=r"value of key 'slug' of value of key 'data' of dict is not an instance of str"):
         omni_obj = omni.get_omni_object_from_yaml(
             "omnibenchmark/test/utils/ex_config.yaml"
         )

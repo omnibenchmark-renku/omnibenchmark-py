@@ -19,12 +19,12 @@ def test_renku_dataset_create_for_existing_dataset(get_renkuDataset_List, monkey
         lambda *args, **kwargs: get_mock_status(),
     )
     return_value = ren_datasets.renku_dataset_create(
-        name="mock_dataset", kg_url="some.url"
+        slug="mock_dataset", data_query_url="some.url"
     )
     assert isinstance(return_value, type(None))
 
 
-def test_renku_dataset_create_for_dataset_name_exist(
+def test_renku_dataset_create_for_dataset_slug_exist(
     mock_dataset_query, monkeypatch, get_renkuDataset_List
 ):
     def get_mock_status():
@@ -37,7 +37,7 @@ def test_renku_dataset_create_for_dataset_name_exist(
     )
 
     return_value = ren_datasets.renku_dataset_create(
-        name="mock_dataset", kg_url="some.url"
+        slug="mock_dataset", data_query_url="some.url"
     )
     assert isinstance(return_value, type(None))
 
@@ -45,19 +45,19 @@ def test_renku_dataset_create_for_dataset_name_exist(
 @pytest.mark.renku_call
 def test_renku_dataset_create_works():
 
-    data_name = "test_omnibench"
+    data_slug = "test_omnibench"
     data_object = ren_datasets.renku_dataset_create(
-        name=data_name, kg_url="https://renkulab.io/knowledge-graph"
+        slug=data_slug
     )
     remove_dataset_command().build().execute("test_omnibench")
 
-    assert data_object.name == data_name
+    assert data_object.slug == data_slug
 
 
 def test_renku_dataset_create_no_project_context(no_project_context):
 
     with pytest.raises(ProjectError, match=r"Directory is not a renku project*?"):
-        ren_datasets.renku_dataset_create(name="mock_dataset", kg_url="some.url")
+        ren_datasets.renku_dataset_create(slug="mock_dataset", data_query_url="some.url")
 
 
 ### Test renku_dataset_import
@@ -72,7 +72,7 @@ def test_renku_dataset_import_works():
 
     data_object = ren_datasets.renku_dataset_import(
         uri="https://renkulab.io/datasets/94638c493af44b5e8bc09b2351f6a8c2",
-        name="test_dataset",
+        slug="test_dataset",
     )
     assert os.path.exists("data/test_dataset/data_info_cellbench.json")
     shutil.rmtree("data/test_dataset", ignore_errors=True)
@@ -83,7 +83,7 @@ def test_renku_dataset_import_works():
 def test_renku_dataset_update_no_project_context(no_project_context):
 
     with pytest.raises(ProjectError, match=r"Directory is not a renku project*?"):
-        ren_datasets.renku_dataset_update(names=["some_dataset", "another_datatset"])
+        ren_datasets.renku_dataset_update(slugs=["some_dataset", "another_datatset"])
 
 
 def test_renku_dataset_update_no_input(monkeypatch):
@@ -96,7 +96,7 @@ def test_renku_dataset_update_no_input(monkeypatch):
         lambda *args, **kwargs: get_mock_status(),
     )
     with pytest.raises(errors.ParameterError, match=r"Either names, update_all*?"):
-        ren_datasets.renku_dataset_update(names=[])
+        ren_datasets.renku_dataset_update(slugs=[])
 
 
 def test_renku_dataset_update_ambigous_inputs(monkeypatch):
@@ -112,7 +112,7 @@ def test_renku_dataset_update_ambigous_inputs(monkeypatch):
     with pytest.raises(
         errors.ParameterError, match=r"Cannot pass dataset names with update_all"
     ):
-        ren_datasets.renku_dataset_update(names=["test2", "something"], update_all=True)
+        ren_datasets.renku_dataset_update(slugs=["test2", "something"], update_all=True)
 
 
 def test_renku_dataset_update_ambigous_inputs2(monkeypatch):
@@ -129,14 +129,14 @@ def test_renku_dataset_update_ambigous_inputs2(monkeypatch):
         errors.ParameterError, match=r"Cannot pass include/exclude with update_all"
     ):
         ren_datasets.renku_dataset_update(
-            names=[], include=["test2", "something"], update_all=True
+            slugs=[], include=["test2", "something"], update_all=True
         )
 
 
 @pytest.mark.renku_call
 def test_renku_dataset_update_works():
 
-    res = ren_datasets.renku_dataset_update(names=[], update_all=True)
+    res = ren_datasets.renku_dataset_update(slugs=[], update_all=True)
     assert res is None
 
 
@@ -145,5 +145,5 @@ def test_renku_add_to_dataset_no_project_context(no_project_context):
 
     with pytest.raises(ProjectError, match=r"Directory is not a renku project*?"):
         ren_datasets.renku_add_to_dataset(
-            urls=["some_dataset", "another_datatset"], dataset_name="some_dataset"
+            urls=["some_dataset", "another_datatset"], dataset_slug="some_dataset"
         )

@@ -108,7 +108,7 @@ def update_workflow_parameter(out_map: OutMapping, workflow: AbstractPlan, map_d
         map_dict[str(file_type)] + "=" + str(file_path)
         for file_type, file_path in file_dict.items()
     ]
-    # apply the provided parameter settings provided by user
+    # apply the parameter settings provided by user
     override_params: Mapping = dict()
 
     for param in params:
@@ -345,7 +345,7 @@ def revert_run(
     out_files: Optional[List[str]] = None,
     in_files: Optional[List[str]] = None,
     plan_id: Optional[str] = None,
-    dataset_name: Optional[str] = None,
+    dataset_slug: Optional[str] = None,
     remove: bool = True,
 ):
     """Remove a plan and revert all associated activities. Basically revert all actions of a specific omni_obj.run_renku().
@@ -354,7 +354,7 @@ def revert_run(
         out_files (Optional[List[str]], optional): Output files associated to the activities to revert. Defaults to None.
         in_files (Optional[List[str]], optional): Input files associated to the activities to revert. Defaults to None.
         plan_id (Optional[str], optional): Plan to revert including all associated activities. Defaults to None.
-        dataset_name (Optional[str], optional): Dataset names if outputs shall be unlinked before. Defaults to None.
+        dataset_slug (Optional[str], optional): Dataset slug if outputs shall be unlinked before. Defaults to None.
         remove (bool, optional): Shall output files automatically be deleted. Defaults to True.
 
     Raises:
@@ -402,9 +402,9 @@ def revert_run(
         )
         return
 
-    if dataset_name is not None:
+    if dataset_slug is not None:
         unlink_dataset_files(
-            out_files=out_fis, dataset_name=dataset_name, remove=remove
+            out_files=out_fis, dataset_slug=dataset_slug, remove=remove
         )
 
     # revert activities
