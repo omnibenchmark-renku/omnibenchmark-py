@@ -76,7 +76,7 @@ def dataset_slug_exist(slug: str, data_query_url: str = DATA_QUERY_URL) -> bool:
         ]
         nl = "\n"
         print(
-            f"A dataset with a complete match of {slug} already exist.\n" 
+            f"A dataset with a complete match of {slug} already exist.\n" # type:ignore
             f"Conflicting dataset name(s): {nl}{nl.join(conflicting)}.\n" # type:ignore
         )
         return True
